@@ -1,0 +1,89 @@
+/* GameFactory UIFX — helper styles for effects. Import once. Theme via CSS variables. */
+:root {
+  --uifx-shine-color: rgba(255, 255, 255, 0.85);
+  --uifx-coin-a: #ffe066;
+  --uifx-coin-b: #f2a900;
+  --uifx-float-color: #ffffff;
+  --uifx-float-stroke: rgba(0, 0, 0, 0.55);
+  --uifx-progress-fill: linear-gradient(180deg, #7ee26b, #3fb34f);
+  --uifx-progress-ghost: rgba(255, 255, 255, 0.75);
+  --uifx-depth-color: rgba(0, 0, 0, 0.28);
+}
+
+/* effects that need clipping (ripple, shine) */
+.uifx-clip { position: relative; overflow: hidden; isolation: isolate; }
+
+/* overlay layer for floating text, flying coins, stars, confetti */
+#uifx-layer { position: fixed; inset: 0; pointer-events: none; z-index: 2147483000; overflow: hidden; }
+.uifx-confetti { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* Ripple */
+.uifx-ripple { position: absolute; border-radius: 50%; pointer-events: none; z-index: 0; }
+
+/* Glossy shine bar */
+.uifx-shine {
+  position: absolute; top: -50%; left: 0; height: 200%; pointer-events: none; z-index: 1;
+  translate: -150% 0;
+  background: linear-gradient(90deg, transparent, var(--uifx-shine-color), transparent);
+  mix-blend-mode: soft-light;
+}
+@supports not (mix-blend-mode: soft-light) { .uifx-shine { mix-blend-mode: normal; opacity: 0.35; } }
+
+/* Glow layer */
+.uifx-glow { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: -1; opacity: 0; }
+
+/* Hover tilt (3D). Uses transform on opted-in elements only; scale/translate stay independent. */
+.uifx-tilt {
+  transform: perspective(700px) rotateX(var(--uifx-rx, 0deg)) rotateY(var(--uifx-ry, 0deg));
+  transform-style: preserve-3d;
+  will-change: transform, scale;
+}
+.uifx-tilt::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(circle at var(--uifx-gx, 50%) var(--uifx-gy, 50%), rgba(255, 255, 255, 0.9), transparent 55%);
+  opacity: var(--uifx-glare, 0); mix-blend-mode: soft-light; transition: opacity 0.2s;
+}
+.uifx-tilt { position: relative; }
+
+/* Press depth: 3D button with a bottom edge that shrinks when pressed */
+.uifx-depth { box-shadow: 0 var(--uifx-depth, 4px) 0 var(--uifx-depth-color); transition: box-shadow 0.06s; }
+.uifx-depth[data-uifx-pressed] { box-shadow: 0 0 0 var(--uifx-depth-color); }
+
+/* Backdrop */
+.uifx-backdrop { position: fixed; inset: 0; }
+
+/* Floating text */
+.uifx-float {
+  position: absolute; translate: -50% -50%; white-space: nowrap;
+  font: 900 28px/1 system-ui, sans-serif; color: var(--uifx-float-color);
+  -webkit-text-stroke: 1.5px var(--uifx-float-stroke); paint-order: stroke fill;
+  text-shadow: 0 3px 0 var(--uifx-float-stroke);
+}
+
+/* Flying coin */
+.uifx-fly { position: absolute; translate: -50% -50%; will-change: translate, scale; }
+.uifx-coin {
+  display: block; width: 26px; height: 26px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff8c4 0 18%, var(--uifx-coin-a) 19% 55%, var(--uifx-coin-b) 56%);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Star particle */
+.uifx-star {
+  position: absolute; translate: -50% -50%;
+  clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+/* Text split */
+.uifx-char { display: inline-block; will-change: translate, scale; }
+
+/* Progress bar */
+.uifx-progress { position: relative; overflow: hidden; }
+.uifx-progress-fill, .uifx-progress-ghost {
+  position: absolute; inset: 0; transform-origin: left center; scale: 0 1; border-radius: inherit;
+}
+.uifx-progress-fill { background: var(--uifx-progress-fill); }
+.uifx-progress-ghost { background: var(--uifx-progress-ghost); }
+
+/* Reduced motion (attribute is set by configure() from OS setting or forced mode) */
+:root[data-uifx-reduced] .uifx-shine { display: none; }

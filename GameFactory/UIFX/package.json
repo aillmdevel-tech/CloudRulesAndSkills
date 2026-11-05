@@ -1,0 +1,17 @@
+{
+  "name": "gamefactory-uifx",
+  "private": true,
+  "version": "1.0.0",
+  "description": "GameFactory UIFX: game UI motion presets + CC0 UI sounds + demo",
+  "type": "module",
+  "scripts": {
+    "demo": "vite",
+    "build:demo": "vite build",
+    "typecheck": "tsc --noEmit",
+    "sounds": "python3 tools/synth_sounds.py sources/synth && python3 tools/build_sounds.py"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vite": "7.3.7"
+  }
+}

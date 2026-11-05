@@ -1,0 +1,236 @@
+{
+  "version": 3,
+  "skills": {
+    "add-effects": {
+      "source": "playcanvas/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/playcanvas/skills.git",
+      "skillPath": "skills/add-effects/SKILL.md",
+      "skillFolderHash": "88d6506c78dc1e725ec52b97a58e6b8987a17b0e",
+      "pluginName": "playcanvas",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:08.714Z",
+      "updatedAt": "2026-11-04T14:34:08.714Z"
+    },
+    "apply-conventions": {
+      "source": "playcanvas/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/playcanvas/skills.git",
+      "skillPath": "skills/apply-conventions/SKILL.md",
+      "skillFolderHash": "55ed4ebde8ba85f82e80b297b65c695e3f9a9c83",
+      "pluginName": "playcanvas",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:08.717Z",
+      "updatedAt": "2026-11-04T14:34:08.717Z"
+    },
+    "assemble-scene": {
+      "source": "playcanvas/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/playcanvas/skills.git",
+      "skillPath": "skills/assemble-scene/SKILL.md",
+      "skillFolderHash": "9540792068da39ea748cff9eff0e133ea20fc5ff",
+      "pluginName": "playcanvas",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:08.718Z",
+      "updatedAt": "2026-11-04T14:34:08.718Z"
+    },
+    "bake-lighting": {
+      "source": "playcanvas/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/playcanvas/skills.git",
+      "skillPath": "skills/bake-lighting/SKILL.md",
+      "skillFolderHash": "a441b7873ddbdf20f9430579a79fe38451d0d9bf",
+      "pluginName": "playcanvas",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:08.718Z",
+      "updatedAt": "2026-11-04T14:34:08.718Z"
+    },
+    "build-app": {
+      "source": "playcanvas/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/playcanvas/skills.git",
+      "skillPath": "skills/build-app/SKILL.md",
+      "skillFolderHash": "7ab20806cdf0a698214f775ca0cebd0e8e6256a5",
+      "pluginName": "playcanvas",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:08.719Z",
+      "updatedAt": "2026-11-04T14:34:08.719Z"
+    },
+    "calibrate-model": {
+      "source": "playcanvas/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/playcanvas/skills.git",
+      "skillPath": "skills/calibrate-model/SKILL.md",
+      "skillFolderHash": "2f41ba0b3b992af3fc56479ca7d38bae1e167386",
+      "pluginName": "playcanvas",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:08.720Z",
+      "updatedAt": "2026-11-04T14:34:08.720Z"
+    },
+    "configure-animation": {
+      "source": "playcanvas/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/playcanvas/skills.git",
+      "skillPath": "skills/configure-animation/SKILL.md",
+      "skillFolderHash": "cdf28cf18ff4527bc1ad93fc01892590b4c722f5",
+      "pluginName": "playcanvas",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:08.721Z",
+      "updatedAt": "2026-11-04T14:34:08.721Z"
+    },
+    "find-examples": {
+      "source": "playcanvas/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/playcanvas/skills.git",
+      "skillPath": "skills/find-examples/SKILL.md",
+      "skillFolderHash": "a804b09920c3712d1a6c33711b9cac9e921cedc8",
+      "pluginName": "playcanvas",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:08.721Z",
+      "updatedAt": "2026-11-04T14:34:08.721Z"
+    },
+    "inspect-glb": {
+      "source": "playcanvas/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/playcanvas/skills.git",
+      "skillPath": "skills/inspect-glb/SKILL.md",
+      "skillFolderHash": "e6a39a1e02e281a420b516c7cad758f34b7d403a",
+      "pluginName": "playcanvas",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:08.722Z",
+      "updatedAt": "2026-11-04T14:34:08.722Z"
+    },
+    "inspect-runtime": {
+      "source": "playcanvas/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/playcanvas/skills.git",
+      "skillPath": "skills/inspect-runtime/SKILL.md",
+      "skillFolderHash": "e72f23bb6e7aff7de190a037e59e938cae494304",
+      "pluginName": "playcanvas",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:08.723Z",
+      "updatedAt": "2026-11-04T14:34:08.723Z"
+    },
+    "light-scene": {
+      "source": "playcanvas/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/playcanvas/skills.git",
+      "skillPath": "skills/light-scene/SKILL.md",
+      "skillFolderHash": "f7fd285a4f641b7145451b5ed599904315340868",
+      "pluginName": "playcanvas",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:08.725Z",
+      "updatedAt": "2026-11-04T14:34:08.725Z"
+    },
+    "load-assets": {
+      "source": "playcanvas/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/playcanvas/skills.git",
+      "skillPath": "skills/load-assets/SKILL.md",
+      "skillFolderHash": "0a69848bb0197c996886b4878c6970a623f42b22",
+      "pluginName": "playcanvas",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:08.726Z",
+      "updatedAt": "2026-11-04T14:34:08.726Z"
+    },
+    "override-shader-chunks": {
+      "source": "playcanvas/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/playcanvas/skills.git",
+      "skillPath": "skills/override-shader-chunks/SKILL.md",
+      "skillFolderHash": "f2093550349c36b82fb7cb5e02b38727e7030336",
+      "pluginName": "playcanvas",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:08.727Z",
+      "updatedAt": "2026-11-04T14:34:08.727Z"
+    },
+    "reduce-draw-calls": {
+      "source": "playcanvas/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/playcanvas/skills.git",
+      "skillPath": "skills/reduce-draw-calls/SKILL.md",
+      "skillFolderHash": "d55e26bff01887fd771da4c0d05b2406ba365030",
+      "pluginName": "playcanvas",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:08.729Z",
+      "updatedAt": "2026-11-04T14:34:08.729Z"
+    },
+    "reuse-scripts": {
+      "source": "playcanvas/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/playcanvas/skills.git",
+      "skillPath": "skills/reuse-scripts/SKILL.md",
+      "skillFolderHash": "60b73bacb4bfe1bd886c0894961d7928c2e1f733",
+      "pluginName": "playcanvas",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:08.731Z",
+      "updatedAt": "2026-11-04T14:34:08.731Z"
+    },
+    "verify-pixels": {
+      "source": "playcanvas/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/playcanvas/skills.git",
+      "skillPath": "skills/verify-pixels/SKILL.md",
+      "skillFolderHash": "1402e350ecd41838eb0f2ab3a4dea807715d4117",
+      "pluginName": "playcanvas",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:08.732Z",
+      "updatedAt": "2026-11-04T14:34:08.732Z"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "skillFolderHash": "d79e2a5bb4df4a386c2adcdd9ab8709bba28c3f6",
+      "pluginName": "example-skills",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:24.555Z",
+      "updatedAt": "2026-11-04T14:34:24.555Z"
+    },
+    "webapp-testing": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/webapp-testing/SKILL.md",
+      "skillFolderHash": "5ffb7dc66b9fd4c25c3e400a4c00da99a349b714",
+      "pluginName": "example-skills",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:24.560Z",
+      "updatedAt": "2026-11-04T14:34:24.560Z"
+    },
+    "grill-me": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/mattpocock/skills.git",
+      "skillPath": "skills/productivity/grill-me/SKILL.md",
+      "skillFolderHash": "3df14e2d3a89459bf300614be9247e3ce74798f8",
+      "pluginName": "mattpocock-skills",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:28.755Z",
+      "updatedAt": "2026-11-04T14:34:28.755Z"
+    },
+    "grilling": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/mattpocock/skills.git",
+      "skillPath": "skills/productivity/grilling/SKILL.md",
+      "skillFolderHash": "f551b6e0d219fdda0b6abf277f8f915b3127d1e9",
+      "pluginName": "mattpocock-skills",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:28.758Z",
+      "updatedAt": "2026-11-04T14:34:28.758Z"
+    },
+    "frontend-visual-qa": {
+      "source": "daymade/claude-code-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/daymade/claude-code-skills.git",
+      "skillPath": "frontend-visual-qa/SKILL.md",
+      "skillFolderHash": "d43962737f5cdf9acca796f3667205b775d736b0",
+      "installMode": "copy",
+      "installedAt": "2026-11-04T14:34:42.657Z",
+      "updatedAt": "2026-11-04T14:34:42.657Z"
+    }
+  },
+  "dismissed": {}
+}

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UIFX Demo</title>
+  <link rel="stylesheet" href="./demo.css" />
+</head>
+<body>
+  <header class="top">
+    <h1>UIFX <small>GameFactory · анимации и звуки игрового UI</small></h1>
+    <div class="controls">
+      <label>Стиль <select id="style"></select></label>
+      <label>Громкость <input id="vol" type="range" min="0" max="1" step="0.01" /></label>
+      <label class="chk"><input id="mute" type="checkbox" /> без звука</label>
+      <label>Reduced motion
+        <select id="rm"><option value="auto">как в ОС</option><option value="full">полная анимация</option><option value="reduce">уменьшить</option></select>
+      </label>
+      <label>Интенсивность <input id="intensity" type="range" min="0" max="2" step="0.05" /> <output id="intensityOut"></output></label>
+      <label>Скорость <input id="speed" type="range" min="0.25" max="3" step="0.05" /> <output id="speedOut"></output></label>
+      <button id="export" class="ghost">Экспорт конфига</button>
+    </div>
+    <p id="styleDesc" class="desc"></p>
+  </header>
+
+  <nav class="tabs">
+    <a href="#game">Игровой пример</a><a href="#effects">Эффекты</a><a href="#sounds">Звуки</a>
+  </nav>
+
+  <section id="game">
+    <h2>Игровой пример <small>события стиля: кнопки, окна, награды, ошибки</small></h2>
+    <div class="scene-wrap">
+      <div id="scene" class="scene"><div class="sun"></div><div class="hill h1"></div><div class="hill h2"></div></div>
+      <div class="hud">
+        <div class="hud-top">
+          <div class="pill"><span class="uifx-coin"></span><span id="coins" data-uifx-counter>250</span></div>
+          <div class="xp"><span>LVL <b id="lvl">3</b></span><div id="xpbar" class="bar"></div></div>
+          <button id="bell" class="icon-btn" data-uifx="button" title="Уведомления">🔔<i class="badge" id="badge">3</i></button>
+        </div>
+        <h3 id="title" class="game-title">SKY ISLAND</h3>
+        <div class="hud-center">
+          <button id="play" class="btn big green" data-uifx="button cta">PLAY</button>
+        </div>
+        <div class="hud-bottom">
+          <button id="shopBtn" class="btn blue" data-uifx="button">🛒 Shop</button>
+          <button id="chestBtn" class="btn gold" data-uifx="button">🎁 Claim</button>
+          <button id="lvlBtn" class="btn purple" data-uifx="button">⭐ Level up</button>
+          <button id="buyBtn" class="btn gray" data-uifx="button" aria-disabled="true">🔒 5000</button>
+          <button id="panelBtn" class="btn blue" data-uifx="button">☰ Panel</button>
+          <button id="toastBtn" class="btn blue" data-uifx="button">💬 Toast</button>
+          <label class="switch"><input id="sw" type="checkbox" /><span class="knob"></span></label>
+          <button id="dmgBtn" class="btn red" data-uifx="button">💥 XP −</button>
+        </div>
+      </div>
+      <div id="overlay" class="overlay" hidden></div>
+      <div id="shop" class="window" hidden>
+        <div class="win-head"><b>SHOP</b><button id="closeShop" class="icon-btn small" data-uifx="button">✕</button></div>
+        <div id="shopList" class="grid">
+          <div class="item">🗡️<span>Sword</span></div><div class="item">🛡️<span>Shield</span></div>
+          <div class="item">🧪<span>Potion</span></div><div class="item">🐲<span>Pet</span></div>
+          <div class="item">🎩<span>Hat</span></div><div class="item">🚀<span>Boost</span></div>
+        </div>
+        <button id="buyItem" class="btn green wide" data-uifx="button">Buy — 100</button>
+      </div>
+      <aside id="panel" class="side" hidden>
+        <b>Settings</b><p>Панель вылетает справа (panel.in / panel.out).</p>
+        <button id="closePanel" class="btn blue" data-uifx="button">Close</button>
+      </aside>
+      <div id="toast" class="toast" hidden>🎉 Daily reward is ready!</div>
+    </div>
+  </section>
+
+  <section id="effects">
+    <h2>Эффекты <small>каждый настраивается; hover/press-эффекты работают на карточке вживую</small></h2>
+    <div id="fxFilter" class="filter"></div>
+    <div id="fxGrid" class="fx-grid"></div>
+  </section>
+
+  <section id="sounds">
+    <h2>Звуки <small>CC0 — Kenney + собственные синтезированные; клик — проиграть</small></h2>
+    <div id="buses" class="buses"></div>
+    <div id="soundGrid"></div>
+  </section>
+
+  <dialog id="exportDlg"><pre id="exportPre"></pre><form method="dialog"><button class="btn blue">OK</button></form></dialog>
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>
