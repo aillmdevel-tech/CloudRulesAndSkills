@@ -1,6 +1,6 @@
 ---
 name: chat-handoff
-description: Use when the user is moving work to a new chat or resuming in one — "перехожу в новый чат", "собери контекст", "передай контекст", "сохрани контекст для нового чата", "подготовь передачу", "handoff", and in a fresh chat "продолжи работу", "продолжаем", "continue", "где мы остановились". Save mode writes an up-to-date docs/PROJECT_STATE.md in the project root so a new agent in the same folder understands everything; resume mode reads it and continues from the next step without asking for a re-brief. Also use at the end of a stage when the context is large (≥ ~400k tokens or after 2 compactions) to tell the user to switch chats.
+description: Use when the user is moving work to a new chat or resuming in one — "перехожу в новый чат", "собери контекст", "передай контекст", "сохрани контекст для нового чата", "подготовь передачу", "handoff", and in a fresh chat "продолжи работу", "продолжаем", "continue", "где мы остановились". Save mode writes an up-to-date docs/PROJECT_STATE.md in the project root so a new agent in the same folder understands everything; resume mode reads it and continues from the next step without asking for a re-brief. Also use at the end of a stage when the context is large (≥ ~150k tokens or after 2 compactions) to tell the user to switch chats.
 ---
 
 # Chat handoff (save → new chat → «продолжи работу»)
@@ -49,6 +49,6 @@ History belongs in the project's own chronology file (e.g. `docs/PROGRESS.md`) i
 
 At the end of each stage / fix batch (before the commit), check context usage (the session usage tool,
 e.g. `get_usage`, if available). Propose switching — after running Save mode — when any holds:
-≥ ~400k tokens used, the chat was compacted 2+ times, or the next step is a big new stage. Otherwise
+≥ ~150k tokens used, the chat was compacted 2+ times, or the next step is a big new stage. Otherwise
 keep the state file current anyway, so a switch at any moment loses nothing. Don't rely on `/compact`
 for continuity: its summary is lossy.

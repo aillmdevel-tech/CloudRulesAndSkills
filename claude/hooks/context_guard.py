@@ -6,15 +6,15 @@
   context_guard.py start    # SessionStart (startup/resume/compact): if the project has
                             # docs/PROJECT_STATE.md, reminds the model to read it first
 
-Thresholds (tokens) via env: CONTEXT_GUARD_WARN (default 350000), CONTEXT_GUARD_HARD (450000).
+Thresholds (tokens) via env: CONTEXT_GUARD_WARN (default 150000), CONTEXT_GUARD_HARD (200000).
 """
 import json
 import os
 import sys
 import tempfile
 
-WARN = int(os.environ.get("CONTEXT_GUARD_WARN", "350000"))
-HARD = int(os.environ.get("CONTEXT_GUARD_HARD", "450000"))
+WARN = int(os.environ.get("CONTEXT_GUARD_WARN", "150000"))
+HARD = int(os.environ.get("CONTEXT_GUARD_HARD", "200000"))
 
 
 def out(event, text):
