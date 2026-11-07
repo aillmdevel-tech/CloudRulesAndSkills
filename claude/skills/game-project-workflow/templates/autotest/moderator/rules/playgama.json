@@ -1,0 +1,927 @@
+{
+ "platform": "playgama",
+ "title": "Playgama",
+ "source": "https://wiki.playgama.com/playgama/game-requirements.md (get_game_checklist, 2026-11-07)",
+ "note": "Номера — из официальных Game Requirements Playgama. Правила 1.4.x/1.6.6 — только если в заявке выбраны мобильные устройства.",
+ "rules": [
+  {
+   "id": "1.1.1",
+   "title": "Игра использует актуальную версию Bridge SDK",
+   "type": "auto",
+   "check": "bridge_version",
+   "needs": [
+    "static"
+   ],
+   "fix": "package.json"
+  },
+  {
+   "id": "1.1.2",
+   "title": "Выполнены все Required steps SDK (1–8, см. подпункты в деталях)",
+   "type": "auto",
+   "check": "bridge_required_steps",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "src/platform/Platform.ts, index.html, public/playgama-bridge-config.json"
+  },
+  {
+   "id": "1.2.1",
+   "title": "Регистрация/авторизация на внешних сервисах не нужна для игры",
+   "type": "auto",
+   "check": "no_auth",
+   "needs": [
+    "static"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "1.2.2",
+   "title": "Игра не заставляет и не предлагает автоматически войти при запуске",
+   "type": "auto",
+   "check": "no_auth",
+   "needs": [
+    "static"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "1.2.3",
+   "title": "Если вход есть — он работает и не блокирует игру",
+   "type": "auto",
+   "check": "no_auth",
+   "needs": [
+    "static"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "1.2.4",
+   "title": "Нет внешней аналитики (GA4 и т.п.)",
+   "type": "auto",
+   "check": "no_analytics",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "index.html, src/"
+  },
+  {
+   "id": "1.2.5",
+   "title": "Игра не грузит внешние ресурсы: всё внутри архива",
+   "type": "auto",
+   "check": "no_external_requests",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "vite.config.ts, index.html"
+  },
+  {
+   "id": "1.2.6",
+   "title": "Ссылки на соцсети/сайты только при platform.isExternalLinksAllowed",
+   "type": "auto",
+   "check": "no_external_links",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "src/ui/"
+  },
+  {
+   "id": "1.2.7",
+   "title": "Нет технических ограничений работы по URL, с которого открыта игра",
+   "type": "auto",
+   "check": "no_url_lock",
+   "needs": [
+    "static"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "1.3.1",
+   "title": "Общий размер файлов ≤ 300 MB",
+   "type": "auto",
+   "check": "size_300mb",
+   "needs": [
+    "static"
+   ],
+   "fix": "vite.config.ts"
+  },
+  {
+   "id": "1.3.2",
+   "title": "index.html в корне архива, имена файлов и папок — только латиница",
+   "type": "auto",
+   "check": "index_and_names",
+   "needs": [
+    "static"
+   ],
+   "fix": "dist/"
+  },
+  {
+   "id": "1.3.3",
+   "title": "Пик памяти при старте < 2 GB",
+   "type": "manual",
+   "check": "memory_start",
+   "needs": [
+    "boot"
+   ],
+   "fix": "",
+   "note": "Автопроверка JS-кучи как справка; GPU/процесс замеряет автопроверка архива Playgama."
+  },
+  {
+   "id": "1.4.1",
+   "title": "Мобильные: полноэкранный режим",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Игра заявлена только для десктопа (мобильного управления нет, решение Alex). Если в заявке выбраны мобильные — правила 1.4.x обязательны."
+  },
+  {
+   "id": "1.4.2",
+   "title": "Мобильные: клавиатура при вводе в поле",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Только для мобильных. В игре нет полей ввода."
+  },
+  {
+   "id": "1.4.3",
+   "title": "Мобильные: ориентация и заглушка поворота",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Только для мобильных."
+  },
+  {
+   "id": "1.4.4",
+   "title": "Мобильные: управление жестами",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Только для мобильных; touch-управления в игре нет."
+  },
+  {
+   "id": "1.4.5",
+   "title": "Мобильные: долгое нажатие не выделяет текст и не открывает меню",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Только для мобильных."
+  },
+  {
+   "id": "1.4.6",
+   "title": "Мобильные: нет предупреждений WebGL/движка при старте",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Только для мобильных."
+  },
+  {
+   "id": "1.5.1",
+   "title": "Десктоп: игра полностью управляется клавиатурой и/или мышью",
+   "type": "auto",
+   "check": "keyboard_works",
+   "needs": [
+    "boot"
+   ],
+   "fix": "src/game/"
+  },
+  {
+   "id": "1.5.2",
+   "title": "Десктоп: игра не использует Esc",
+   "type": "auto",
+   "check": "no_escape",
+   "needs": [
+    "static"
+   ],
+   "fix": "src/main.ts, src/ui/"
+  },
+  {
+   "id": "1.5.3",
+   "title": "Если есть мобильная версия — работают обе схемы управления",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Мобильной версии нет."
+  },
+  {
+   "id": "1.6.1",
+   "title": "Игра заполняет доступную область на любом размере/пропорции, элементы не деформируются",
+   "type": "auto",
+   "check": "sizes_fill",
+   "needs": [
+    "sizes"
+   ],
+   "fix": "src/render/Renderer.ts, src/ui/"
+  },
+  {
+   "id": "1.6.2",
+   "title": "Активное поле не выходит за экран, элементы не обрезаны",
+   "type": "auto",
+   "check": "sizes_overflow",
+   "needs": [
+    "sizes"
+   ],
+   "fix": "src/ui/"
+  },
+  {
+   "id": "1.6.3",
+   "title": "Нет прокрутки страницы браузера",
+   "type": "auto",
+   "check": "sizes_noscroll",
+   "needs": [
+    "sizes"
+   ],
+   "fix": "index.html, CSS"
+  },
+  {
+   "id": "1.6.4",
+   "title": "Элементы и тексты не перекрывают друг друга",
+   "type": "manual",
+   "check": "sizes_overlap_manual",
+   "needs": [
+    "sizes"
+   ],
+   "fix": "src/ui/",
+   "note": "Смотри скриншоты tools/out/moderator/sizes/."
+  },
+  {
+   "id": "1.6.5",
+   "title": "У всех всплывающих окон есть крест или кнопка закрытия",
+   "type": "auto",
+   "check": "popups_close",
+   "needs": [
+    "boot"
+   ],
+   "fix": "src/ui/windows/"
+  },
+  {
+   "id": "1.6.6",
+   "title": "Управление одной рукой, без доп. прокрутки",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Только для мобильных."
+  },
+  {
+   "id": "1.6.7",
+   "title": "Текст читаем при любом размере экрана",
+   "type": "manual",
+   "check": "sizes_overlap_manual",
+   "needs": [
+    "sizes"
+   ],
+   "fix": "src/ui/",
+   "note": "Смотри скриншоты размеров."
+  },
+  {
+   "id": "1.6.8",
+   "title": "В квадратном окне 1:1 игра заполняет область без полос и перекрытий",
+   "type": "auto",
+   "check": "sizes_square",
+   "needs": [
+    "sizes"
+   ],
+   "fix": "src/render/Renderer.ts"
+  },
+  {
+   "id": "1.7.1",
+   "title": "Нет технических сообщений, ошибок, крашей, зависаний (поворот, сворачивание, реклама, resize…)",
+   "type": "auto",
+   "check": "no_errors_all",
+   "needs": [
+    "boot",
+    "ads",
+    "pause",
+    "sizes",
+    "persist"
+   ],
+   "fix": "см. список ошибок в детали"
+  },
+  {
+   "id": "1.7.2",
+   "title": "Игру можно пройти: уровни проходятся, нигде не застрять",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Нужен ручной плейтест (смоук проверяет только лобби→Stage 1→падение)."
+  },
+  {
+   "id": "1.7.3",
+   "title": "Работает в Chrome, Firefox, Opera, Safari, Edge; Windows, macOS, Android, iOS",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Автопроверка — только Chromium (Chrome, macOS). Остальное вручную."
+  },
+  {
+   "id": "1.8.1",
+   "title": "Системный видеоплеер не появляется",
+   "type": "auto",
+   "check": "no_video",
+   "needs": [
+    "static"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "1.8.2",
+   "title": "Видео внутри архива, без YouTube и т.п.",
+   "type": "auto",
+   "check": "no_video",
+   "needs": [
+    "static"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "2.1.1",
+   "title": "Нет рекламы третьих сторон; реклама только через Bridge",
+   "type": "auto",
+   "check": "no_external_requests",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "2.1.2",
+   "title": "Игра показывает interstitial",
+   "type": "auto",
+   "check": "interstitial_shown",
+   "needs": [
+    "ads"
+   ],
+   "fix": "src/main.ts (backToLobby)"
+  },
+  {
+   "id": "2.1.3",
+   "title": "Реклама только на логических паузах, не прерывает геймплей",
+   "type": "auto",
+   "check": "ads_not_in_gameplay",
+   "needs": [
+    "boot",
+    "ads"
+   ],
+   "fix": "src/main.ts"
+  },
+  {
+   "id": "2.1.4",
+   "title": "Рекламные блоки не появляются под пальцем/курсором поверх нужного элемента",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Реклама показывается платформой; проверить в QA Tool."
+  },
+  {
+   "id": "2.1.5",
+   "title": "Ориентация рекламных блоков совпадает с ориентацией игры",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Решает платформа."
+  },
+  {
+   "id": "2.1.6",
+   "title": "Во время полноэкранной рекламы звук и геймплей на паузе; после — игра продолжается",
+   "type": "auto",
+   "check": "ads_pause_resume",
+   "needs": [
+    "ads"
+   ],
+   "fix": "src/platform/Platform.ts, src/audio/Sfx.ts, src/main.ts"
+  },
+  {
+   "id": "2.1.7",
+   "title": "Если реклама не загрузилась — игра продолжается",
+   "type": "auto",
+   "check": "ads_fail_continue",
+   "needs": [
+    "ads"
+   ],
+   "fix": "src/platform/Platform.ts"
+  },
+  {
+   "id": "2.2.1",
+   "title": "Rewarded — opt-in, кнопка ясно говорит про рекламу и награду",
+   "type": "auto",
+   "check": "rewarded_button_text",
+   "needs": [
+    "ads"
+   ],
+   "fix": "src/main.ts (setHudText)"
+  },
+  {
+   "id": "2.2.2",
+   "title": "От rewarded можно отказаться и продолжить играть",
+   "type": "auto",
+   "check": "rewarded_decline",
+   "needs": [
+    "ads"
+   ],
+   "fix": "src/ui/windows/"
+  },
+  {
+   "id": "2.2.3",
+   "title": "Награда — бонус, не мешает продолжить игру",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Бусты: +N Levels, x2 Train, revive раз за попытку — допустимые типы из списка правила."
+  },
+  {
+   "id": "2.2.4",
+   "title": "Revive и т.п. предлагается не чаще раза за попытку",
+   "type": "auto",
+   "check": "revive_once",
+   "needs": [
+    "static"
+   ],
+   "fix": "src/main.ts (reviveUsed)"
+  },
+  {
+   "id": "2.2.5",
+   "title": "Награда только за досмотренную рекламу и равна обещанной; при отмене/ошибке игра играбельна",
+   "type": "auto",
+   "check": "rewarded_grant",
+   "needs": [
+    "ads"
+   ],
+   "fix": "src/main.ts (adReward), src/platform/Platform.ts"
+  },
+  {
+   "id": "2.3.1",
+   "title": "Только баннеры Bridge; кастомных/полноэкранных баннеров нет",
+   "type": "auto",
+   "check": "banner_bridge_only",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "src/main.ts"
+  },
+  {
+   "id": "2.3.2",
+   "title": "Баннеры не закрывают интерактивные элементы",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Sticky-баннер показывается только пока открыто меню (syncAdUi); проверить визуально в QA Tool."
+  },
+  {
+   "id": "2.4.1",
+   "title": "Платежи только через Bridge payments; микротранзакций нет",
+   "type": "auto",
+   "check": "no_payments",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "2.4.2",
+   "title": "Цены в валюте платформы из каталога",
+   "type": "auto",
+   "check": "no_payments",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "2.4.3",
+   "title": "Покупка выдаётся только после успешной оплаты",
+   "type": "auto",
+   "check": "no_payments",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "2.4.4",
+   "title": "Consumable потребляется сразу после выдачи",
+   "type": "auto",
+   "check": "no_payments",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "2.4.5",
+   "title": "При старте проверяются неоформленные покупки",
+   "type": "auto",
+   "check": "no_payments",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "2.4.6",
+   "title": "Постоянные покупки восстанавливаются, нельзя купить дважды",
+   "type": "auto",
+   "check": "no_payments",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "2.5.1",
+   "title": "Нет выигрышей/выводов реальных денег и призов",
+   "type": "auto",
+   "check": "no_payments",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "2.5.2",
+   "title": "Игра — не магазин, не азартная игра, не лотерея",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Контент игры: лазание + прокачка, азарта нет."
+  },
+  {
+   "id": "3.1.1",
+   "title": "Игра подходит под критерии (прогресс / механики / сюжет)",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Есть прогресс (уровни, wins, ребёрты) и управление персонажем."
+  },
+  {
+   "id": "3.1.2",
+   "title": "Растущая сложность и понятный сеттинг",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Оценка вручную."
+  },
+  {
+   "id": "3.1.3",
+   "title": "Управление и цель объясняются туториалом, не стеной текста",
+   "type": "auto",
+   "check": "tutorial",
+   "needs": [
+    "boot"
+   ],
+   "fix": "src/game/Tutorial.ts"
+  },
+  {
+   "id": "3.2.1",
+   "title": "Сохранения только через Bridge storage (без localStorage/sessionStorage/IndexedDB/cookies)",
+   "type": "auto",
+   "check": "storage_only_bridge",
+   "needs": [
+    "static",
+    "boot",
+    "persist"
+   ],
+   "fix": "src/main.ts, src/game/Economy.ts, src/ui/SoundSettings.ts"
+  },
+  {
+   "id": "3.2.2",
+   "title": "Прогресс сохраняется",
+   "type": "auto",
+   "check": "progress_persisted",
+   "needs": [
+    "persist"
+   ],
+   "fix": "src/game/Economy.ts"
+  },
+  {
+   "id": "3.2.3",
+   "title": "Прогресс переживает перезагрузку страницы, поворот и рекламу",
+   "type": "auto",
+   "check": "progress_survives",
+   "needs": [
+    "persist",
+    "ads"
+   ],
+   "fix": "src/game/Economy.ts"
+  },
+  {
+   "id": "3.3.1",
+   "title": "Игра не беззвучная: музыка + звуки действий и интерфейса",
+   "type": "auto",
+   "check": "sound_present",
+   "needs": [
+    "boot"
+   ],
+   "fix": "public/assets/audio/"
+  },
+  {
+   "id": "3.3.2",
+   "title": "Звук — сжатые файлы ogg/mp3, не синтез в коде",
+   "type": "auto",
+   "check": "sound_files",
+   "needs": [
+    "static"
+   ],
+   "fix": "src/audio/"
+  },
+  {
+   "id": "3.3.3",
+   "title": "В игре есть кнопка mute",
+   "type": "auto",
+   "check": "mute_button",
+   "needs": [
+    "boot"
+   ],
+   "fix": "src/ui/SoundSettings.ts"
+  },
+  {
+   "id": "3.3.4",
+   "title": "Учтены platform.isAudioEnabled и события audio/pause",
+   "type": "auto",
+   "check": "audio_state",
+   "needs": [
+    "static",
+    "pause"
+   ],
+   "fix": "src/platform/Platform.ts, src/audio/Sfx.ts"
+  },
+  {
+   "id": "3.3.5",
+   "title": "При сворачивании/скрытии вкладки звук останавливается, при возврате игра продолжается",
+   "type": "auto",
+   "check": "hidden_tab",
+   "needs": [
+    "pause"
+   ],
+   "fix": "src/audio/Sfx.ts"
+  },
+  {
+   "id": "3.4.1",
+   "title": "Английская локализация — по умолчанию и fallback",
+   "type": "auto",
+   "check": "english_default",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "3.4.2",
+   "title": "Язык берётся только из platform.language (не из браузера/ОС)",
+   "type": "auto",
+   "check": "language_from_bridge",
+   "needs": [
+    "static"
+   ],
+   "fix": "src/platform/Platform.ts"
+  },
+  {
+   "id": "3.4.3",
+   "title": "Весь текст переведён на все языки, заявленные в публикации",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "В игре только английский — в заявке выбери только English."
+  },
+  {
+   "id": "3.4.4",
+   "title": "Если есть выбор языка — находится без знания языка",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Выбора языка нет."
+  },
+  {
+   "id": "3.5.1",
+   "title": "Название в игре совпадает с названием в заявке",
+   "type": "auto",
+   "check": "title_matches",
+   "needs": [
+    "boot"
+   ],
+   "fix": "index.html (<title>), src/ui/",
+   "params": {
+    "title": "Spider Arm Climb"
+   }
+  },
+  {
+   "id": "4.1.1",
+   "title": "Нет реалистичного насилия над людьми/детьми/животными",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Контент-ревью вручную."
+  },
+  {
+   "id": "4.1.2",
+   "title": "Нет политики, конфликтов, войн",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Контент-ревью вручную."
+  },
+  {
+   "id": "4.1.3",
+   "title": "Нет религии",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Контент-ревью вручную."
+  },
+  {
+   "id": "4.1.4",
+   "title": "Нет предсказаний о жизни/здоровье/смерти игрока",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Контент-ревью вручную."
+  },
+  {
+   "id": "4.1.5",
+   "title": "Нет эротики и намёков",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Контент-ревью вручную."
+  },
+  {
+   "id": "4.1.6",
+   "title": "Нет оскорблений и разжигания ненависти",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Контент-ревью вручную."
+  },
+  {
+   "id": "4.1.7",
+   "title": "Нет нецензурной лексики",
+   "type": "auto",
+   "check": "no_profanity",
+   "needs": [
+    "boot"
+   ],
+   "fix": "src/ui/"
+  },
+  {
+   "id": "4.1.8",
+   "title": "Нет описаний суицида",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Контент-ревью вручную."
+  },
+  {
+   "id": "4.1.9",
+   "title": "Нет вводящей в заблуждение/противозаконной информации",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Контент-ревью вручную."
+  },
+  {
+   "id": "4.1.10",
+   "title": "Нет экстремистских материалов",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Контент-ревью вручную."
+  },
+  {
+   "id": "4.2.1",
+   "title": "Все материалы принадлежат автору / разрешены к распространению",
+   "type": "manual",
+   "check": "rights_manual",
+   "needs": [
+    "static"
+   ],
+   "fix": "public/assets/",
+   "note": "Звук — CC0 (CREDITS.md). Визуал частично из слепка оригинала — см. docs/REDESIGN.md."
+  },
+  {
+   "id": "4.2.2",
+   "title": "Игра не копия другой игры каталога",
+   "type": "manual",
+   "check": "brand_scan",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "",
+   "note": "Это ремейк Roblox «+1 Spider Arm»: проверить, что графика и механики переделаны."
+  },
+  {
+   "id": "4.2.3",
+   "title": "Нет чужих названий, логотипов, музыки, персонажей — ни в названии, ни в игре",
+   "type": "manual",
+   "check": "brand_scan",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "index.html, src/, public/assets/",
+   "note": "Название «+1 Spider Arm» совпадает с названием игры Roblox."
+  },
+  {
+   "id": "4.2.4",
+   "title": "Игра не выдаёт себя за официальный продукт бренда",
+   "type": "manual",
+   "check": "brand_scan",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "",
+   "note": ""
+  },
+  {
+   "id": "4.2.5",
+   "title": "Нет сторонних брендов для привлечения аудитории",
+   "type": "manual",
+   "check": "brand_scan",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "",
+   "note": ""
+  },
+  {
+   "id": "4.3.1",
+   "title": "Игра не целиком сгенерирована ИИ",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Оценка вручную."
+  },
+  {
+   "id": "4.3.2",
+   "title": "Интерфейс сделан под игру: нет emoji вместо иконок, нет «шаблонного» вида",
+   "type": "auto",
+   "check": "no_emoji",
+   "needs": [
+    "boot"
+   ],
+   "fix": "src/ui/"
+  },
+  {
+   "id": "4.4.1",
+   "title": "Для данных пользователя нужно разрешение",
+   "type": "auto",
+   "check": "no_user_data",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "5.1.1",
+   "title": "Unity: Decompression Fallback",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Не Unity — не применимо."
+  }
+ ]
+}

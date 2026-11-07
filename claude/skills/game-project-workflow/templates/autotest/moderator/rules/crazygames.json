@@ -1,0 +1,394 @@
+{
+ "platform": "crazygames",
+ "title": "CrazyGames",
+ "source": "https://docs.crazygames.com/requirements/intro/ (technical, gameplay, ads, account-integration, quality), прочитано 2026-11-07",
+ "note": "У CrazyGames нет нумерации требований — id = «раздел.пункт» по заголовкам официальной документации. Режим Full Launch (монетизация) — по умолчанию.",
+ "rules": [
+  {
+   "id": "technical.initial-size",
+   "title": "Начальная загрузка ≤ 50 MB (≤ 20 MB — для главной мобильной)",
+   "type": "auto",
+   "check": "cg_initial_size",
+   "needs": [
+    "static"
+   ],
+   "fix": "vite.config.ts"
+  },
+  {
+   "id": "technical.total-size",
+   "title": "Общий размер ≤ 250 MB",
+   "type": "auto",
+   "check": "size_250mb",
+   "needs": [
+    "static"
+   ],
+   "fix": "vite.config.ts"
+  },
+  {
+   "id": "technical.file-count",
+   "title": "Число файлов ≤ 1500",
+   "type": "auto",
+   "check": "file_count_1500",
+   "needs": [
+    "static"
+   ],
+   "fix": "vite.config.ts"
+  },
+  {
+   "id": "technical.load-time",
+   "title": "Внешние файлы: время до геймплея ≤ 20 с",
+   "type": "auto",
+   "check": "cg_load_time",
+   "needs": [
+    "boot"
+   ],
+   "fix": "src/main.ts"
+  },
+  {
+   "id": "technical.relative-paths",
+   "title": "Только относительные пути к файлам сборки",
+   "type": "auto",
+   "check": "relative_paths",
+   "needs": [
+    "static"
+   ],
+   "fix": "vite.config.ts (base), index.html"
+  },
+  {
+   "id": "technical.browsers",
+   "title": "Работает в Chrome и Edge (Safari — иначе отключат)",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Автопроверка — только Chromium; Edge/Safari вручную."
+  },
+  {
+   "id": "technical.chromebook",
+   "title": "Плавно на Chromebook 4 GB RAM",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Нужен ручной замер на слабом устройстве."
+  },
+  {
+   "id": "technical.input",
+   "title": "Поддержаны мышь и клавиатура (+touch, если игра мобильная)",
+   "type": "auto",
+   "check": "keyboard_works",
+   "needs": [
+    "boot"
+   ],
+   "fix": "src/game/"
+  },
+  {
+   "id": "technical.orientation",
+   "title": "Десктоп: игра играбельна в ландшафте",
+   "type": "auto",
+   "check": "sizes_fill",
+   "needs": [
+    "sizes"
+   ],
+   "fix": "src/render/Renderer.ts"
+  },
+  {
+   "id": "technical.user-select",
+   "title": "CSS user-select:none на body (нет лупы/меню выделения на мобильных)",
+   "type": "auto",
+   "check": "user_select_none",
+   "needs": [
+    "boot"
+   ],
+   "fix": "src/style.css или index.html"
+  },
+  {
+   "id": "technical.ios-audio-resume",
+   "title": "iOS: AudioContext возобновляется внутри жеста пользователя",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "src/audio/Sfx.ts",
+   "note": "Только для мобильных; Sfx.ts делает resume на pointerdown/keydown."
+  },
+  {
+   "id": "technical.sdk-gameplay-start",
+   "title": "Full: SDK CrazyGames подключён, событие gameplayStart/gameplayStop",
+   "type": "auto",
+   "check": "cg_sdk_integrated",
+   "needs": [
+    "static"
+   ],
+   "fix": "src/platform/Platform.ts",
+   "note": "Basic Launch — SDK необязателен; Full (монетизация) — обязателен."
+  },
+  {
+   "id": "technical.sdk-data",
+   "title": "Full: прогресс через Data module CrazyGames (без локальных сохранений)",
+   "type": "auto",
+   "check": "cg_sdk_data",
+   "needs": [
+    "static"
+   ],
+   "fix": "src/platform/Platform.ts"
+  },
+  {
+   "id": "technical.user-consent",
+   "title": "Если собираются персональные данные — уведомление/политика",
+   "type": "auto",
+   "check": "no_user_data",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "gameplay.readable",
+   "title": "Текст и картинки читаемы при DPR 1 на размерах 907×510, 1216×684, 1366×768, 1920×1080, 800×450, 1080×607",
+   "type": "manual",
+   "check": "sizes_overlap_manual",
+   "needs": [
+    "sizes"
+   ],
+   "fix": "src/ui/",
+   "note": "Смотри скриншоты tools/out/moderator/sizes/."
+  },
+  {
+   "id": "gameplay.responsive",
+   "title": "Игра заполняет 16:9 iframe любого размера без переполнения",
+   "type": "auto",
+   "check": "sizes_overflow",
+   "needs": [
+    "sizes"
+   ],
+   "fix": "src/ui/, src/render/Renderer.ts"
+  },
+  {
+   "id": "gameplay.physics-refresh",
+   "title": "Физика одинакова на 60/144/165 Гц",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "src/game/PlayerController.ts",
+   "note": "Проверить вручную на мониторе 144 Гц (фиксированный шаг?)."
+  },
+  {
+   "id": "gameplay.english",
+   "title": "Есть английская локализация; locale из SDK, fallback — English",
+   "type": "auto",
+   "check": "english_default",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "gameplay.controls",
+   "title": "Управление интуитивно на каждом устройстве",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": ""
+  },
+  {
+   "id": "gameplay.performance",
+   "title": "Игра быстро грузится и играется без ошибок и крашей",
+   "type": "auto",
+   "check": "no_errors_all",
+   "needs": [
+    "boot",
+    "ads",
+    "pause",
+    "sizes",
+    "persist"
+   ],
+   "fix": "см. ошибки в детали"
+  },
+  {
+   "id": "gameplay.originality",
+   "title": "Названия, ассеты и контент оригинальны",
+   "type": "manual",
+   "check": "brand_scan",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "",
+   "note": "Название «+1 Spider Arm» = игра Roblox; визуал частично из слепка."
+  },
+  {
+   "id": "gameplay.fullscreen",
+   "title": "Нет собственной кнопки fullscreen",
+   "type": "auto",
+   "check": "no_fullscreen_btn",
+   "needs": [
+    "static"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "gameplay.no-cross-promo",
+   "title": "Нет рекламы внешних/внутренних игр и платформ (App Store-ссылки запрещены)",
+   "type": "auto",
+   "check": "no_external_links",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "src/ui/"
+  },
+  {
+   "id": "gameplay.pegi12",
+   "title": "Контент соответствует PEGI 12",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": ""
+  },
+  {
+   "id": "gameplay.direct-to-gameplay",
+   "title": "Full: игрок сразу попадает в игру (максимум 1 клик)",
+   "type": "auto",
+   "check": "direct_to_gameplay",
+   "needs": [
+    "boot"
+   ],
+   "fix": "src/main.ts"
+  },
+  {
+   "id": "ads.sdk-only",
+   "title": "Реклама только через CrazyGames SDK; внешней нет",
+   "type": "auto",
+   "check": "cg_ads_sdk",
+   "needs": [
+    "static",
+    "boot"
+   ],
+   "fix": "src/platform/Platform.ts",
+   "note": "Сейчас реклама идёт через Playgama Bridge — для CrazyGames нужен адаптер."
+  },
+  {
+   "id": "ads.no-interrupt",
+   "title": "Реклама не во время активной игры и не на кнопках меню/настроек/магазина",
+   "type": "auto",
+   "check": "ads_not_in_gameplay",
+   "needs": [
+    "boot",
+    "ads"
+   ],
+   "fix": "src/main.ts"
+  },
+  {
+   "id": "ads.pause-during-ad",
+   "title": "Весь прогресс заблокирован, пока реклама запрошена/играет",
+   "type": "auto",
+   "check": "ads_pause_resume",
+   "needs": [
+    "ads"
+   ],
+   "fix": "src/platform/Platform.ts, src/main.ts"
+  },
+  {
+   "id": "ads.error-continue",
+   "title": "adError: игра продолжается",
+   "type": "auto",
+   "check": "ads_fail_continue",
+   "needs": [
+    "ads"
+   ],
+   "fix": "src/platform/Platform.ts"
+  },
+  {
+   "id": "ads.mute-on-start",
+   "title": "Звук глушится, только когда реклама реально началась (не при запросе), и включается после",
+   "type": "auto",
+   "check": "ads_mute_on_start",
+   "needs": [
+    "ads"
+   ],
+   "fix": "src/audio/Sfx.ts, src/platform/Platform.ts"
+  },
+  {
+   "id": "ads.rewarded-callbacks",
+   "title": "Награда только после adFinished; при adError награды нет",
+   "type": "auto",
+   "check": "rewarded_grant",
+   "needs": [
+    "ads"
+   ],
+   "fix": "src/main.ts (adReward)"
+  },
+  {
+   "id": "ads.rewarded-ui",
+   "title": "Кнопка rewarded заметна, отказ равен по размеру, видно что это реклама, не на экране активной игры",
+   "type": "manual",
+   "check": "rewarded_button_text",
+   "needs": [
+    "ads"
+   ],
+   "fix": "src/main.ts",
+   "note": "Проверить визуально; кнопки «▶ WATCH AD» есть в HUD лобби."
+  },
+  {
+   "id": "ads.rewarded-no-required",
+   "title": "Уровни не проходятся только через rewarded",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "",
+   "note": "Бусты необязательны."
+  },
+  {
+   "id": "ads.rewarded-once-revive",
+   "title": "Revive/«продолжить» не после каждой смерти (раз за попытку)",
+   "type": "auto",
+   "check": "revive_once",
+   "needs": [
+    "static"
+   ],
+   "fix": "src/main.ts (reviveUsed)"
+  },
+  {
+   "id": "ads.banners",
+   "title": "Баннеры: только на экранах ≥ 5 с, не во время игры, не закрывают UI, ≤ 2 на экран",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "src/main.ts",
+   "note": "Баннер Bridge показывается только при открытом меню."
+  },
+  {
+   "id": "ads.adblock",
+   "title": "С AdBlock играется нормально; нерабочие rewarded-кнопки не кликабельны",
+   "type": "manual",
+   "check": null,
+   "needs": [],
+   "fix": "src/platform/Platform.ts",
+   "note": "Проверить с включённым AdBlock."
+  },
+  {
+   "id": "account.no-external-login",
+   "title": "Basic: нет внешних способов входа",
+   "type": "auto",
+   "check": "no_auth",
+   "needs": [
+    "static"
+   ],
+   "fix": "src/"
+  },
+  {
+   "id": "quality.restricted-keys",
+   "title": "Нет Esc/клавиш с поведением браузера; раскладки (AZERTY)",
+   "type": "auto",
+   "check": "no_escape",
+   "needs": [
+    "static"
+   ],
+   "fix": "src/main.ts, src/ui/"
+  }
+ ]
+}
