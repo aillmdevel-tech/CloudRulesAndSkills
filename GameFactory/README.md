@@ -7,7 +7,7 @@
 | Что | Где |
 |---|---|
 | Глобальные правила (грузятся в каждой сессии) | `~/.claude/CLAUDE.md` |
-| Собственные скиллы | `~/.claude/skills/{game-project-workflow, game-reference-analysis, levelcopier-asset-pipeline, game-visual-comparison, game-ui-motion-sound, chat-handoff}` |
+| Собственные скиллы | `~/.claude/skills/{game-project-workflow, game-reference-analysis, levelcopier-asset-pipeline, game-visual-comparison, game-ui-motion-sound, chat-handoff, github-account-router, game-autotest}` |
 | Анимации и звуки UI | [UIFX/](UIFX/README.md) — 32 эффекта, 43 звука CC0, 5 стилей, демо `npm run demo` |
 | Сторонние скиллы | `~/.claude/skills/` (список и источники — [THIRD_PARTY_SKILLS.md](THIRD_PARTY_SKILLS.md)) |
 | Шаблоны проекта и документов | [templates/](templates) → ссылка на `~/.claude/skills/game-project-workflow/templates` |

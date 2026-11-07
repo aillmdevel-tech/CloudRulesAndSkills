@@ -11,11 +11,12 @@ Claude склонирует репо, поставит инструменты, �
 | Папка | Что |
 |---|---|
 | `claude/CLAUDE.md` | глобальные правила (язык, процесс, автовыбор скиллов, стек, проверка, контекст) |
-| `claude/skills/` | свои скиллы: game-project-workflow, game-reference-analysis, levelcopier-asset-pipeline, game-visual-comparison, game-ui-motion-sound, chat-handoff, github-account-router, пропатченный grill-me |
+| `claude/skills/` | свои скиллы: game-project-workflow, game-reference-analysis, levelcopier-asset-pipeline, game-visual-comparison, game-ui-motion-sound, game-autotest, chat-handoff, github-account-router, пропатченный grill-me |
 | `claude/hooks/`, `claude/settings.json` | хук контроля контекста + outputStyle |
 | `third-party/` | сторонние скиллы (PlayCanvas ×16, frontend-design, webapp-testing, grilling, frontend-visual-qa) — ставятся из официальных репо |
 | `mcp/MCP.md` | Blender MCP |
 | `GameFactory/` | процесс, шаблоны, UIFX (32 эффекта, 43 звука CC0, демо) |
+| `docs/SYSTEM_MAP.md` | **полная схема системы** — читать первой |
 | `docs/TOKEN_ECONOMY.md` | экономия токенов и автоматический перенос контекста |
 | `scripts/install.sh` | развернуть на машине · `scripts/sync.sh` — забрать изменения с машины в репо |
 

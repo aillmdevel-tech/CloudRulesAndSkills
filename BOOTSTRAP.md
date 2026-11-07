@@ -4,6 +4,8 @@
 > отвечай по-русски и кратко. Не выдумывай результаты: что не получилось — так и скажи.
 
 ## 0. Что это
+Сначала прочитай `docs/SYSTEM_MAP.md` — там полная схема того, что настроено и как работает.
+
 Полная настройка Claude Code для разработки браузерных игр (GameFactory): глобальные правила
 (`claude/CLAUDE.md`), собственные скиллы (`claude/skills/`), хуки контроля контекста (`claude/hooks/`,
 `claude/settings.json`), список сторонних скиллов (`third-party/`), MCP (`mcp/MCP.md`), процесс и шаблоны
@@ -33,7 +35,7 @@ bash <клон>/scripts/install.sh --games-dir <папка игр>        # + --
 
 ## 4. Проверить
 - `ls ~/.claude/skills` → 16 PlayCanvas + frontend-design, webapp-testing, grilling, grill-me, frontend-visual-qa + свои
-  (chat-handoff, game-project-workflow, game-reference-analysis, game-ui-motion-sound, game-visual-comparison,
+  (chat-handoff, game-autotest, game-project-workflow, game-reference-analysis, game-ui-motion-sound, game-visual-comparison,
   github-account-router, levelcopier-asset-pipeline).
 - `echo '{"cwd":"/tmp"}' | python3 ~/.claude/hooks/context_guard.py start` — без ошибок.
 - `python3 -c "from playwright.sync_api import sync_playwright"`.

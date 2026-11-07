@@ -33,7 +33,7 @@ done
 [ -f "$LOCK" ] && cp "$LOCK" "$REPO/third-party/skill-lock.json"
 
 if [ "$(cd "$GF_SRC" && pwd)" != "$REPO/GameFactory" ]; then
-  rsync -a --delete --exclude node_modules --exclude backup/ --exclude demo-dist --exclude templates \
+  rsync -a --delete --exclude node_modules --exclude backup/ --exclude demo-dist \
     --exclude .DS_Store --exclude __pycache__ "$GF_SRC/" "$REPO/GameFactory/"
 fi
 find "$REPO" -name .DS_Store -delete
