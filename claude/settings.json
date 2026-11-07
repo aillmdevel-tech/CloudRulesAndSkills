@@ -1,10 +1,13 @@
 {
-  "outputStyle": "Concise",
   "hooks": {
     "UserPromptSubmit": [
       {
         "hooks": [
-          { "type": "command", "command": "python3 \"$HOME/.claude/hooks/context_guard.py\" prompt", "timeout": 10 }
+          {
+            "type": "command",
+            "command": "python3 \"$HOME/.claude/hooks/context_guard.py\" prompt",
+            "timeout": 10
+          }
         ]
       }
     ],
@@ -12,9 +15,15 @@
       {
         "matcher": "startup|resume|compact",
         "hooks": [
-          { "type": "command", "command": "python3 \"$HOME/.claude/hooks/context_guard.py\" start", "timeout": 10 }
+          {
+            "type": "command",
+            "command": "python3 \"$HOME/.claude/hooks/context_guard.py\" start",
+            "timeout": 10
+          }
         ]
       }
     ]
-  }
+  },
+  "outputStyle": "Concise",
+  "theme": "dark"
 }
