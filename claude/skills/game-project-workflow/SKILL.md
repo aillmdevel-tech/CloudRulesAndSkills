@@ -21,7 +21,7 @@ The process Alex uses for every game. It coordinates other skills; it does not r
 ## 1. Study
 
 Read the spec. Route materials:
-- video / screenshots / "повтори механику" → `game-reference-analysis`
+- video / screenshots / "повтори механику" → `game-reference-analysis` (for a whole game: also the detailed `docs/spec/` folders — mechanics, visual, ui, vfx, animation, camera, audio)
 - LevelCopier dumps, GLB+JSON scenes → `levelcopier-asset-pipeline`
 - existing repo → detect the real stack from `package.json`/imports; never swap it without agreement.
 

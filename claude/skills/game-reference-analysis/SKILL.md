@@ -66,6 +66,28 @@ Links: `yt-dlp -f "bv*[height<=1080]+ba/b[height<=1080]" -o "references/videos/%
 - `GAMEPLAY_BREAKDOWN.md` — loop, controls, camera, movement numbers, states, rules, edge cases.
 - `ART_REFERENCE.md` — palette (hex), lighting, materials, UI style, reference frame list.
 
+### Обязательно для ТЗ на игру / видео-референса целиком: подробная спецификация по папкам
+
+After studying a spec or a gameplay video of a whole game (not a single screenshot), ALSO break every
+aspect into a detailed reference spec under `docs/spec/`, so later work rarely needs the video again:
+
+```
+docs/spec/README.md   — index: every file, what it covers, source material + date
+docs/spec/mechanics/  — core loop, controls, economy/formulas, progression, rules, states, edge cases
+docs/spec/visual/     — palette (hex), lighting, fog/sky per zone, materials/shaders, outline, models, scale
+docs/spec/ui/         — every screen/panel/HUD: layout, sizes, fonts, colours, texts, states
+docs/spec/vfx/        — every effect: trigger, look, duration, colours, particles
+docs/spec/animation/  — character/creature/UI animations: poses, timings, easing
+docs/spec/camera/     — modes, FOV, distances, moves, shake, letterbox, transitions
+docs/spec/audio/      — sound/music cues with timings (if audible)
+docs/spec/timings.md  — one table of all key timings (ms) with timecodes
+```
+
+One file per topic/screen/effect (e.g. `vfx/landing_impact.md`, `ui/shop_panel.md`). Each file: what it
+is, exact numbers (sizes, ms, hex, counts), timecodes + frame paths, [факт]/[вывод]/[гипотеза] tags,
+"Implementation notes". Very detailed: it is the source of truth for building and visual comparison.
+Update it when new reference material arrives.
+
 Templates: `~/.claude/skills/game-project-workflow/templates/docs/`. Keep extracted frames under
 `references/frames/<video-name>/` (git-ignore large media if the project uses git).
 

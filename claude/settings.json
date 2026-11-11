@@ -25,5 +25,8 @@
     ]
   },
   "outputStyle": "Concise",
-  "theme": "dark"
+  "theme": "dark",
+  "env": {
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "70"
+  }
 }

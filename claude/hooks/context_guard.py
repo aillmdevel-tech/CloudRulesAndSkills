@@ -6,15 +6,13 @@
   context_guard.py start    # SessionStart (startup/resume/compact): if the project has
                             # docs/PROJECT_STATE.md, reminds the model to read it first
 
-Thresholds (tokens) via env: CONTEXT_GUARD_WARN (default 250000), CONTEXT_GUARD_HARD (300000).
+Auto-compact at 70% (settings env CLAUDE_AUTOCOMPACT_PCT_OVERRIDE). Handoff to a new chat after 2 compactions.
 """
 import json
 import os
 import sys
 import tempfile
 
-WARN = int(os.environ.get("CONTEXT_GUARD_WARN", "250000"))
-HARD = int(os.environ.get("CONTEXT_GUARD_HARD", "300000"))
 
 
 def out(event, text):
@@ -81,17 +79,18 @@ def main():
 
     tokens, compactions = context_tokens(data.get("transcript_path", ""))
     k = tokens // 1000
-    if tokens >= HARD or compactions >= 2:
+    # Сжатие делает сам Claude Code на 70% окна (env CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=70).
+    # Новый чат — только после 2 сжатий; до этого работаем в том же чате.
+    if compactions >= 2 and once(session, "handoff"):
         out("UserPromptSubmit",
-            f"[context-guard] Контекст ~{k}k токенов, сжатий: {compactions}. Сначала ответь на запрос, затем ОБЯЗАТЕЛЬНО: "
-            f"скилл chat-handoff (режим сохранения) → обнови docs/PROJECT_STATE.md → предложи Alex новый чат "
-            f"(в Claude Desktop — карточкой новой сессии в той же папке с брифом «продолжи работу», иначе текстом). "
-            f"Новых больших этапов в этом чате не начинай.")
-    elif tokens >= WARN and once(session, "warn"):
+            f"[context-guard] Контекст ~{k}k токенов, сжатий: {compactions}. Сначала ответь на запрос, затем: "
+            f"скилл chat-handoff (режим сохранения) → обнови docs/PROJECT_STATE.md (включая визуальные решения "
+            f"и что сверено с референсом) → сам запусти новую сессию в той же папке с брифом «продолжи работу» "
+            f"и сообщи Alex одной строкой. Эту сессию после передачи не продолжай.")
+    elif compactions == 1 and once(session, "c1"):
         out("UserPromptSubmit",
-            f"[context-guard] Контекст ~{k}k токенов. Держи docs/PROJECT_STATE.md актуальным; в конце текущего этапа "
-            f"сохрани контекст (chat-handoff) и предложи новый чат.")
-
+            "[context-guard] Было 1 сжатие. Держи docs/PROJECT_STATE.md актуальным (решения, визуальный стиль, "
+            "что сверено) — после второго сжатия будет передача в новый чат.")
 
 if __name__ == "__main__":
     try:
