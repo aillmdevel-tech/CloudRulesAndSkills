@@ -17,7 +17,13 @@ description: Use when the user asks to check/test a browser game with the factor
 
 ## Как вызывать
 1. В корне проекта есть `tools/smoke.py` и `package.json` со скриптами `smoke`/`moderate`? Нет → «Настройка» ниже.
-2. Запусти `npm run smoke` (или `npm run moderate -- --platform X`) **в фоне** (`run_in_background`), по завершении читай только итог: строки ✓/✗ и PASS/FAIL; для модератора — раздел «Вердикт» и «Замечания» из `docs/moderation/REPORT.md` (не весь файл). Не читай лог целиком.
+2. Запускай из корня игры последовательно через `/Users/mac/Downloads/WebAIGames/Rules/GameFactory/scripts/qa-brief.sh`. Пример для только что собранного билда:
+
+   ```bash
+   bash /Users/mac/Downloads/WebAIGames/Rules/GameFactory/scripts/qa-brief.sh smoke -- npm run smoke -- --no-build
+   ```
+
+   Для модератора передай `moderator -- npm run moderate -- --platform X`. На Mac с `~/.local/bin/resource-run` запускай через него весь пакет команд один раз. Полный вывод сохраняется в `tools/out/qa/`. Из него читай только итог и нужный фрагмент ошибки. Для модератора читай «Вердикт» и «Замечания» из `docs/moderation/REPORT.md`.
 3. Флаги: `--no-build` если сборка только что делалась; `--dev` — vite dev вместо prod; `--url` — уже запущенная игра. Порт/сервер скрипт поднимает и гасит сам; браузер Chrome headless=False.
 4. Отчёт Alex по-русски, кратко: вердикт; список ✗ «правило → причина → файл для исправления» (поле `fix`); что только «вручную» (👀) — одной строкой. Если ✗ — предложи исправление, чини в рамках согласованного (для смоука — сразу, для модератора — после «ок», если правка меняет вид/геймплей), затем перезапусти ровно проваленное (smoke целиком, модератор целиком).
 5. Не заявляй «прошло», если не запускал или упала сама проба (⏳ = не проверено, а не ✓).

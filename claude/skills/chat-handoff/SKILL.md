@@ -22,7 +22,8 @@ History belongs in the project's own chronology file (e.g. `docs/PROGRESS.md`) i
    - Separate facts from guesses ([H] / «гипотеза»). Mark what was not verified.
    - «Следующий шаг» = exact actions, not a vague goal. «Текущая задача» = what was in progress, which
      files were touched, what is left.
-   - Keep it ~60–150 lines; link to other docs instead of copying them.
+   - Aim for one page. Start with the current task, checks, and next step. Link to detailed decisions
+     and historical evidence in project docs.
    - Never put passwords, tokens or keys in it.
 4. Sync project docs that the handoff points to (e.g. outdated lines in the project `CLAUDE.md`,
    decisions file) — only short factual fixes.
@@ -35,9 +36,9 @@ History belongs in the project's own chronology file (e.g. `docs/PROGRESS.md`) i
 
 ## Resume mode (fresh chat: «продолжи работу», «продолжаем», …)
 
-1. Read `docs/PROJECT_STATE.md` fully and the project `CLAUDE.md` (auto-loaded). Then `git status` and
-   `git log --oneline -5`; if they disagree with the file (newer commits, unexpected changes), trust git
-   and mention the mismatch in one line.
+1. Use the loaded project `CLAUDE.md` and the current block of `docs/PROJECT_STATE.md`. For a long
+   legacy file, locate headings and read the mandatory rules and next step by range. Check
+   `git status --short` and `git log -5 --oneline`; note a mismatch in one line.
 2. Read other docs only as the next step needs them — not the whole project.
 3. One short line to the user: where we are and what you're doing now. Then do «Следующий шаг».
    Ask only if the file lists open questions that block that step, or the step needs the user's

@@ -9,8 +9,9 @@ The process Alex uses for every game. It coordinates other skills; it does not r
 
 ## 0. Orient (every session)
 
-- Existing project: read its `CLAUDE.md`, `docs/PROJECT_STATE.md`, `docs/DECISIONS.md`, `docs/TASKS.md`
-  first; `git status` before large edits. Don't re-read the whole codebase for a small change.
+- Existing project: use its loaded `CLAUDE.md` and the current block of `docs/PROJECT_STATE.md`.
+  Read specific sections of `DECISIONS.md`, `TASKS.md` and other docs as needed. Run `git status`
+  before large edits.
 - New project: create the skeleton with
   `bash ~/.claude/skills/game-project-workflow/scripts/new_project.sh <GameName> [parent-dir] [--levelcopier] [--minimal]`
   (default parent: the games folder named in `~/.claude/CLAUDE.md`). It creates folders, project
@@ -66,6 +67,7 @@ and acceptance criteria); what is deferred. Write it to `docs/GAME_DESIGN.md` + 
 collisions/physics, camera, UI, frame time sanity. Visual claims need screenshots compared with the
 reference (`game-visual-comparison`, `frontend-visual-qa` for DOM UI). A passing build is not proof
 of correct graphics. Report what was actually run and its result; never claim untested passes.
+Use the `game-autotest` wrapper for concise build and test output with full logs on disk.
 
 ## 6. Iterate
 

@@ -6,15 +6,15 @@
   context_guard.py start    # SessionStart (startup/resume/compact): if the project has
                             # docs/PROJECT_STATE.md, reminds the model to read it first
 
-Thresholds (tokens) via env: CONTEXT_GUARD_WARN (default 150000), CONTEXT_GUARD_HARD (200000).
+Thresholds (tokens) via env: CONTEXT_GUARD_WARN (default 250000), CONTEXT_GUARD_HARD (300000).
 """
 import json
 import os
 import sys
 import tempfile
 
-WARN = int(os.environ.get("CONTEXT_GUARD_WARN", "150000"))
-HARD = int(os.environ.get("CONTEXT_GUARD_HARD", "200000"))
+WARN = int(os.environ.get("CONTEXT_GUARD_WARN", "250000"))
+HARD = int(os.environ.get("CONTEXT_GUARD_HARD", "300000"))
 
 
 def out(event, text):
@@ -75,8 +75,8 @@ def main():
         if os.path.isfile(state):
             src = data.get("source", "")
             extra = " Контекст был сжат — детали из чата могли потеряться, опирайся на этот файл." if src == "compact" else ""
-            out("SessionStart", f"[context-guard] В проекте есть {state}. Прочитай его до начала работы "
-                                f"(при «продолжи работу» — режим продолжения скилла chat-handoff).{extra}")
+            out("SessionStart", f"[context-guard] {state}: начни с актуального блока и читай детали по задаче. "
+                                f"«Продолжи работу» → chat-handoff.{extra}")
         return
 
     tokens, compactions = context_tokens(data.get("transcript_path", ""))
