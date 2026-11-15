@@ -10,7 +10,7 @@
 
 Определи стек и задачу, примени основной скилл и нужных специалистов текущего этапа. Имя скилла от Alex не требуется.
 
-- Новая игра, ТЗ, прототип, продолжение проекта → `game-project-workflow`. При серьёзной неопределённости → `grilling`, до 5 важных вопросов за раунд.
+- Новая игра, ТЗ, прототип, продолжение проекта → `game-project-workflow`. После изучения материалов нового проекта `grilling` запускай сам (до 5 вопросов за раунд, с моим вариантом ответа). Всегда сначала визуал: `game-art-first` (референсы, стиль, карта/локация/модели в Blender MCP), потом логика MVP.
 - Видео и механика по референсу → `game-reference-analysis`. После разбора ТЗ/видео всей игры — подробная спецификация в `docs/spec/` по папкам (mechanics, visual, ui, vfx, animation, camera, audio). LevelCopier, GLB+JSON → `levelcopier-asset-pipeline`.
 - Сверка с референсом → `game-visual-comparison`. Новый UI → `frontend-design`. UI-вёрстка → `frontend-visual-qa`. Игровой UI → `game-ui-motion-sound` с UIFX из GameFactory.
 - Живая работа с ассетами и сценой Blender → существующий Blender MCP. Браузерная проверка → `webapp-testing` или встроенный браузер. PlayCanvas-скиллы выбирай по этапу PlayCanvas-проекта.

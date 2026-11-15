@@ -34,8 +34,8 @@ fill "$T/CLAUDE.project.md" "$DIR/CLAUDE.md"
 fill "$T/README.md" "$DIR/README.md"
 DOCS="PROJECT_STATE DECISIONS TASKS"
 if [ "$MIN" -eq 0 ]; then
-  mkdir -p "$DIR"/references/{videos,screenshots,notes,frames} "$DIR/tests"
-  DOCS="$DOCS GAME_DESIGN ARCHITECTURE REFERENCE_ANALYSIS VIDEO_STORYBOARD GAMEPLAY_BREAKDOWN ART_REFERENCE ART_SPEC"
+  mkdir -p "$DIR"/references/{videos,screenshots,notes,frames} "$DIR/tests" "$DIR"/docs/plans "$DIR"/docs/spec "$DIR"/assets/source
+  DOCS="$DOCS GAME_DESIGN ARCHITECTURE REFERENCE_ANALYSIS VIDEO_STORYBOARD GAMEPLAY_BREAKDOWN ART_REFERENCE ART_SPEC REFERENCES"
 fi
 if [ "$LC" -eq 1 ]; then
   mkdir -p "$DIR/imports/levelcopier"

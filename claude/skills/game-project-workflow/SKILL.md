@@ -1,6 +1,6 @@
 ---
 name: game-project-workflow
-description: Use when starting or steering a browser game project — a new game, a game spec/ТЗ, a prototype, a Roblox-like or Steam/indie-inspired game, or an undecided game idea ("создаём игру", "вот ТЗ", "начинай новый игровой проект", "реализуй Roblox-like", "сделай прототип", "делаем игру на PlayCanvas / на TypeScript без движка / на Three.js / 2D", "хочу придумать игру", "не определился с механикой"), and when resuming a game project in a new chat. Drives spec → material analysis → key questions → design → agreement → vertical slice → tests → fixes → next stage, picks the tech stack (PlayCanvas / Three.js / PixiJS / existing repo), routes to the right skills, guards the agreed scope, and keeps PROJECT_STATE.md / DECISIONS.md current between sessions.
+description: Use when starting or steering a browser game project — a new game, a game spec/ТЗ, a prototype, a Roblox-like or Steam/indie-inspired game, or an undecided game idea ("создаём игру", "вот ТЗ", "начинай новый игровой проект", "реализуй Roblox-like", "сделай прототип", "делаем игру на PlayCanvas / на TypeScript без движка / на Three.js / 2D", "хочу придумать игру", "не определился с механикой"), and when resuming a game project in a new chat. Drives spec → material analysis → reference search → automatic grilling → pitch + staged plan → agreement → kickoff docs → ART FIRST (game-art-first: map/location/style in Blender) → MVP logic → tests → fixes → scale (new UI/locations), picks the tech stack (PlayCanvas / Three.js / PixiJS / existing repo), routes to the right skills, guards the agreed scope, and keeps PROJECT_STATE.md / DECISIONS.md current between sessions.
 ---
 
 # Game project workflow (GameFactory)
@@ -25,23 +25,44 @@ Read the spec. Route materials:
 - LevelCopier dumps, GLB+JSON scenes → `levelcopier-asset-pipeline`
 - existing repo → detect the real stack from `package.json`/imports; never swap it without agreement.
 
+- original game named by Alex → research it on the web (store page, wiki, gameplay) into `REFERENCE_ANALYSIS.md`. The main reference (usually a Roblox game) carries the most weight; a web game must be an adaptation, not a 1:1 copy.
+- inputs expected from Alex: short ТЗ (mechanics, requirements), original game name, video, screenshots, optional LevelCopier dump. Missing ones are not blocking — note the gap.
+- find ready things (asset packs, GitHub projects, web/Steam games as visual benchmarks) → `game-art-first` §3 → `docs/REFERENCES.md`.
+
 Pick the stack with [references/stack-selection.md](references/stack-selection.md).
 
-## 2. Clarify
+## 2. Clarify (grilling starts automatically — Alex does not call it)
 
-List only questions whose answers change mechanics, architecture or scope. Up to ~5 per round, each
-with a recommended answer; never re-ask what the spec/materials already answer. When the idea itself
-is undecided or the design has many interlocking unknowns, invoke the `grilling` skill (keep its rounds
-to ≤5 questions). Record every answer in `docs/DECISIONS.md` immediately.
+Once materials are studied, for any NEW game or big new stage run the `grilling` skill by yourself, no trigger
+phrase needed. Rounds of ≤5 questions, each with your recommended answer ("yes" accepts it); never ask what the
+spec/materials already answer; facts are found by you, decisions by Alex. Cover: core loop, controls/camera,
+level structure, progression, UI, art direction/adaptation option, scope limits, stack. Record every answer in
+`docs/DECISIONS.md` immediately. Small tasks: just a few plain questions, no grilling.
 
 ## 3. Agree (no large implementation before this)
 
-Present briefly: understanding of the game; core loop; controls & movement; camera; level structure;
-UI; stack; architecture (modules, data flow, update order); the first vertical slice (exact contents
-and acceptance criteria); what is deferred. Write it to `docs/GAME_DESIGN.md` + `docs/ARCHITECTURE.md`
-+ `docs/TASKS.md` and wait for Alex's OK.
+Present briefly in this order: (a) how you see the game — core loop, controls, camera, level structure, UI;
+(b) visual style and 3–4 adaptation options of the reference with a recommendation, plus found references/assets;
+(c) stack and architecture; (d) STAGED plan from start to finish — **always visual first**:
+1. Art: style board, map, location, key objects in Blender (`game-art-first`) → look approved by Alex.
+2. MVP scene: logic on the approved scene (movement, camera, core loop, collisions, minimal UI) + tests.
+3. Scale: more UI, locations, content, polish (`game-ui-motion-sound`), final QA.
+Per stage: contents, acceptance criteria, who does it (see [../game-art-first/references/model-routing.md](../game-art-first/references/model-routing.md)); what is deferred.
+Wait for Alex's OK; adjust until he confirms the understanding is the same.
 
-## 4. Build the vertical slice
+## 3b. Kickoff — on Alex's «приступай»
+
+Before any work write into the project: `docs/GAME_DESIGN.md`, `ARCHITECTURE.md`, `TASKS.md`, `REFERENCES.md`,
+`ASSET_MANIFEST.md`, and the master plan `docs/plans/YYYY-MM-DD-master.md` (stages, step checkboxes, acceptance
+criteria, verification commands, WHERE each reference/asset lives, model per step) + one line in `docs/plans/CURRENT.md`.
+Project `CLAUDE.md` points to `PROJECT_STATE.md` and the master plan so later agents/chats orient fast.
+Then run stage by stage: lead does design-heavy work itself (Opus high), delegates only independent mechanical steps
+with a written spec and a verification command; check delegated results yourself. One new chat per big stage via `chat-handoff`.
+
+## 4. Build — art first, then the vertical slice
+
+- Stage 1 is `game-art-first`: no gameplay code until Alex approves the look (placeholders for logic are fine).
+- The slice below starts only after that.
 
 - Smallest set of finished, connected mechanics that proves the game. Priority comes from the spec
   (sometimes the lobby, sometimes the unique movement, sometimes the core loop).
