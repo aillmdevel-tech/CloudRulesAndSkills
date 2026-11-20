@@ -11,7 +11,7 @@ Claude склонирует репо, поставит инструменты, �
 | Папка | Что |
 |---|---|
 | `claude/CLAUDE.md` | глобальные правила (язык, процесс, автовыбор скиллов, стек, проверка, контекст) |
-| `claude/skills/` | свои скиллы (13): game-project-workflow, game-art-first, game-reference-analysis, game-visual-comparison, game-ui-motion-sound, game-autotest, character-animation, levelcopier-asset-pipeline, chat-handoff, save-context, github-account-router, threejs-debug-profiler, threejs-aaa-graphics-builder |
+| `claude/skills/` | свои скиллы (14): game-project-workflow, game-art-first, game-reference-analysis, game-visual-comparison, game-ui-motion-sound, game-autotest, game-promo-kit, character-animation, levelcopier-asset-pipeline, chat-handoff, save-context, github-account-router, threejs-debug-profiler, threejs-aaa-graphics-builder |
 | `claude/hooks/`, `claude/settings.json` | хуки контекста и memory-bank + outputStyle |
 | `third-party/` | сторонние скиллы (frontend-design, webapp-testing, grilling, frontend-visual-qa; PlayCanvas ×16 — выключены) — ставятся из официальных репо |
 | `tools/bin/` | утилиты: playcanvas-skills, claude-profiles |

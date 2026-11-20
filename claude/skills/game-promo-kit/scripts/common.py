@@ -1,0 +1,188 @@
+"""Shared helpers for game-promo-kit: paths, config, platform presets, ffmpeg, fonts."""
+import json, os, re, shutil, subprocess, sys
+
+KIT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PLATFORMS_FILE = os.path.join(KIT, 'references', 'platforms.json')
+UIFX_SOUNDS = [
+    os.path.expanduser('~/Downloads/WebAIGames/Rules/GameFactory/UIFX/sounds'),
+    os.environ.get('UIFX_SOUNDS', ''),
+]
+
+DEFAULT_CONFIG = {
+    'title': {'en': 'My Game'},
+    'languages': ['en'],
+    'texts': {'hook': {'en': 'CAN YOU BEAT IT?'}, 'cta': {'en': 'PLAY NOW'}},
+    'captions': {},
+    'font': 'Arial Black',
+    'font_file': '',
+    'colors': {'text': '#FFFFFF', 'accent': '#FFD23F', 'outline': '#16162A'},
+    'music': '',
+    'music_volume': 0.8,
+    'game_volume': 0.7,
+    'bpm': 0,
+    'capture': {'size': '1920x1080', 'fps': 60},
+    'focus_x': 0.5,
+    'focus_y': 0.5,
+    'cover_source': '',
+}
+
+
+def die(msg):
+    print('ERROR:', msg, file=sys.stderr)
+    raise SystemExit(1)
+
+
+def promo_dir(project):
+    d = os.path.join(os.path.abspath(project), 'promo')
+    os.makedirs(d, exist_ok=True)
+    return d
+
+
+def load_config(project):
+    p = os.path.join(promo_dir(project), 'config.json')
+    cfg = json.loads(json.dumps(DEFAULT_CONFIG))
+    if os.path.exists(p):
+        user = json.load(open(p, encoding='utf-8'))
+        for k, v in user.items():
+            if isinstance(v, dict) and isinstance(cfg.get(k), dict) and k not in ('texts', 'captions', 'title'):
+                cfg[k].update(v)
+            else:
+                cfg[k] = v
+    else:
+        print(f'note: {p} not found, using defaults (copy templates/config.example.json)')
+    return cfg
+
+
+def platforms():
+    data = json.load(open(PLATFORMS_FILE, encoding='utf-8'))
+    return {k: v for k, v in data.items() if not k.startswith('_')}
+
+
+def platform(name):
+    all_ = platforms()
+    if name not in all_:
+        die(f'unknown platform {name}; known: {", ".join(all_)}')
+    return all_[name]
+
+
+def text_for(cfg, key, lang):
+    """Localized string: texts[key][lang] -> texts[key]['en'] -> ''."""
+    block = cfg.get('texts', {}).get(key) if key != 'title' else cfg.get('title')
+    if isinstance(block, str):
+        return block
+    if not block:
+        return ''
+    return block.get(lang) or block.get('en') or next(iter(block.values()), '')
+
+
+def caption_for(cfg, ev, lang):
+    caps = cfg.get('captions', {})
+    for k in (ev.get('label'), ev.get('type')):
+        if k and k in caps:
+            c = caps[k]
+            return c.get(lang) or c.get('en') or ''
+    return ''
+
+
+def run(cmd, quiet=True, check=True):
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    if check and r.returncode != 0:
+        tail = (r.stderr or r.stdout)[-1500:]
+        die(f'command failed: {" ".join(cmd[:6])} ...\n{tail}')
+    return r
+
+
+def need_ffmpeg():
+    for b in ('ffmpeg', 'ffprobe'):
+        if not shutil.which(b):
+            die(f'{b} not found (brew install ffmpeg)')
+    r = subprocess.run(['ffmpeg', '-hide_banner', '-filters'], capture_output=True, text=True)
+    if r.returncode != 0:
+        die('ffmpeg does not start: ' + (r.stderr[-400:] or '') + '\nfix: brew upgrade ffmpeg')
+    return r.stdout
+
+
+def has_filter(name):
+    out = need_ffmpeg()
+    return re.search(rf'\s{re.escape(name)}\s', out) is not None
+
+
+def probe(path):
+    r = run(['ffprobe', '-v', 'error', '-print_format', 'json', '-show_streams', '-show_format', path])
+    j = json.loads(r.stdout)
+    v = next((s for s in j['streams'] if s['codec_type'] == 'video'), None)
+    a = next((s for s in j['streams'] if s['codec_type'] == 'audio'), None)
+    fps = 30.0
+    if v and v.get('avg_frame_rate', '0/0') != '0/0':
+        n, d = v['avg_frame_rate'].split('/')
+        fps = float(n) / float(d or 1)
+    return {
+        'w': int(v['width']) if v else 0, 'h': int(v['height']) if v else 0, 'fps': fps,
+        'dur': float(j['format'].get('duration', 0) or 0), 'audio': a is not None,
+        'size_mb': int(j['format'].get('size', 0)) / 1e6,
+    }
+
+
+def font_file(cfg):
+    """Path to a TTF/OTF for Pillow and libass. font_file wins, else fc-match on the family."""
+    ff = cfg.get('font_file')
+    if ff:
+        ff = os.path.expanduser(ff)
+        if os.path.exists(ff):
+            return ff
+        print(f'warn: font_file {ff} not found, falling back to {cfg.get("font")}')
+    if shutil.which('fc-match'):
+        r = subprocess.run(['fc-match', '-f', '%{file}', cfg.get('font', 'Arial Black')], capture_output=True, text=True)
+        if r.returncode == 0 and os.path.exists(r.stdout.strip()):
+            return r.stdout.strip()
+    for c in ('/System/Library/Fonts/Supplemental/Arial Black.ttf', '/Library/Fonts/Arial Black.ttf',
+              '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'):
+        if os.path.exists(c):
+            return c
+    die('no font found: set font_file in promo/config.json')
+
+
+def font_family(path):
+    if shutil.which('fc-scan'):
+        r = subprocess.run(['fc-scan', '-f', '%{family[0]}', path], capture_output=True, text=True)
+        if r.returncode == 0 and r.stdout.strip():
+            return r.stdout.strip()
+    return os.path.splitext(os.path.basename(path))[0]
+
+
+def sound(name):
+    for d in UIFX_SOUNDS:
+        if d:
+            p = os.path.join(d, name)
+            if os.path.exists(p):
+                return p
+    return None
+
+
+def hex_to_ass(h, alpha=0):
+    h = h.lstrip('#')
+    r, g, b = h[0:2], h[2:4], h[4:6]
+    return f'&H{alpha:02X}{b}{g}{r}'.upper()
+
+
+def hex_to_rgb(h):
+    h = h.lstrip('#')
+    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+
+
+def load_moments(project):
+    p = os.path.join(promo_dir(project), 'moments.json')
+    if not os.path.exists(p):
+        die('promo/moments.json missing: run moments.py first')
+    return json.load(open(p, encoding='utf-8'))
+
+
+def take_paths(project, take):
+    raw = os.path.join(promo_dir(project), 'raw')
+    return os.path.join(raw, f'{take}.mp4'), os.path.join(raw, f'{take}.events.json')
+
+
+def langs_arg(cfg, arg):
+    if arg:
+        return [x.strip() for x in arg.split(',') if x.strip()]
+    return cfg.get('languages') or ['en']

@@ -36,8 +36,8 @@ bash <клон>/scripts/install.sh --games-dir <папка игр> --with-mcp
 Если что-то упало — исправь причину и перезапусти (скрипт идемпотентный).
 
 ## 4. Проверить
-- `ls ~/.claude/skills` → 17 папок: frontend-design, webapp-testing, grilling, frontend-visual-qa + свои (character-animation,
-  chat-handoff, game-art-first, game-autotest, game-project-workflow, game-reference-analysis, game-ui-motion-sound,
+- `ls ~/.claude/skills` → 18 папок: frontend-design, webapp-testing, grilling, frontend-visual-qa + свои (character-animation,
+  chat-handoff, game-art-first, game-autotest, game-project-workflow, game-promo-kit, game-reference-analysis, game-ui-motion-sound,
   game-visual-comparison, github-account-router, levelcopier-asset-pipeline, save-context, threejs-debug-profiler,
   threejs-aaa-graphics-builder). `playcanvas-skills status` → 0 / 16.
 - `claude mcp list` → blender, afk-rig. В Blender: N-панель «BlenderMCP» → Connect.

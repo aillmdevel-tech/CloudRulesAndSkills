@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# promo <capture|moments|edit|shots> [args]  — picks a Python with Playwright + Pillow.
+set -e
+DIR="$(cd "$(dirname "$0")" && pwd)"
+cmd="$1"; shift || true
+case "$cmd" in capture|moments|edit|shots) ;; *) echo "usage: promo capture|moments|edit|shots [args]"; exit 2;; esac
+PY=""
+for p in "$PROMO_PYTHON" /usr/local/bin/python3 python3 /opt/homebrew/bin/python3 /usr/bin/python3; do
+  [ -n "$p" ] || continue
+  command -v "$p" >/dev/null 2>&1 || continue
+  if "$p" -c 'import PIL, playwright' >/dev/null 2>&1; then PY="$p"; break; fi
+done
+[ -n "$PY" ] || { echo "no python3 with Pillow + playwright: pip3 install pillow playwright && python3 -m playwright install chromium"; exit 1; }
+exec "$PY" "$DIR/$cmd.py" "$@"

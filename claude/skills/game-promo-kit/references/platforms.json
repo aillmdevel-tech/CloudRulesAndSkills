@@ -1,0 +1,91 @@
+{
+  "_about": "Media presets. verified = read on the official page (date). unverified = from search snippets, check the upload form. Update when a platform changes its rules.",
+  "crazygames": {
+    "source": "https://docs.crazygames.com/requirements/game-covers/",
+    "verified": "2026-11-20",
+    "covers": [
+      {"name": "landscape", "w": 1920, "h": 1080},
+      {"name": "portrait", "w": 800, "h": 1200},
+      {"name": "square", "w": 800, "h": 800}
+    ],
+    "cover_text": "title_only",
+    "cover_rules": ["no borders", "only the game title as text (no New/Updated/Play now)", "no icons or store logos", "no blurry or pixelated visuals", "stylized, not a plain screenshot"],
+    "videos": [
+      {"name": "preview_landscape", "w": 1920, "h": 1080, "fps": 30, "min_s": 15, "max_s": 20, "max_mb": 50, "audio": false, "text": "none"},
+      {"name": "preview_portrait", "w": 1080, "h": 1620, "fps": 30, "min_s": 15, "max_s": 20, "max_mb": 50, "audio": false, "text": "none"}
+    ],
+    "video_rules": ["no sound", "no black screen or logo intro", "no black bars", "no mouse cursor", "no Play Now or promo text", "no app or social icons", "no fast-forward (they speed it up slightly)", "first frame = static cover", "animation allowed only if it represents gameplay"],
+    "first_frame_cover": true,
+    "speed_max": 1.0
+  },
+  "poki": {
+    "source": "https://developers.poki.com/guide/game-thumbnail ; https://developers.poki.com/guide/your-game-page",
+    "verified": "2026-11-20",
+    "covers": [{"name": "thumbnail", "w": 1024, "h": 1024, "min_w": 628}],
+    "cover_text": "none",
+    "cover_rules": ["full-bleed square, no borders, padding or letterboxing", "no text, no title", "avoid colours close to #83FFE7", "must match the game"],
+    "videos": [
+      {"name": "animated_thumbnail", "w": 1080, "h": 1080, "fps": 60, "min_s": 4, "max_s": 6, "max_mb": 100, "audio": false, "text": "none", "scenes": [2, 3]}
+    ],
+    "video_rules": ["muted", "2-3 scenes of 1-2 s", "start from the static artwork", "hide non-essential UI", "no cursor", "minimal text"],
+    "first_frame_cover": true,
+    "speed_max": 1.0
+  },
+  "yandex": {
+    "source": "https://yandex.ru/dev/games/doc/ru/console/add-new-game/draft",
+    "verified": "unverified (page unreachable 2026-11-20; sizes from search snippets of the official docs)",
+    "covers": [
+      {"name": "icon", "w": 512, "h": 512, "format": "png"},
+      {"name": "cover", "w": 800, "h": 470, "format": "png"}
+    ],
+    "cover_text": "title_localized",
+    "cover_rules": ["all words on icon, cover, screenshots and video translated into each localization language", "no gameplay from other games", "promo materials must not repeat another game's"],
+    "videos": [
+      {"name": "promo_vertical", "w": 1080, "h": 1920, "fps": 30, "min_s": 10, "max_s": 30, "max_mb": 100, "audio": true, "text": "localized"},
+      {"name": "promo_horizontal", "w": 1920, "h": 1080, "fps": 30, "min_s": 10, "max_s": 30, "max_mb": 100, "audio": true, "text": "localized"}
+    ],
+    "screens": [{"name": "screen_landscape", "w": 1920, "h": 1080}, {"name": "screen_portrait", "w": 1080, "h": 1920}],
+    "video_rules": ["vertical 9:16 (confirmed); durations and MB limits not confirmed: check the console form"],
+    "speed_max": 1.0
+  },
+  "playgama": {
+    "source": "https://playgama.com/blog/business-faqs/what-thumbnail-and-metadata-assets-are-required-for-submitti/",
+    "verified": "2026-11-20 (no own numbers: square + portrait + landscape covers, exact sizes in the developer.playgama.com form)",
+    "covers": [
+      {"name": "landscape", "w": 1920, "h": 1080},
+      {"name": "portrait", "w": 800, "h": 1200},
+      {"name": "square", "w": 800, "h": 800}
+    ],
+    "cover_text": "title_only",
+    "videos": [
+      {"name": "gameplay_landscape", "w": 1920, "h": 1080, "fps": 30, "min_s": 15, "max_s": 30, "max_mb": 50, "audio": true, "text": "localized"}
+    ],
+    "video_rules": ["distributed to Yandex/CrazyGames/others: when in doubt also build their presets"],
+    "speed_max": 1.0
+  },
+  "ads_vertical": {
+    "source": "general practice for TikTok / Reels / Shorts creatives (not a platform rulebook)",
+    "verified": "guideline",
+    "videos": [
+      {"name": "ad_9x16", "w": 1080, "h": 1920, "fps": 30, "min_s": 9, "max_s": 25, "max_mb": 200, "audio": true, "text": "localized", "safe": {"top": 0.12, "bottom": 0.22, "side": 0.06}}
+    ],
+    "video_rules": ["hook in the first 1.5 s", "show real gameplay (misleading ads get rejected)", "keep text out of the bottom ~22% and top ~12% (UI overlays)", "end card with title + CTA"],
+    "speed_max": 1.6
+  },
+  "ads_square": {
+    "source": "general practice for feed ads (Meta / VK)",
+    "verified": "guideline",
+    "videos": [
+      {"name": "ad_1x1", "w": 1080, "h": 1080, "fps": 30, "min_s": 9, "max_s": 20, "max_mb": 200, "audio": true, "text": "localized"}
+    ],
+    "speed_max": 1.6
+  },
+  "ads_landscape": {
+    "source": "general practice for YouTube / trailers",
+    "verified": "guideline",
+    "videos": [
+      {"name": "ad_16x9", "w": 1920, "h": 1080, "fps": 30, "min_s": 15, "max_s": 30, "max_mb": 300, "audio": true, "text": "localized"}
+    ],
+    "speed_max": 1.6
+  }
+}

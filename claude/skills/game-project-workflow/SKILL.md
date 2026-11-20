@@ -57,7 +57,7 @@ Small but fully finished. Game feel, mechanics, elements, VFX and character come
 - Stack skills: Three.js → `threejs-aaa-graphics-builder` (render polish after A, scorecard for C) and `threejs-debug-profiler` (bugs, lags, budget), see [references/threejs-skills.md](references/threejs-skills.md); PlayCanvas → its skills only if Alex enabled them. UI → `frontend-design` + `game-ui-motion-sound` (UIFX). Characters → `character-animation`. Unusual locomotion → [references/procedural-motion.md](references/procedural-motion.md).
 
 ## 8. Expansion to the end
-After «MVP принят»: stages of the master plan (locations, content, economy, UI, platforms), each package with the package loop. Alex's feedback (text or voice video) is analysed like step 2 → `docs/TASKS.md` → fix → verify. Before submission: moderator (`game-autotest`).
+After «MVP принят»: stages of the master plan (locations, content, economy, UI, platforms), each package with the package loop. Alex's feedback (text or voice video) is analysed like step 2 → `docs/TASKS.md` → fix → verify. Before submission: moderator (`game-autotest`) and promo materials (`game-promo-kit`: ad/preview videos, screenshots, covers per platform rules and language).
 
 ## Testing (before saying «готово»)
 `tsc --noEmit`, build, dev server, budget (`threejs-debug-profiler` in Three.js), real browser (Playwright via `webapp-testing` or the built-in browser): no console errors, controls, logic, collisions/physics, camera, UI, frame time, budget. Visual claims need screenshots against the reference. Report only what actually ran.
