@@ -23,13 +23,17 @@ description: Use when Alex asks for promo materials of a browser game — "сд�
    ~/.local/bin/resource-run ~/.claude/skills/game-promo-kit/scripts/promo capture --project . --take land --size 1920x1080 --fps 60 --seconds 40
    ~/.local/bin/resource-run ~/.claude/skills/game-promo-kit/scripts/promo capture --project . --take vert --size 1080x1920 --no-build
    ```
+   Перед записью закрой тяжёлые приложения: игра должна держать ≥50 fps. Реальный fps пишется в `.events.json` (`real_fps`); при низком слоумо дорисовывается интерполяцией, но 60 честных кадров лучше.
    Сервер: по умолчанию `npm run build` + `vite preview`; `--serve dist` — готовая папка без node; `--url` — уже запущенная игра; `--init-js tools/lib/spy.js` — эмуляция SDK площадки, если игра без неё не стартует; `--ready "() => !!window.__game"` — когда игра готова.
    `--ui` — писать страницу целиком с DOM-HUD (иначе только canvas). `--dpr 2` — скриншоты крупнее. Итог: `promo/raw/<take>.mp4` + `.events.json`.
 4. **Моменты.** `promo moments --project . [--take land] [--len 2.2]` → `promo/moments.json`, лист `promo/review/moments.jpg` (3 кадра на момент). Посмотри лист сам, выкинь скучное/битое (`--moments 1,4,2` в монтаже); при сомнении покажи лист Alex.
-5. **Монтаж.** `promo edit --project . --platform <имя> [--video <пресет>] [--lang en,ru] [--moments …] [--music track.mp3] [--bpm 128]`.
+5. **Монтаж.** `promo edit --project . --platform <имя> [--video <пресет>] [--lang en,ru] [--moments …] [--music track.mp3] [--bpm 128] [--variants 2] [--draft]`.
+   - Сначала `--draft` (быстро, без интерполяции) → посмотри лист и ключевые кадры → финальный рендер без `--draft`.
    - Пресеты с `text: none` (CrazyGames, Poki) → `clean`: без текста, звука, ускорений; первый кадр — обложка (сначала `shots --covers`).
-   - Рекламные (`ads_vertical`, `ads_square`, `ads_landscape`, Яндекс) → `cartoon`: крючок-текст в первые 2 с, панч-зум и вспышка на каждой склейке, слоумо + тряска на пике, подписи событий, финальная карточка «название + CTA», whoosh/pop из UIFX. По одному файлу на язык.
-   - Вывод `promo/out/<платформа>/<язык|all>/<пресет>.mp4`; строка `FIX` = нарушение пресета (длина, размер, МБ) — исправь (больше моментов, `--duration`) до сдачи.
+   - Рекламные (`ads_vertical`, `ads_square`, `ads_landscape`, Яндекс) → `cartoon`: развязка лучшего момента в первую секунду, крючок по словам, чередование переходов (зум, свайп, белая вспышка) на долях такта, на пике разгон → слоумо 0.5× + наезд + тряска + RGB-сдвиг + «бум», подписи событий, финал с лучами, названием или `logo` и пульсирующей кнопкой CTA, whoosh/pop из UIFX. Без музыки играет сгенерированный бит (`--no-beat` выключает); музыка Alex лучше.
+   - Вертикаль из ландшафтного дубля → `layout: stack`: игра карточкой на размытом фоне, крючок заголовком сверху весь ролик. Нативный вертикальный дубль (`--size 1080x1920`) даёт больше игры в кадре.
+   - Список крючков в `texts.hook.<язык>` → по ролику на каждый (`_h2`, `_h3`), каждый открывается другим моментом: для A/B-теста в рекламном кабинете.
+   - Вывод `promo/out/<платформа>/<язык|all>/<пресет>[_hN].mp4`; строка `FIX` = нарушение пресета (длина, размер, МБ) — исправь (больше моментов, `--duration`) до сдачи.
 6. **Скриншоты и обложки.** `promo shots --project . --platform <имя> [--screens] [--covers] [--sizes 1920x1080,1080x1920] [--source promo/art/keyart.png] [--captions]`. Обложку лучше делать из key art: рендер сцены в Blender (`game-art-first`, Blender MCP) → `--source`. Текст на обложке — по правилу пресета (`none` / `title_only` / `title_localized`).
 7. **Сдача.** Короткий отчёт: что лежит в `promo/out/`, длины/размеры, что сверить вручную (нечестные кадры, мелкий текст, чужие права, `unverified`-пресеты), и листы для просмотра.
 
@@ -42,6 +46,7 @@ description: Use when Alex asks for promo materials of a browser game — "сд�
 
 ## Если что-то не так
 - `ffmpeg does not start` → `brew upgrade ffmpeg`. Тексты рисует Pillow и накладывает ffmpeg `overlay`, libass/drawtext не нужны.
+- `WARN video track … < take` → страница перестала отдавать кадры (окно свёрнуто, GPU занят): перезапиши дубль. Запись идёт двумя рекордерами (видео h264-webm и звук opus) с выгрузкой после остановки: так аппаратный энкодер Chrome не встаёт.
 - `recorder produced no data` → canvas «испорчен» внешними текстурами без CORS или WebGL не в canvas: `--ui`.
 - Нет звука в дубле → игра звучит не через WebAudio/`<audio>` или звук не разблокирован кликом; проверь `audio_tracks` в выводе capture.
 - Мыло на скриншотах → снимай дубль больше (`--size 2560x1440`, `--dpr 2`) или бери кадры `api.shot()`.

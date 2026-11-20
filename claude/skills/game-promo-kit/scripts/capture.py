@@ -47,34 +47,92 @@ START_REC_JS = r"""
 async ({ fps, ui, bitrate }) => {
   const P = window.__promo; P.mediaTap();
   const canvas = [...document.querySelectorAll('canvas')].sort((a, b) => b.width * b.height - a.width * a.height)[0];
-  const tracks = [];
-  if (!ui) { if (!canvas) throw new Error('no canvas on the page'); tracks.push(...canvas.captureStream(fps).getVideoTracks()); }
-  for (const d of P.audio) for (const t of d.stream.getAudioTracks()) tracks.push(t);
-  if (!tracks.length) { P.rec = null; P.t0 = performance.now(); return { mime: null, audio: 0 }; }
-  const stream = new MediaStream(tracks);
-  const hasV = stream.getVideoTracks().length > 0;
-  const prefs = hasV ? ['video/mp4;codecs=avc1.640033,mp4a.40.2', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm']
-                     : ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
-  const mime = prefs.find((m) => MediaRecorder.isTypeSupported(m)) || '';
-  const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: bitrate, audioBitsPerSecond: 192000 });
-  P.rec = rec; P.pending = 0;
-  rec.ondataavailable = async (e) => {
-    if (!e.data || !e.data.size) return; P.pending++;
-    const buf = new Uint8Array(await e.data.arrayBuffer()); let s = '';
-    for (let i = 0; i < buf.length; i += 0x8000) s += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
-    await window.__promoChunk(btoa(s)); P.pending--;
+  // video and audio go to SEPARATE recorders: Chrome's combined h264+opus webm muxer stalls the video track at random.
+  // webm streams a chunk every second (Chrome's mp4 muxer holds the whole file in renderer memory -> crash on long takes)
+  P.bytes = 0; P.recs = []; P.parts = {};
+  const make = (stream, kind, prefs, opts) => {
+    const mime = prefs.find((m) => MediaRecorder.isTypeSupported(m)) || '';
+    const rec = new MediaRecorder(stream, { mimeType: mime, ...opts });
+    // Blobs stay in the page until stop (Chrome's blob store spills big ones to disk). Reading them while recording
+    // (arrayBuffer / fetch upload / expose_function) stalls Chrome's hardware h264 encoder after a few seconds.
+    const parts = P.parts[kind] = [];
+    rec.ondataavailable = (e) => { if (e.data && e.data.size) { parts.push(e.data); if (kind === 'v') P.bytes += e.data.size; } };
+    rec.onstart = () => { P['start_' + kind] = performance.now(); };
+    P.recs.push(rec); return mime;
   };
-  rec.start(1000); P.t0 = performance.now();
-  return { mime, audio: stream.getAudioTracks().length, canvas: canvas ? [canvas.width, canvas.height] : null };
+  let vmime = null, amime = null, na = 0;
+  if (!ui) {
+    if (!canvas) throw new Error('no canvas on the page');
+    vmime = make(new MediaStream(canvas.captureStream(fps).getVideoTracks()), 'v',
+                 ['video/webm;codecs=h264', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'], { videoBitsPerSecond: bitrate });
+  }
+  const at = []; for (const d of P.audio) for (const t of d.stream.getAudioTracks()) at.push(t);
+  if (at.length) {
+    let astream = new MediaStream(at);
+    if (at.length > 1) {  // several AudioContexts/media elements -> mix into one track
+      const ac = new AudioContext(); const dst = ac.createMediaStreamDestination();
+      for (const t of at) ac.createMediaStreamSource(new MediaStream([t])).connect(dst);
+      astream = dst.stream;
+    }
+    na = at.length;
+    amime = make(astream, 'a', ['audio/webm;codecs=opus', 'audio/webm'], { audioBitsPerSecond: 192000 });
+  }
+  for (const r of P.recs) r.start(1000);
+  P.t0 = performance.now();
+  return { mime: vmime, amime, audio: na, canvas: canvas ? [canvas.width, canvas.height] : null };
 }
 """
 
+FPS_JS = r"""(ms) => new Promise((r) => { let n = 0; const t0 = performance.now();
+  const f = () => { n++; if (performance.now() - t0 < ms) requestAnimationFrame(f); else r(n); }; requestAnimationFrame(f); })"""
+
 STOP_REC_JS = r"""
-async () => { const P = window.__promo; if (!P.rec) return true;
-  await new Promise((r) => { P.rec.onstop = r; P.rec.stop(); });
-  for (let i = 0; i < 200 && P.pending > 0; i++) await new Promise((r) => setTimeout(r, 50));
-  return true; }
+async ({ sink }) => { const P = window.__promo; if (!P.recs || !P.recs.length) return {};
+  await Promise.all(P.recs.map((rec) => new Promise((r) => { rec.onstop = r; rec.stop(); })));
+  for (const [kind, parts] of Object.entries(P.parts)) {  // binary upload to the local sink, in order
+    for (let i = 0; i < parts.length; i++)
+      await fetch(`${sink}/${kind}/${i}`, { method: 'POST', body: parts[i], headers: { 'Content-Type': 'text/plain' } });
+    P.parts[kind] = [];
+  }
+  return { v: P.start_v != null ? (P.start_v - P.t0) / 1000 : null, a: P.start_a != null ? (P.start_a - P.t0) / 1000 : null }; }
 """
+
+
+class Sink:
+    """Local HTTP receiver for recorder chunks: POST /<kind>/<seq>, written in order to files[kind]."""
+    def __init__(self, files):
+        import http.server, threading
+        self.files = {k: open(p, 'wb') for k, p in files.items()}; self.next = {k: 0 for k in files}; self.buf = {k: {} for k in files}
+        self.lock = threading.Lock(); sink = self
+        class H(http.server.BaseHTTPRequestHandler):
+            def log_message(self, *x): pass
+            def _ok(self):
+                self.send_response(200); self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Access-Control-Allow-Private-Network', 'true'); self.send_header('Content-Length', '0'); self.end_headers()
+            def do_OPTIONS(self):
+                self.send_response(204); self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Access-Control-Allow-Methods', 'POST'); self.send_header('Access-Control-Allow-Headers', '*')
+                self.send_header('Access-Control-Allow-Private-Network', 'true'); self.end_headers()
+            def do_POST(self):
+                _, kind, seq = self.path.split('/')[:3]
+                data = self.rfile.read(int(self.headers.get('Content-Length', 0)))
+                sink.put(kind, int(seq), data); self._ok()
+        self.httpd = http.server.ThreadingHTTPServer(('127.0.0.1', 0), H)
+        self.url = f'http://127.0.0.1:{self.httpd.server_address[1]}'
+        threading.Thread(target=self.httpd.serve_forever, daemon=True).start()
+
+    def put(self, kind, seq, data):
+        with self.lock:
+            b = self.buf[kind]; b[seq] = data
+            while self.next[kind] in b:
+                self.files[kind].write(b.pop(self.next[kind])); self.next[kind] += 1
+
+    def close(self):
+        self.httpd.shutdown()
+        with self.lock:
+            for k, f in self.files.items():
+                for seq in sorted(self.buf[k]): f.write(self.buf[k][seq])  # gaps: keep what arrived
+                f.close()
 
 
 class Api:
@@ -167,6 +225,8 @@ def main():
     ap.add_argument('--warmup', type=float, default=2.0)
     ap.add_argument('--no-director', action='store_true')
     ap.add_argument('--bitrate', type=int, default=24_000_000)
+    ap.add_argument('--chrome-arg', action='append', default=[], help='extra Chromium flag (repeatable)')
+    ap.add_argument('--keep-rec', action='store_true', help='keep the raw recorder file (debug)')
     ap.add_argument('--init-js', action='append', default=[], help='extra init script, e.g. tools/lib/spy.js (SDK emulation)')
     a = ap.parse_args()
 
@@ -178,7 +238,7 @@ def main():
     W, H = (int(x) for x in size.lower().split('x'))
     fps = a.fps or int(cfg['capture'].get('fps', 60))
     raw = os.path.join(promo_dir(project), 'raw'); os.makedirs(raw, exist_ok=True)
-    tmp = os.path.join(raw, f'.{a.take}.rec'); shots_dir = os.path.join(raw, a.take, 'shots')
+    tmp = os.path.join(raw, f'.{a.take}.v.webm'); tmpa = os.path.join(raw, f'.{a.take}.a.webm'); shots_dir = os.path.join(raw, a.take, 'shots')
     scenario = None
     if not a.manual:
         sp = a.scenario or os.path.join(promo_dir(project), 'scenario.py')
@@ -199,20 +259,19 @@ def main():
         url = f'http://127.0.0.1:{a.port}/'
     elif not url:
         server, url = start_server(project, a.no_build, a.port)
-    out_chunks = open(tmp, 'wb')
+    sink = Sink({'v': tmp, 'a': tmpa}); sink_url = sink.url
     frames = []
     try:
         with sync_playwright() as pw:
             br = pw.chromium.launch(headless=False, args=['--use-angle=metal', f'--window-size={min(W, 1600)},{min(H, 1000)}',
                                                          '--autoplay-policy=no-user-gesture-required', '--hide-scrollbars',
                                                          '--disable-renderer-backgrounding', '--disable-background-timer-throttling',
-                                                         '--disable-backgrounding-occluded-windows', '--disable-features=CalculateNativeWinOcclusion'])
+                                                         '--disable-backgrounding-occluded-windows', '--disable-features=CalculateNativeWinOcclusion'] + a.chrome_arg)
             ctx = br.new_context(viewport={'width': W, 'height': H}, device_scale_factor=a.dpr, locale='en-US')
             for f in a.init_js:
                 ctx.add_init_script(path=os.path.join(project, f) if not os.path.isabs(f) else f)
             ctx.add_init_script(INIT_JS)
             pg = ctx.new_page()
-            pg.expose_function('__promoChunk', lambda b64: out_chunks.write(base64.b64decode(b64)) and None)
             errors = []
             pg.on('pageerror', lambda e: errors.append(str(e)))
             pg.goto(url)
@@ -235,9 +294,22 @@ def main():
                     except Exception: pass
                 cdp.on('Page.screencastFrame', on_frame)
                 cdp.send('Page.startScreencast', {'format': 'jpeg', 'quality': 92, 'maxWidth': W, 'maxHeight': H, 'everyNthFrame': 1})
+            pre_fps = pg.evaluate(FPS_JS, 1000)
             info = pg.evaluate(START_REC_JS, {'fps': fps, 'ui': a.ui, 'bitrate': a.bitrate})
-            print(f'recording {a.take}: {W}x{H}@{fps} mime={info.get("mime")} audio_tracks={info.get("audio")} director={directed}')
+            print(f'recording {a.take}: {W}x{H}@{fps} video={info.get("mime")} audio={info.get("amime")} audio_sources={info.get("audio")} director={directed}', flush=True)
             api = Api(pg, shots_dir, 0)
+            settle = 0.0
+            if info.get('mime') and not a.ui:  # encoder start-up stalls the page for a while: wait it out, trim it later
+                t_s = time.time(); fps_ok = max(20, int(pre_fps * 0.7))
+                while time.time() - t_s < 90:
+                    got = pg.evaluate('() => window.__promo.bytes || 0')
+                    f_now = pg.evaluate(FPS_JS, 500) * 2
+                    if got > 20000 and f_now >= fps_ok: break
+                else:
+                    print(f'WARN recorder still stalling after 90s (bytes={got}, fps={f_now})')
+                settle = pg.evaluate('() => window.__promo.now()') + 0.2
+                pg.evaluate('() => { window.__promo.events = []; }')
+                print(f'settled after {settle:.1f}s (fps {f_now}, page fps before {pre_fps})')
             if a.manual:
                 print(f'MANUAL: play in the window for {a.seconds:.0f}s; F9 or ` marks a juicy moment')
                 pg.wait_for_timeout(int(a.seconds * 1000))
@@ -248,7 +320,7 @@ def main():
                     print('scenario error:', e)
             events = pg.evaluate('() => window.__promo.events')
             dur = pg.evaluate('() => window.__promo.now()')
-            pg.evaluate(STOP_REC_JS)
+            starts = pg.evaluate(STOP_REC_JS, {'sink': sink_url}) or {}
             if cdp:
                 try: cdp.send('Page.stopScreencast')
                 except Exception: pass
@@ -256,14 +328,18 @@ def main():
                 pg.evaluate('() => window.__promo.director(false)')
             br.close()
     finally:
-        out_chunks.close()
+        sink.close()
         if server:
             try: os.killpg(server.pid, signal.SIGTERM)
             except Exception: pass
 
     master = os.path.join(raw, f'{a.take}.mp4')
     enc = ['-c:v', 'libx264', '-preset', 'medium', '-crf', '14', '-g', str(fps // 2), '-pix_fmt', 'yuv420p']
-    have_rec = os.path.getsize(tmp) > 0
+    have_v = os.path.getsize(tmp) > 0; have_a = os.path.getsize(tmpa) > 0
+    a_in = []
+    if have_a:  # align the audio recorder to the video timeline (both relative to P.t0)
+        off = (starts.get('a') or 0) - (0 if a.ui else (starts.get('v') or 0))
+        a_in = ['-itsoffset', f'{off:.3f}', '-i', tmpa]
     if a.ui:
         if not frames: die('no screencast frames captured')
         lst = os.path.join(raw, f'.{a.take}.frames.txt')
@@ -271,14 +347,27 @@ def main():
             for i, (ts, fp) in enumerate(frames):
                 d = (frames[i + 1][0] - ts) if i + 1 < len(frames) else 1 / fps
                 f.write(f"file '{fp}'\nduration {max(d, 0.001):.4f}\n")
-        cmd = ['ffmpeg', '-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', lst]
-        if have_rec: cmd += ['-i', tmp, '-map', '0:v', '-map', '1:a?', '-c:a', 'aac', '-b:a', '192k']
+        cmd = ['ffmpeg', '-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', lst] + a_in + ['-map', '0:v']
+        if have_a: cmd += ['-map', '1:a', '-c:a', 'aac', '-b:a', '192k']
         cmd += ['-vf', f'fps={fps},scale={W}:{H}:flags=lanczos'] + enc + ['-shortest', master]
         run(cmd)
     else:
-        if not have_rec: die('recorder produced no data (canvas tainted or MediaRecorder unsupported)')
-        run(['ffmpeg', '-y', '-v', 'error', '-i', tmp, '-vf', f'fps={fps}'] + enc + ['-c:a', 'aac', '-b:a', '192k', master])
-    for p in (tmp,):
+        if not have_v: die('recorder produced no data (canvas tainted or MediaRecorder unsupported): try --ui')
+        cmd = ['ffmpeg', '-y', '-v', 'error', '-i', tmp] + a_in + ['-map', '0:v'] + (['-map', '1:a', '-c:a', 'aac', '-b:a', '192k'] if have_a else [])
+        run(cmd + ['-ss', f'{settle:.3f}', '-vf', f'fps={fps}'] + enc + [master])
+    real_fps = float(fps)
+    if have_v and not a.ui:  # frames the page really rendered (the master is CFR with duplicates)
+        pts = [float(x) for x in run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'packet=pts_time',
+                                      '-of', 'csv=p=0', tmp]).stdout.split() if x.strip()]
+        pts = [x for x in pts if x >= settle]
+        if len(pts) > 10: real_fps = round((len(pts) - 1) / max(0.1, pts[-1] - pts[0]), 1)
+    elif a.ui and len(frames) > 10:
+        real_fps = round((len(frames) - 1) / max(0.1, frames[-1][0] - frames[0][0]), 1)
+    if settle:
+        for e in events: e['t'] = round(e['t'] - settle, 3)
+        for s_ in api.shots: s_['t'] = round(s_['t'] - settle, 3)
+        events = [e for e in events if e['t'] >= 0]; dur -= settle
+    for p in (() if a.keep_rec else (tmp, tmpa)):
         try: os.remove(p)
         except OSError: pass
     if a.ui:
@@ -290,7 +379,9 @@ def main():
     vdur = float(run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=duration', '-of', 'csv=p=0', master]).stdout.strip() or 0)
     if vdur < dur * 0.9:
         print(f'WARN video track {vdur:.1f}s < take {dur:.1f}s: the page rendered too few frames (window hidden/minimised or GPU busy)')
-    meta = {'take': a.take, 'w': pr['w'], 'h': pr['h'], 'fps': fps, 'dur': pr['dur'], 'audio': pr['audio'],
+    if real_fps < fps * 0.75:
+        print(f'note: the game rendered {real_fps} fps (< {fps}): close heavy apps for smoother takes; slow-mo will be interpolated')
+    meta = {'take': a.take, 'w': pr['w'], 'h': pr['h'], 'fps': fps, 'real_fps': real_fps, 'dur': pr['dur'], 'audio': pr['audio'],
             'mode': 'ui' if a.ui else 'canvas', 'manual': a.manual, 'director': bool(directed),
             'events': events, 'shots': api.shots, 'page_errors': errors[:10]}
     json.dump(meta, open(os.path.join(raw, f'{a.take}.events.json'), 'w'), ensure_ascii=False, indent=1)

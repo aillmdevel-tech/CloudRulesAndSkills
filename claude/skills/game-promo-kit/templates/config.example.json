@@ -1,25 +1,69 @@
 {
-  "title": {"en": "Spider Arms", "ru": "Паучьи Лапы", "tr": "Örümcek Kollar"},
-  "languages": ["en", "ru"],
+  "title": {
+    "en": "Spider Arms",
+    "ru": "Паучьи Лапы",
+    "tr": "Örümcek Kollar"
+  },
+  "languages": [
+    "en",
+    "ru"
+  ],
   "texts": {
-    "hook": {"en": "CAN YOU CLIMB IT?", "ru": "СМОЖЕШЬ ЗАЛЕЗТЬ?", "tr": "TIRMANABİLİR MİSİN?"},
-    "cta":  {"en": "PLAY NOW", "ru": "ИГРАЙ СЕЙЧАС", "tr": "HEMEN OYNA"}
+    "hook": {
+      "en": [
+        "CAN YOU CLIMB IT?",
+        "ONLY 1% REACH THE TOP"
+      ],
+      "ru": "СМОЖЕШЬ ЗАЛЕЗТЬ?",
+      "tr": "TIRMANABİLİR MİSİN?"
+    },
+    "cta": {
+      "en": "PLAY NOW",
+      "ru": "ИГРАЙ СЕЙЧАС",
+      "tr": "HEMEN OYNA"
+    }
   },
   "captions": {
-    "combo":   {"en": "COMBO!", "ru": "КОМБО!"},
-    "levelup": {"en": "LEVEL UP!", "ru": "НОВЫЙ УРОВЕНЬ!"},
-    "big_jump":{"en": "HUGE JUMP!", "ru": "ОГРОМНЫЙ ПРЫЖОК!"},
-    "mark":    {"en": "WOW!", "ru": "ВАУ!"}
+    "combo": {
+      "en": "COMBO!",
+      "ru": "КОМБО!"
+    },
+    "levelup": {
+      "en": "LEVEL UP!",
+      "ru": "НОВЫЙ УРОВЕНЬ!"
+    },
+    "big_jump": {
+      "en": "HUGE JUMP!",
+      "ru": "ОГРОМНЫЙ ПРЫЖОК!"
+    },
+    "mark": {
+      "en": "WOW!",
+      "ru": "ВАУ!"
+    }
   },
   "font": "Arial Black",
   "font_file": "",
-  "colors": {"text": "#FFFFFF", "accent": "#FFD23F", "outline": "#16162A"},
+  "colors": {
+    "text": "#FFFFFF",
+    "accent": "#FFD23F",
+    "outline": "#16162A"
+  },
   "music": "",
   "music_volume": 0.8,
   "game_volume": 0.7,
   "bpm": 0,
-  "capture": {"size": "1920x1080", "fps": 60},
+  "capture": {
+    "size": "1920x1080",
+    "fps": 60
+  },
   "focus_x": 0.5,
   "focus_y": 0.5,
-  "cover_source": ""
+  "cover_source": "",
+  "logo": "",
+  "_notes": {
+    "hook": "string or list per language: a list makes one video per hook (A/B), each opening on another moment",
+    "logo": "PNG with alpha for the end card (instead of the title text)",
+    "music": "track from Alex; empty = generated beat bed in ads (--no-beat to turn off)",
+    "bpm": "tempo of the music: cuts land on beats"
+  }
 }

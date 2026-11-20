@@ -24,6 +24,7 @@ DEFAULT_CONFIG = {
     'focus_x': 0.5,
     'focus_y': 0.5,
     'cover_source': '',
+    'logo': '',
 }
 
 
@@ -73,6 +74,55 @@ def text_for(cfg, key, lang):
     if not block:
         return ''
     return block.get(lang) or block.get('en') or next(iter(block.values()), '')
+
+
+def hooks_for(cfg, lang):
+    """texts.hook may be a string, {lang: str}, or {lang: [variant1, variant2, ...]} for A/B ads."""
+    block = cfg.get('texts', {}).get('hook')
+    if not block: return []
+    if isinstance(block, (str, list)): v = block
+    else: v = block.get(lang) or block.get('en') or next(iter(block.values()), '')
+    return [x for x in ([v] if isinstance(v, str) else v) if x]
+
+
+def synth(path, kind, bpm=120, dur=20.0, sr=44100):
+    """Royalty-free procedural audio (written as WAV): 'beat' bed (kick/clap/hat/offbeat bass) or 'boom' impact."""
+    import array, math, random, wave
+    rnd = random.Random(7)
+    n = int(dur * sr); buf = array.array('f', bytes(4 * n))
+    def shot(length, fn): return [fn(i / sr) for i in range(int(length * sr))]
+    def add(t0, s, g=1.0):
+        i0 = int(t0 * sr)
+        for i, v in enumerate(s[:max(0, n - i0)]): buf[i0 + i] += v * g
+    kick = shot(0.38, lambda t: math.sin(2 * math.pi * (45 * t + 95 * (1 - math.exp(-t * 28)) / 28)) * math.exp(-t * 9))
+    if kind == 'boom':
+        noise = shot(0.08, lambda t: (rnd.random() * 2 - 1) * math.exp(-t * 60))
+        boom = shot(0.9, lambda t: math.sin(2 * math.pi * (32 * t + 140 * (1 - math.exp(-t * 14)) / 14)) * math.exp(-t * 4.5))
+        add(0, boom, 0.95); add(0, noise, 0.5)
+    else:
+        beat = 60.0 / bpm; prev = [0.0]
+        def hp(t):  # crude high-passed noise
+            x = rnd.random() * 2 - 1; y = x - prev[0]; prev[0] = x; return y
+        clap = shot(0.22, lambda t: hp(t) * (math.exp(-t * 22) + 0.6 * math.exp(-((t - 0.012) ** 2) * 4e5)))
+        hat = shot(0.05, lambda t: hp(t) * math.exp(-t * 90))
+        crash = shot(1.4, lambda t: hp(t) * math.exp(-t * 3.2))
+        notes = [55.0, 43.65, 65.41, 49.0]
+        k = 0
+        while k * beat < dur:
+            t = k * beat; bar = (k // 4) % 4
+            add(t, kick, 0.9)
+            if k % 4 in (1, 3): add(t, clap, 0.35)
+            add(t + beat / 2, hat, 0.22); add(t + beat / 4 * 3, hat, 0.1)
+            f = notes[bar]
+            bass = shot(beat / 2, lambda x, f=f: (math.sin(2 * math.pi * f * x) + 0.35 * math.sin(4 * math.pi * f * x))
+                        * (1 - math.exp(-x * 60)) * math.exp(-x * 5))
+            add(t + beat / 2, bass, 0.32)
+            k += 1
+        add(0, crash, 0.25)
+    peak = max(1e-6, max(abs(v) for v in buf))
+    w = wave.open(path, 'wb'); w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr)
+    w.writeframes(array.array('h', (int(max(-1, min(1, v / peak * 0.9)) * 32767) for v in buf)).tobytes()); w.close()
+    return path
 
 
 def caption_for(cfg, ev, lang):

@@ -1,19 +1,30 @@
-"""Cut and edit promo videos from the picked moments, per platform preset and language.
+"""Cut and edit promo videos from the picked moments, per platform preset, language and hook variant.
 
-  edit.py --project DIR --platform crazygames [--video preview_landscape] [--lang en,ru]
+  edit.py --project DIR --platform ads_vertical [--video promo_vertical] [--lang en,ru]
           [--moments 3,1,5] [--style cartoon|clean] [--duration 15] [--music file.mp3] [--bpm 128]
-          [--no-slowmo] [--no-sfx]
+          [--layout auto|cover|stack] [--variants 2] [--no-slowmo] [--no-sfx] [--no-beat] [--draft]
 
-cartoon: punch-zoom on every cut, white flash, speed-ramp + slow-mo at the payoff, impact shake,
-         colour pop, pop-in localized texts (hook / captions / end card with title + CTA), whoosh/pop SFX.
-clean:   hard cuts, no text, no speed tricks (platform hover/preview videos).
-The preset (references/platforms.json) sets size, fps, duration, audio on/off, text policy, size cap.
-Output: promo/out/<platform>/<lang|all>/<video>.mp4 + promo/review/<platform>_<video>_<lang>.jpg.
+cartoon (ads): opener = strongest payoff within the first second, word-by-word hook, varied transitions
+  (zoom, whip-slide, white flash) cut on the beat, speed-ramp -> 0.5x slow-mo (motion-interpolated when the
+  game rendered < 50 fps) + push-in + shake + RGB split + boom at every payoff, pop-in captions, end card with
+  blurred freeze-frame, rotating rays, logo/title and a pulsing CTA; whoosh/pop SFX; procedural beat bed when
+  no music is given. Portrait output from a landscape take -> "stack": gameplay card on its blurred copy.
+clean (platform previews): hard cuts, no text/sound/speed tricks, optional cover as the first frame.
+texts.hook may hold a list per language -> one file per hook (A/B), each opening on a different moment.
+Output: promo/out/<platform>/<lang|all>/<video>[_hN].mp4 + promo/review/<platform>_<video>_<lang>[_hN].jpg.
 """
 import argparse, json, math, os, shutil, sys, tempfile
 sys.path.insert(0, os.path.dirname(__file__))
-from common import (caption_for, die, font_file, hex_to_rgb, langs_arg, load_config,
-                    load_moments, need_ffmpeg, platform, probe, promo_dir, run, sound, text_for)
+from common import (caption_for, die, font_file, hex_to_rgb, hooks_for, langs_arg, load_config,
+                    load_moments, need_ffmpeg, platform, probe, promo_dir, run, sound, synth, text_for)
+
+try:
+    from PIL.Image import Resampling as _R
+    BIC = _R.BICUBIC
+except Exception:  # old Pillow
+    from PIL.Image import BICUBIC as BIC
+
+TRANSITIONS = ['zoomin', 'slideleft', 'fadewhite', 'slideup', 'smoothright', 'fadewhite']
 
 
 def fit_text(text, font_path, size, max_w, max_lines=2):
@@ -22,7 +33,7 @@ def fit_text(text, font_path, size, max_w, max_lines=2):
     words = text.split()
     while size > 12:
         f = ImageFont.truetype(font_path, int(size))
-        wid = lambda s: f.getlength(s)
+        wid = f.getlength
         if wid(text) <= max_w:
             return [text], int(size)
         if len(words) > 1 and max_lines >= 2:
@@ -33,7 +44,7 @@ def fit_text(text, font_path, size, max_w, max_lines=2):
                 if best is None or m < best[0]: best = (m, [a, b])
             if best[0] <= max_w:
                 return best[1], int(size)
-        elif len(words) == 1 and len(text) > 8 and wid(text) > max_w and not text.isascii():
+        elif len(words) == 1 and len(text) > 4 and not text.isascii() and max_lines >= 2:
             half = len(text) // 2  # CJK: split by characters
             a, b = text[:half], text[half:]
             if max(wid(a), wid(b)) <= max_w: return [a, b], int(size)
@@ -42,17 +53,54 @@ def fit_text(text, font_path, size, max_w, max_lines=2):
 
 
 class TextLayer:
-    """Pop-in texts rendered by Pillow as RGBA frame sequences, overlaid by ffmpeg (no libass needed)."""
+    """Pop-in texts/images rendered by Pillow as RGBA frame sequences, overlaid by ffmpeg (no libass needed)."""
     def __init__(self, W, H, font_path, cfg):
         c = cfg['colors']; self.W, self.H, self.fp, self.items = W, H, font_path, []
         self.text, self.acc, self.out = hex_to_rgb(c['text']), hex_to_rgb(c['accent']), hex_to_rgb(c['outline'])
 
-    def pop(self, t0, t1, lines, size, x, y, colour=None, rot=-3, pulse=False):
+    def pop(self, t0, t1, lines, size, x, y, colour=None, rot=-3, pulse=False, image=None, button=False):
         if t1 - t0 > 0.15:
-            self.items.append(dict(t0=t0, t1=t1, lines=lines, size=int(size), x=x, y=y, col=colour or self.text, rot=rot, pulse=pulse))
+            self.items.append(dict(t0=t0, t1=t1, lines=lines, size=int(size), x=x, y=y, col=colour or self.text,
+                                   rot=rot, pulse=pulse, image=image, button=button))
+
+    def pop_words(self, t0, t1, lines, size, cx, cy, colour=None, stagger=0.09):
+        """Kinetic hook: every word pops on its own with alternating tilt; the phrase layout is kept."""
+        from PIL import ImageFont
+        f = ImageFont.truetype(self.fp, int(size)); sp = f.getlength(' '); lh = size * 1.12
+        k = 0
+        for li, line in enumerate(lines):
+            words = line.split()
+            if len(words) == 1 and not line.isascii() and len(line) > 3:  # CJK line: pop it whole
+                words = [line]
+            ws = [f.getlength(w) for w in words]; tot = sum(ws) + sp * (len(words) - 1)
+            x = cx - tot / 2; y = cy + (li - (len(lines) - 1) / 2) * lh
+            for w, wl in zip(words, ws):
+                self.pop(t0 + k * stagger, t1, [w], size, x + wl / 2, y, colour, rot=(-5 if k % 2 == 0 else 4))
+                x += wl + sp; k += 1
 
     def _sprite(self, it):
         from PIL import Image, ImageDraw, ImageFont
+        if it['image']:
+            im = Image.open(it['image']).convert('RGBA')
+            sc = it['size'] / max(im.width, im.height)
+            return im.resize((max(1, int(im.width * sc)), max(1, int(im.height * sc))), Image.LANCZOS)
+        if it.get('button'):  # CTA as a fat cartoon button: white rim, accent face over a darker lip, gloss, dark label
+            f = ImageFont.truetype(self.fp, it['size']); l, t, rr, b = f.getbbox(it['lines'][0])
+            tw, th = rr - l, b - t; px, py, rim = it['size'] * 0.8, it['size'] * 0.45, max(4, int(it['size'] * 0.09))
+            bw_, bh_ = int(tw + 2 * px), int(th + 2 * py); lip = int(bh_ * 0.12); sh = int(it['size'] * 0.14)
+            W_, H_ = bw_ + 2 * rim, bh_ + lip + 2 * rim
+            im = Image.new('RGBA', (W_ + sh, H_ + sh), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+            d.rounded_rectangle((sh, sh, sh + W_, sh + H_), H_ // 2, fill=(0, 0, 0, 110))
+            d.rounded_rectangle((0, 0, W_, H_), H_ // 2, fill=(255, 255, 255, 255))
+            dark = tuple(int(c * 0.70) for c in it['col'])
+            d.rounded_rectangle((rim, rim, rim + bw_, rim + bh_ + lip), (bh_ + lip) // 2, fill=dark + (255,))
+            d.rounded_rectangle((rim, rim, rim + bw_, rim + bh_), bh_ // 2, fill=it['col'] + (255,))
+            gl = Image.new('RGBA', im.size, (0, 0, 0, 0))
+            ImageDraw.Draw(gl).rounded_rectangle((rim + bh_ * 0.35, rim + bh_ * 0.10, rim + bw_ - bh_ * 0.35, rim + bh_ * 0.32),
+                                                 int(bh_ * 0.11), fill=(255, 255, 255, 80))
+            im.alpha_composite(gl); d = ImageDraw.Draw(im)
+            d.text((rim + bw_ / 2, rim + bh_ / 2), it['lines'][0], font=f, fill=self.out + (255,), anchor='mm')
+            return im
         f = ImageFont.truetype(self.fp, it['size']); sw = max(3, int(it['size'] * 0.11)); sh = max(2, int(it['size'] * 0.07))
         lh = int(it['size'] * 1.1); ws = [f.getlength(l) for l in it['lines']]
         w = int(max(ws) + 2 * sw + sh + 8); h = int(lh * len(it['lines']) + 2 * sw + sh + it['size'] * 0.3)
@@ -71,7 +119,7 @@ class TextLayer:
         elif ms < 330: s = lerp(0.96, 1.0, (ms - 250) / 80)
         else: s = 1.0
         if pulse and ms > 700:
-            ph = ((ms - 700) % 500) / 500; s *= 1 + 0.10 * math.sin(ph * math.pi)
+            ph = ((ms - 700) % 520) / 520; s *= 1 + 0.10 * math.sin(ph * math.pi)
         r = rot if ms < 330 else lerp(rot, -rot * 0.6, (ms - 330) / 370)
         al = 1.0 if ms < dur_ms - 140 else max(0.0, (dur_ms - ms) / 140)
         return s, r, al
@@ -86,7 +134,7 @@ class TextLayer:
             n = max(1, int(round((it['t1'] - it['t0']) * F))); dur = (it['t1'] - it['t0']) * 1000
             for i in range(n):
                 s, r, al = self._curve(i * 1000 / F, dur, it['rot'], it['pulse'])
-                im = spr.resize((max(1, int(spr.width * s)), max(1, int(spr.height * s))), Image.BICUBIC).rotate(r, Image.BICUBIC, expand=True)
+                im = spr.resize((max(1, int(spr.width * s)), max(1, int(spr.height * s))), BIC).rotate(r, BIC, expand=True)
                 if al < 1: im.putalpha(im.getchannel('A').point(lambda v: int(v * al)))
                 fr = Image.new('RGBA', (bw, bh), (0, 0, 0, 0))
                 fr.alpha_composite(im, (max(0, (bw - im.width) // 2), max(0, (bh - im.height) // 2)))
@@ -95,20 +143,38 @@ class TextLayer:
         return res
 
 
-def order_moments(ms, explicit):
-    if explicit:
-        return ms
-    if len(ms) < 3:
-        return ms
-    best, second, rest = ms[0], ms[1], ms[2:]
-    return [best] + rest + [second]
+def sunburst(path, W, H, rgb, rays=14):
+    """Cartoon rays for the end card (rotated by ffmpeg)."""
+    from PIL import Image, ImageDraw, ImageFilter
+    D = int(math.hypot(W, H)) + 4; c = D / 2
+    im = Image.new('RGBA', (D, D), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    for i in range(rays):
+        a0 = 2 * math.pi * i / rays; a1 = a0 + math.pi / rays
+        d.polygon([(c, c), (c + D * math.cos(a0), c + D * math.sin(a0)), (c + D * math.cos(a1), c + D * math.sin(a1))], fill=rgb + (90,))
+    m = Image.new('L', (D, D), 0); ImageDraw.Draw(m).ellipse((c - D * 0.40, c - D * 0.40, c + D * 0.40, c + D * 0.40), fill=255)
+    m = m.filter(ImageFilter.GaussianBlur(D * 0.12))
+    im.putalpha(Image.composite(im.getchannel('A'), Image.new('L', (D, D), 0), m))
+    im.save(path)
 
 
-def plan_clips(ms, vp, style, total, fps_src, a):
-    """Return list of clips, each a list of segments (start, end, speed, fx) on the source take."""
+def take_meta(project, take):
+    p = os.path.join(promo_dir(project), 'raw', f'{take}.events.json')
+    return json.load(open(p, encoding='utf-8')) if os.path.exists(p) else {}
+
+
+def order_moments(ms, explicit, variant=0):
+    if not explicit and len(ms) >= 3:
+        ms = [ms[0]] + ms[2:] + [ms[1]]  # best first, second-best right before the end card
+    if variant and len(ms) > 1:
+        v = variant % len(ms); ms = [ms[v]] + ms[:v] + ms[v + 1:]
+    return ms
+
+
+def plan_clips(ms, vp, style, total, a, xd):
+    """-> list of clips, each a list of segments (start, end, speed, fx) on the source take."""
     beat = 60.0 / a.bpm if a.bpm else 0
     scenes = vp.get('scenes')
-    slowmo = style == 'cartoon' and not a.no_slowmo and fps_src >= 45
+    slowmo = style == 'cartoon' and not a.no_slowmo
     pre_speed = min(1.25, vp.get('speed_max', 1.0)) if style == 'cartoon' else 1.0
     clips, acc = [], 0.0
     if scenes:  # short loop (Poki): k scenes of equal length
@@ -117,28 +183,27 @@ def plan_clips(ms, vp, style, total, fps_src, a):
         for m in ms[:k]:
             s = max(0.0, m['peak'] - 0.6 * per); clips.append([(s, s + per, 1.0, {'first': True, 'ev': m, 'peak': m['peak']})])
         return clips
-    for m in ms:
+    for ci, m in enumerate(ms):
+        ov = xd if ci else 0.0  # the transition overlap eats the head of every clip after the first
         left = total - acc
-        if left < 0.6: break
+        if left < 0.8: break
         s, e, p = m['start'], m['end'], m['peak']
-        segs = []
-        if slowmo and p - s > 0.4 and e - p > 0.45:
-            a1, b1 = s, p - 0.12; a2, b2 = p - 0.12, p + 0.33; a3, b3 = b2, e
-            segs = [(a1, b1, pre_speed, {}), (a2, b2, 0.5, {'impact': True}), (a3, b3, 1.0, {})]
+        if ci == 0 and style == 'cartoon':
+            s = max(s, p - 0.85)  # the opener pays off inside the first second
+        if slowmo and p - s > 0.35 and e - p > 0.45:
+            segs = [(s, p - 0.12, pre_speed, {}), (p - 0.12, p + 0.33, 0.5, {'impact': True}), (p + 0.33, e, 1.0, {})]
         else:
             segs = [(s, e, 1.0, {'impact': style == 'cartoon'})]
         segs[0][3]['first'] = True
         out = sum((b - a_) / sp for a_, b, sp, _ in segs)
         want = out
         if beat:
-            want = max(2 * beat, round(out / beat) * beat)
-        want = min(want, left)
-        # trim/extend the last segment to hit `want`
+            want = max(2 * beat, round((out - ov) / beat) * beat) + ov
+        want = min(want, left + ov)
         a_, b, sp, fx = segs[-1]
-        b = max(a_ + 0.2, b + (want - out) * sp)
-        segs[-1] = (a_, b, sp, fx)
+        segs[-1] = (a_, max(a_ + 0.2, b + (want - out) * sp), sp, fx)
         clips.append([(x[0], x[1], x[2], dict(x[3], peak=p, ev=m)) for x in segs])
-        acc += sum((b_ - a__) / sp_ for a__, b_, sp_, _ in segs)
+        acc += sum((b_ - a__) / sp_ for a__, b_, sp_, _ in segs) - ov
     return clips
 
 
@@ -150,106 +215,189 @@ def atempo_chain(sp):
     return ','.join(parts)
 
 
-def build(project, cfg, pname, plat, vp, lang, moments, a, workroot):
+def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', variant=0):
     W, H, F = vp['w'], vp['h'], vp.get('fps', 30)
     style = a.style or ('clean' if vp.get('text') == 'none' else 'cartoon')
-    with_text = vp.get('text') != 'none' and style == 'cartoon'
+    cartoon = style == 'cartoon'
+    with_text = vp.get('text') != 'none' and cartoon
     with_audio = vp.get('audio', True)
-    total = a.duration or (vp['max_s'] if style == 'clean' else min(vp['max_s'], max(vp.get('min_s', 9), 15)))
+    total = a.duration or (vp['max_s'] if not cartoon else min(vp['max_s'], max(vp.get('min_s', 9), 15)))
     total = max(vp.get('min_s', 1), min(vp['max_s'], total))
-    endcard = 1.8 if with_text and text_for(cfg, 'cta', lang) else 0.0
+    title = text_for(cfg, 'title', lang); cta = text_for(cfg, 'cta', lang)
+    endcard = 1.8 if with_text and (cta or title) else 0.0
     cover = None
     if plat.get('first_frame_cover'):
         cdir = os.path.join(promo_dir(project), 'out', pname, 'covers')
-        ar = W / H
-        cands = [os.path.join(cdir, f) for f in os.listdir(cdir)] if os.path.isdir(cdir) else []
-        cands = [c for c in cands if c.endswith('.png')]
+        cands = [os.path.join(cdir, f) for f in os.listdir(cdir) if f.endswith('.png')] if os.path.isdir(cdir) else []
         if cands:
             from PIL import Image
-            cover = min(cands, key=lambda c: abs(Image.open(c).size[0] / Image.open(c).size[1] - ar))
+            def ar(c): w_, h_ = Image.open(c).size; return w_ / h_
+            cover = min(cands, key=lambda c: abs(math.log(ar(c) / (W / H))))
         else:
             print(f'  warn: {pname} wants the cover as first frame; run shots.py --covers first')
     intro = 0.5 if cover else 0.0
-    body = total - endcard - intro
+    xd = 0.14 if cartoon else 0.0
     if not moments: die('no moments selected')
     src = {m['take']: probe(os.path.join(promo_dir(project), 'raw', f'{m["take"]}.mp4')) for m in moments}
-    clips = plan_clips(moments, vp, style, body, min(p['fps'] for p in src.values()), a)
+    real_fps = {t: take_meta(project, t).get('real_fps', src[t]['fps']) for t in src}
+    clips = plan_clips(moments, vp, style, total - endcard - intro, a, xd)
     if not clips: die('not enough material for this duration')
 
+    # layout: portrait ad from a landscape take -> gameplay card on its own blurred copy
+    sp0 = next(iter(src.values())); src_ar = sp0['w'] / max(1, sp0['h']); dst_ar = W / H
+    layout = a.layout if a.layout != 'auto' else ('stack' if cartoon and src_ar / dst_ar > 1.5 and H > W else 'cover')
     fam_path = font_file(cfg)
+    safe = vp.get('safe', {'top': 0.06, 'bottom': 0.08, 'side': 0.05})
+    top_y = H * safe['top']; bot_y = H * (1 - safe['bottom'])
+    maxw = W * (1 - 2 * safe.get('side', 0.05)) * 0.92; base = min(W, H)
+    hook_lines, hook_size = fit_text(hook, fam_path, base * 0.105, maxw) if (with_text and hook) else ([], 0)
+    hook_h = hook_size * 1.12 * len(hook_lines)
+    if layout == 'stack':  # card under the hook band, its bottom may run into the lower safe zone a little
+        FW = (W - 2 * int(W * 0.035)) // 2 * 2
+        card_top = int(top_y + hook_h + H * 0.03) if hook_h else int(top_y)
+        FH = int(min(FW * 1.25, bot_y + H * 0.04 - card_top)) // 2 * 2
+        if not hook_h: card_top = (H - FH) // 2
+    else:
+        FW, FH, card_top = W, H, 0
     work = tempfile.mkdtemp(prefix=f'{pname}_{vp["name"]}_{lang}_', dir=workroot)
-    inputs, fc, vlab, alab = [], [], [], []
-    fx_amt = style == 'cartoon'
-    over = 1.06 if fx_amt else 1.0
+    inputs, fc, idx = [], [], 0
+    over = 1.06 if cartoon else 1.0
     fxp = cfg.get('focus_x', 0.5); fyp = cfg.get('focus_y', 0.5)
-    sw, sh = int(math.ceil(W * over / 2) * 2), int(math.ceil(H * over / 2) * 2)
-    timeline = 0.0; cut_times, captions = [], []
-    idx = 0
+    sw, sh = int(math.ceil(FW * over / 2) * 2), int(math.ceil(FH * over / 2) * 2)
+    clip_v, clip_a, clip_len, clip_caps, clip_imp = [], [], [], [], []
     if cover:
         inputs += ['-loop', '1', '-framerate', str(F), '-t', f'{intro:.3f}', '-i', cover]
-        fc.append(f'[{idx}:v]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={F},setsar=1,format=yuv420p[v{idx}]')
-        fc.append(f'anullsrc=r=48000:cl=stereo,atrim=0:{intro:.3f}[a{idx}]')
-        vlab.append(f'[v{idx}]'); alab.append(f'[a{idx}]'); idx += 1; timeline += intro
+        fc.append(f'[{idx}:v]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},setsar=1,format=yuv420p,settb=AVTB,fps={F}[cvI]')
+        fc.append(f'anullsrc=r=48000:cl=stereo,atrim=0:{intro:.3f}[caI]')
+        clip_v.append('[cvI]'); clip_a.append('[caI]'); clip_len.append(intro); clip_caps.append([]); clip_imp.append([])
+        idx += 1
+    interp_used = False
     for ci, clip in enumerate(clips):
-        if ci > 0 or cover: cut_times.append(timeline)
+        segv, sega, local, caps, imps = [], [], 0.0, [], []
         for (s, e, sp, fx) in clip:
-            take = fx.get('ev', moments[0])['take'] if fx.get('ev') else moments[0]['take']
+            take = fx['ev']['take'] if fx.get('ev') else moments[0]['take']
             pr = src[take]
-            inputs += ['-ss', f'{s:.3f}', '-t', f'{e - s:.3f}', '-i', os.path.join(promo_dir(project), 'raw', f'{take}.mp4')]
+            inputs += ['-ss', f'{max(0, s):.3f}', '-t', f'{e - s:.3f}', '-i', os.path.join(promo_dir(project), 'raw', f'{take}.mp4')]
             d_out = (e - s) / sp
-            ch = [f'[{idx}:v]setpts=(PTS-STARTPTS)/{sp:.4f}', f'fps={F}',
-                  f'scale={sw}:{sh}:force_original_aspect_ratio=increase:flags=lanczos']
-            if fx.get('impact') and fx_amt:
-                amp = int(min(W, H) * 0.012)
-                ch.append(f"crop={W}:{H}:x='(iw-ow)*{fxp}+{amp}*sin(t*57)*exp(-t*6)':y='(ih-oh)*{fyp}+{amp}*cos(t*43)*exp(-t*6)'")
+            L = f's{idx}'
+            interp = sp < 0.99 and real_fps[take] * sp < 40 and not a.draft
+            # crop to the target aspect first, scale once, then (slow-mo) interpolate on the small frame
+            fg = [f"crop='min(iw,ih*{FW}/{FH})':'min(ih,iw*{FH}/{FW})':'(iw-ow)*{fxp}':'(ih-oh)*{fyp}'",
+                  f'scale={sw}:{sh}:flags=lanczos']
+            if interp:  # slow-mo from a low-fps take: synthesize in-between frames
+                fg.append(f'minterpolate=fps={int(round(F / sp))}:mi_mode=mci:mc_mode=obmc:me_mode=bidir')
+                interp_used = True
+            fg += [f'setpts=(PTS-STARTPTS)/{sp:.4f}', f'fps={F}']
+            head = f'[{idx}:v]' + ('mpdecimate,' if interp else '')
+            if layout == 'stack':
+                fc.append(head + f'split[{L}bg0][{L}fg0]')
+                fc.append(f'[{L}bg0]setpts=(PTS-STARTPTS)/{sp:.4f},fps={F},scale={W // 4}:{H // 4}:force_original_aspect_ratio=increase,'
+                          f'crop={W // 4}:{H // 4},gblur=sigma=10,scale={W}:{H},eq=brightness=-0.14:saturation=1.25[{L}bg]')
+                ch = [f'[{L}fg0]'] + fg
             else:
-                ch.append(f"crop={W}:{H}:x='(iw-ow)*{fxp}':y='(ih-oh)*{fyp}'")
-            if fx.get('first') and fx_amt:
-                ch.append(f"zoompan=z='max(1,1.16-0.64*it)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s={W}x{H}:fps={F}")
-                if ci > 0 or cover:
-                    ch.append('fade=t=in:st=0:d=0.10:color=white')
-            if fx_amt:
+                ch = [f'[{idx}:v]'] + (['mpdecimate'] if interp else []) + fg
+            if fx.get('impact') and cartoon:
+                amp = int(min(FW, FH) * 0.014)
+                ch.append(f"crop={FW}:{FH}:x='(iw-ow)*{fxp}+{amp}*sin(t*57)*exp(-t*6)':y='(ih-oh)*{fyp}+{amp}*cos(t*43)*exp(-t*6)'")
+            else:
+                ch.append(f"crop={FW}:{FH}:x='(iw-ow)*{fxp}':y='(ih-oh)*{fyp}'")
+            if cartoon and fx.get('first'):
+                ch.append(f"zoompan=z='max(1,1.16-0.64*it)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s={FW}x{FH}:fps={F}")
+            elif cartoon and fx.get('impact'):  # push-in through the slow-mo
+                ch.append(f"zoompan=z='1+0.10*min(1,it/{max(d_out, 0.1):.3f})':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s={FW}x{FH}:fps={F}")
+            if cartoon and fx.get('impact'):
+                k = max(4, int(FW * 0.006))
+                ch.append(f"rgbashift=rh=-{k}:bh={k}:enable='lt(t,0.16)'")
+                ch.append("eq=brightness=0.10:enable='lt(t,0.05)'")
+            if cartoon:
                 ch.append('eq=saturation=1.16:contrast=1.05')
             ch += ['setsar=1', 'format=yuv420p']
-            fc.append(','.join(ch) + f'[v{idx}]')
+            if layout == 'stack':
+                bw_ = max(4, int(W * 0.006))
+                ch.append(f'pad=iw+{2 * bw_}:ih+{2 * bw_}:{bw_}:{bw_}:color=white')
+                fc.append(ch[0] + ','.join(ch[1:]) + f'[{L}fg]')
+                fc.append(f'[{L}bg][{L}fg]overlay=(W-w)/2:{card_top - max(4, int(W * 0.006))},setsar=1,format=yuv420p[v{idx}]')
+            else:
+                fc.append(ch[0] + ','.join(ch[1:]) + f'[v{idx}]')
             if pr['audio']:
                 fc.append(f'[{idx}:a]asetpts=PTS-STARTPTS,{atempo_chain(sp)},aresample=48000,aformat=channel_layouts=stereo,apad,atrim=0:{d_out:.3f}[a{idx}]')
             else:
                 fc.append(f'anullsrc=r=48000:cl=stereo,atrim=0:{d_out:.3f}[a{idx}]')
-            vlab.append(f'[v{idx}]'); alab.append(f'[a{idx}]')
-            if fx.get('impact') and with_text and fx.get('ev'):
-                txt = caption_for(cfg, fx['ev'], lang)
-                if txt: captions.append((timeline + 0.05, txt))
-            idx += 1; timeline += d_out
-    n = len(vlab)
-    fc.append(''.join(v + a_ for v, a_ in zip(vlab, alab)) + f'concat=n={n}:v=1:a=1[cv][ca]')
-    body_end = timeline; total_out = body_end + endcard
-    vtail = '[cv]'
+            segv.append(f'[v{idx}]'); sega.append(f'[a{idx}]')
+            if fx.get('impact') and cartoon:
+                imps.append(local)
+                if with_text and fx.get('ev'):
+                    txt = caption_for(cfg, fx['ev'], lang)
+                    if txt: caps.append((local + 0.05, txt))
+            idx += 1; local += d_out
+        fc.append(''.join(v + a_ for v, a_ in zip(segv, sega)) + f'concat=n={len(segv)}:v=1:a=1[cv{ci}r][ca{ci}]')
+        fc.append(f'[cv{ci}r]settb=AVTB,fps={F}[cv{ci}]')
+        clip_v.append(f'[cv{ci}]'); clip_a.append(f'[ca{ci}]'); clip_len.append(local); clip_caps.append(caps); clip_imp.append(imps)
+    # join clips: xfade/acrossfade in cartoon, hard concat otherwise
+    starts, t = [], 0.0
+    if xd and len(clip_v) > 1:
+        vcur, acur = clip_v[0], clip_a[0]; t = clip_len[0]; starts.append(0.0)
+        for k in range(1, len(clip_v)):
+            off = t - xd; starts.append(off)
+            tr = 'fadewhite' if (cover and k == 1) else TRANSITIONS[(k - 1 + variant) % len(TRANSITIONS)]
+            fc.append(f'{vcur}{clip_v[k]}xfade=transition={tr}:duration={xd}:offset={off:.4f}[xv{k}]')
+            fc.append(f'{acur}{clip_a[k]}acrossfade=d={xd}:c1=tri:c2=tri[xa{k}]')
+            vcur, acur = f'[xv{k}]', f'[xa{k}]'; t = off + clip_len[k]
+    else:
+        for L_ in clip_len: starts.append(t); t += L_
+        fc.append(''.join(v + a_ for v, a_ in zip(clip_v, clip_a)) + f'concat=n={len(clip_v)}:v=1:a=1[xv][xa]')
+        vcur, acur = '[xv]', '[xa]'
+    body_end = t; total_out = body_end + endcard
+    cut_times = starts[1:]
+    captions = [(starts[k] + lt, txt) for k, cs in enumerate(clip_caps) for lt, txt in cs]
+    impacts = [starts[k] + lt for k, im in enumerate(clip_imp) for lt in im]
+    vtail = vcur
     if endcard:
-        fc.append(f"[cv]tpad=stop_mode=clone:stop_duration={endcard:.2f},gblur=sigma=16:enable='gte(t,{body_end:.2f})',"
-                  f"eq=brightness=-0.10:enable='gte(t,{body_end:.2f})'[ce]")
-        vtail = '[ce]'
+        fc.append(f"{vcur}tpad=stop_mode=clone:stop_duration={endcard:.2f},gblur=sigma=18:enable='gte(t,{body_end:.2f})',"
+                  f"eq=brightness=-0.12:saturation=1.2:enable='gte(t,{body_end:.2f})'[ce]")
+        bpath = os.path.join(work, 'burst.png'); sunburst(bpath, W, H, hex_to_rgb(cfg['colors']['accent']))
+        inputs += ['-loop', '1', '-framerate', str(F), '-t', f'{endcard:.3f}', '-i', bpath]
+        fc.append(f"[{idx}:v]format=rgba,rotate=a='t*0.45':c=none:ow={W}:oh={H},fade=t=in:st=0:d=0.25:alpha=1,"
+                  f"setpts=PTS-STARTPTS+{body_end:.3f}/TB[burst]")
+        fc.append('[ce][burst]overlay=0:0:eof_action=pass:format=auto[ceb]')
+        vtail = '[ceb]'; idx += 1
     if with_text:
-        safe = vp.get('safe', {'top': 0.06, 'bottom': 0.08, 'side': 0.05})
-        maxw = W * (1 - 2 * safe.get('side', 0.05)) * 0.92
-        ass = TextLayer(W, H, fam_path, cfg); base = min(W, H)
-        hook = text_for(cfg, 'hook', lang)
+        tl = TextLayer(W, H, fam_path, cfg)
         if hook:
-            lines, size = fit_text(hook, fam_path, base * 0.105, maxw)
-            y = int(H * safe['top'] + H * (0.16 if H > W else 0.17))
-            ass.pop(0.12 + intro, min(2.2 + intro, body_end), lines, size, W // 2, y, colour=ass.acc)
-        for t0, txt in captions:
-            if t0 < 2.0 + intro: continue
-            lines, size = fit_text(txt, fam_path, base * 0.085, maxw)
-            ass.pop(t0, min(t0 + 1.0, body_end), lines, size, W // 2, int(H * (1 - safe['bottom']) - size * 1.4), rot=3)
+            if layout == 'stack':  # headline stays over the card for the whole body
+                tl.pop_words(0.10 + intro, body_end, hook_lines, hook_size, W // 2, int(top_y + hook_h / 2), colour=tl.acc)
+            else:
+                y = int(top_y + hook_h / 2 + H * (0.10 if H > W else 0.06))
+                tl.pop_words(0.10 + intro, min(2.3 + intro, body_end), hook_lines, hook_size, W // 2, y, colour=tl.acc)
+        for i, (t0, txt) in enumerate(captions):
+            if (layout != 'stack' and t0 < 2.2 + intro) or t0 > body_end - 0.4: continue
+            lines, size = fit_text(txt, fam_path, base * 0.09, maxw)
+            y = int(min(bot_y, card_top + FH) - size * 0.75 * len(lines) - size * 0.5)
+            tl.pop(t0, min(t0 + 1.0, body_end), lines, size, W // 2, y, rot=(3 if i % 2 else -3))
         if endcard:
-            title = text_for(cfg, 'title', lang); cta = text_for(cfg, 'cta', lang)
-            lines, size = fit_text(title, fam_path, base * 0.13, maxw)
-            ass.pop(body_end + 0.02, total_out, lines, size, W // 2, int(H * 0.42), rot=-2)
-            lines, size = fit_text(cta, fam_path, base * 0.075, maxw, max_lines=1)
-            ass.pop(body_end + 0.35, total_out, lines, size, W // 2, int(H * 0.60), colour=ass.acc, rot=2, pulse=True)
+            logo = cfg.get('logo')
+            logo = (logo if os.path.isabs(logo) else os.path.join(project, logo)) if logo else ''
+            c_lines, c_size = fit_text(cta, fam_path, base * 0.075, maxw * 0.72, max_lines=1) if cta else ([], 0)
+            btn_h = c_size * 2.2 if cta else 0; gap = base * 0.05
+            if logo and os.path.exists(logo):
+                from PIL import Image
+                lw, lh_ = Image.open(logo).size; t_size = int(base * 0.62); t_h = t_size * min(1.0, lh_ / max(lw, lh_))
+                t_lines = []
+            elif title:
+                t_lines, t_size = fit_text(title, fam_path, base * 0.16, maxw); t_h = t_size * 1.12 * len(t_lines)
+            else:
+                t_lines, t_size, t_h = [], 0, 0
+            block = t_h + (gap + btn_h if cta else 0)  # title + button stacked, centred a bit above the middle
+            y0 = max(top_y, min(H * 0.46 - block / 2, bot_y - block))
+            if logo and os.path.exists(logo):
+                tl.pop(body_end + 0.02, total_out, [], t_size, W // 2, int(y0 + t_h / 2), rot=-2, image=logo)
+            elif t_lines:
+                tl.pop(body_end + 0.02, total_out, t_lines, t_size, W // 2, int(y0 + t_h / 2), rot=-2)
+            if cta:
+                tl.pop(body_end + 0.35, total_out, c_lines, c_size, W // 2, int(y0 + t_h + gap + btn_h / 2), colour=tl.acc,
+                       rot=0, pulse=True, button=True)
         cur = vtail
-        for k, (d, t0, x, y) in enumerate(ass.render(work, F)):
+        for k, (d, t0, x, y) in enumerate(tl.render(work, F)):
             inputs += ['-framerate', str(F), '-i', os.path.join(d, '%04d.png')]
             fc.append(f'[{idx}:v]format=rgba,setpts=PTS-STARTPTS+{t0:.3f}/TB[tx{k}]')
             fc.append(f'{cur}[tx{k}]overlay=x={x}:y={y}:eof_action=pass:format=auto[ov{k}]')
@@ -258,53 +406,63 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot):
     else:
         fc.append(f'{vtail}null[vout]')
     maps = ['-map', '[vout]']
+    beat_note = ''
     if with_audio:
-        mix = [f'[ca]apad,atrim=0:{total_out:.3f},volume={cfg.get("game_volume", 0.7)}[g]']; mixl = ['[g]']
+        mix = [f'{acur}apad,atrim=0:{total_out:.3f},volume={cfg.get("game_volume", 0.7)}[g]']; mixl = ['[g]']
         music = a.music or cfg.get('music')
         if music:
             music = music if os.path.isabs(music) else os.path.join(project, music)
-            if os.path.exists(music):
-                inputs += ['-stream_loop', '-1', '-i', music]
-                mix.append(f'[{idx}:a]atrim=0:{total_out:.3f},afade=t=in:d=0.2,afade=t=out:st={max(0, total_out - 1.0):.2f}:d=1.0,'
-                           f'volume={cfg.get("music_volume", 0.8)},aresample=48000,aformat=channel_layouts=stereo[m]')
-                mixl.append('[m]'); idx += 1
-            else:
-                print(f'  warn: music {music} not found')
-        if style == 'cartoon' and not a.no_sfx:
-            sfx = []
+            if not os.path.exists(music):
+                print(f'  warn: music {music} not found'); music = ''
+        if not music and cartoon and not a.no_beat:
+            music = synth(os.path.join(work, 'beat.wav'), 'beat', a.bpm or 120, total_out + 1)
+            beat_note = f' beat={int(a.bpm or 120)}bpm(generated)'
+        if music:
+            inputs += ['-stream_loop', '-1', '-i', music]
+            mv = cfg.get('music_volume', 0.8) * (0.7 if beat_note else 1.0)
+            mix.append(f'[{idx}:a]atrim=0:{total_out:.3f},afade=t=in:d=0.05,afade=t=out:st={max(0, total_out - 1.0):.2f}:d=1.0,'
+                       f'volume={mv},aresample=48000,aformat=channel_layouts=stereo[m]')
+            mixl.append('[m]'); idx += 1
+        if cartoon and not a.no_sfx:
             wh = sound('whoosh_in.mp3'); pp = sound('pop.mp3'); win = sound('success_big.mp3') or sound('reward.mp3')
-            sfx += [(wh, max(0, t - 0.12), 0.55) for t in cut_times] if wh else []
-            sfx += [(pp, t, 0.6) for t, _ in captions] if pp else []
+            boom = synth(os.path.join(work, 'boom.wav'), 'boom', dur=1.0)
+            sfx = [(wh, max(0, t_ - 0.10), 0.5) for t_ in cut_times] if wh else []
+            sfx += [(boom, t_ + 0.02, 0.8) for t_ in impacts]
+            sfx += [(pp, t_, 0.55) for t_, _ in captions if (layout == 'stack' or t_ >= 2.2 + intro) and t_ <= body_end - 0.4] if pp else []
+            if pp and hook: sfx.append((pp, 0.10 + intro, 0.5))
             if win and endcard: sfx.append((win, body_end + 0.05, 0.7))
-            for k, (f, t, vol) in enumerate(sfx):
+            for k, (f, t_, vol) in enumerate(sfx):
                 inputs += ['-i', f]
-                mix.append(f'[{idx}:a]adelay={int(t * 1000)}:all=1,volume={vol},aresample=48000,aformat=channel_layouts=stereo[s{k}]')
+                mix.append(f'[{idx}:a]adelay={int(t_ * 1000)}:all=1,volume={vol},aresample=48000,aformat=channel_layouts=stereo[s{k}]')
                 mixl.append(f'[s{k}]'); idx += 1
-        mix.append(''.join(mixl) + f'amix=inputs={len(mixl)}:normalize=0:duration=first,alimiter=limit=0.95[aout]')
+        mix.append(''.join(mixl) + f'amix=inputs={len(mixl)}:normalize=0:duration=first,'
+                   f'loudnorm=I={vp.get("lufs", -14)}:TP=-1.5:LRA=11,aresample=48000,alimiter=limit=0.89[aout]')
         fc += mix; maps += ['-map', '[aout]']
     else:
-        fc.append('[ca]anullsink')
-    graph = os.path.join(work, 'graph.txt'); open(graph, 'w').write(';\n'.join(fc))
+        fc.append(f'{acur}anullsink')
+    open(os.path.join(work, 'graph.txt'), 'w').write(';\n'.join(fc))
     odir = os.path.join(promo_dir(project), 'out', pname, lang if with_text else 'all'); os.makedirs(odir, exist_ok=True)
-    out = os.path.join(odir, f'{vp["name"]}.mp4')
-    enc = ['-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', str(F), '-movflags', '+faststart']
+    suffix = f'_h{variant + 1}' if variant else ''
+    out = os.path.join(odir, f'{vp["name"]}{suffix}.mp4')
+    enc = ['-c:v', 'libx264', '-preset', 'veryfast' if a.draft else 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', str(F), '-movflags', '+faststart']
     enc += (['-c:a', 'aac', '-b:a', '192k'] if with_audio else ['-an'])
-    cmd = ['ffmpeg', '-y', '-v', 'error'] + inputs + ['-filter_complex_script', 'graph.txt'] + maps + enc + ['-t', f'{total_out:.3f}', out]
+    cmd = ['ffmpeg', '-y', '-v', 'error'] + inputs + ['-/filter_complex', 'graph.txt'] + maps + enc + ['-t', f'{total_out:.3f}', out]
     cwd = os.getcwd(); os.chdir(work)
     try:
         run(cmd)
         pr = probe(out)
         if pr['size_mb'] > vp.get('max_mb', 1e9):
             br = int(vp['max_mb'] * 8e6 * 0.93 / max(pr['dur'], 1) - (192000 if with_audio else 0))
-            enc2 = [x for x in enc]; i = enc2.index('-crf'); enc2[i:i + 2] = ['-b:v', str(br), '-maxrate', str(br), '-bufsize', str(br * 2)]
-            run(['ffmpeg', '-y', '-v', 'error'] + inputs + ['-filter_complex_script', 'graph.txt'] + maps + enc2 + ['-t', f'{total_out:.3f}', out])
+            enc2 = list(enc); i = enc2.index('-crf'); enc2[i:i + 2] = ['-b:v', str(br), '-maxrate', str(br), '-bufsize', str(br * 2)]
+            run(['ffmpeg', '-y', '-v', 'error'] + inputs + ['-/filter_complex', 'graph.txt'] + maps + enc2 + ['-t', f'{total_out:.3f}', out])
             pr = probe(out)
     finally:
         os.chdir(cwd)
+        if a.keep_work: print('  work dir:', work)
     rev = os.path.join(promo_dir(project), 'review'); os.makedirs(rev, exist_ok=True)
-    sheet = os.path.join(rev, f'{pname}_{vp["name"]}_{lang if with_text else "all"}.jpg')
-    cols = 4 if W >= H else 6
-    run(['ffmpeg', '-y', '-v', 'error', '-i', out, '-vf', f'fps={8 / max(pr["dur"], 1):.4f},scale={480 if W >= H else 240}:-2,tile={cols}x{math.ceil(8 / cols)}',
+    sheet = os.path.join(rev, f'{pname}_{vp["name"]}_{lang if with_text else "all"}{suffix}.jpg')
+    cols = 4 if W >= H else 6; nfr = 12 if W < H else 8
+    run(['ffmpeg', '-y', '-v', 'error', '-i', out, '-vf', f'fps={nfr / max(pr["dur"], 1):.4f},scale={480 if W >= H else 240}:-2,tile={cols}x{math.ceil(nfr / cols)}',
          '-frames:v', '1', sheet])
     problems = []
     if pr['w'] != W or pr['h'] != H: problems.append(f'size {pr["w"]}x{pr["h"]}')
@@ -312,8 +470,10 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot):
     if pr['dur'] > vp['max_s'] + 0.2: problems.append(f'too long {pr["dur"]:.1f}s')
     if pr['size_mb'] > vp.get('max_mb', 1e9): problems.append(f'{pr["size_mb"]:.1f} MB > {vp["max_mb"]} MB')
     if not with_audio and pr['audio']: problems.append('has audio but preset is muted')
-    shutil.rmtree(work, ignore_errors=True)
-    return out, pr, sheet, problems, len(clips), style
+    if not a.keep_work: shutil.rmtree(work, ignore_errors=True)
+    info = (f'clips={len(clips)} style={style} layout={layout}{beat_note}' + (' slowmo=interpolated' if interp_used else '')
+            + (f' hook="{hook}"' if hook else ''))
+    return out, pr, sheet, problems, info
 
 
 def main():
@@ -327,29 +487,39 @@ def main():
     ap.add_argument('--duration', type=float)
     ap.add_argument('--music')
     ap.add_argument('--bpm', type=float, default=0)
+    ap.add_argument('--layout', choices=['auto', 'cover', 'stack'], default='auto')
+    ap.add_argument('--variants', type=int, default=0, help='hook variants per language (default: every hook in config)')
     ap.add_argument('--no-slowmo', action='store_true')
     ap.add_argument('--no-sfx', action='store_true')
+    ap.add_argument('--no-beat', action='store_true', help='no generated beat bed when there is no music')
+    ap.add_argument('--draft', action='store_true', help='fast preview: no motion interpolation, fast encoder')
+    ap.add_argument('--keep-work', action='store_true', help='keep the filter graph and text frames (debug)')
     a = ap.parse_args()
     need_ffmpeg()
     project = os.path.abspath(a.project); cfg = load_config(project)
     if not a.bpm: a.bpm = cfg.get('bpm', 0)
+    if not a.bpm and not (a.music or cfg.get('music')) and not a.no_beat: a.bpm = 120
     plat = platform(a.platform)
     vids = [v for v in plat.get('videos', []) if not a.video or v['name'] == a.video]
     if not vids: die(f'no video preset {a.video} in {a.platform}')
     ms = load_moments(project)
     if a.moments:
         by = {m['id']: m for m in ms}; ms = [by[int(i)] for i in a.moments.split(',') if int(i) in by]
-    ms = order_moments(ms, bool(a.moments))
     workroot = os.path.join(promo_dir(project), '.work'); os.makedirs(workroot, exist_ok=True)
     for vp in vids:
         needs_text = vp.get('text') != 'none' and (a.style or 'cartoon') == 'cartoon'
         for lang in (langs_arg(cfg, a.lang) if needs_text else ['all']):
-            out, pr, sheet, probs, nclips, style = build(project, cfg, a.platform, plat, vp, lang, ms, a, workroot)
-            flag = 'OK ' if not probs else 'FIX'
-            print(f'{flag} {os.path.relpath(out, project)}: {pr["w"]}x{pr["h"]} {pr["dur"]:.1f}s {pr["size_mb"]:.1f}MB '
-                  f'audio={pr["audio"]} clips={nclips} style={style} | sheet {os.path.relpath(sheet, project)}'
-                  + (' | ' + '; '.join(probs) if probs else ''))
-    shutil.rmtree(workroot, ignore_errors=True)
+            hooks = hooks_for(cfg, lang) if needs_text else []
+            hooks = (hooks[:a.variants] if a.variants else hooks) or ['']
+            for v, hook in enumerate(hooks):
+                order = order_moments(ms, bool(a.moments), v)
+                a_ = argparse.Namespace(**{**vars(a), 'bpm': a.bpm if needs_text else 0})
+                out, pr, sheet, probs, info = build(project, cfg, a.platform, plat, vp, lang, order, a_, workroot, hook, v)
+                flag = 'OK ' if not probs else 'FIX'
+                print(f'{flag} {os.path.relpath(out, project)}: {pr["w"]}x{pr["h"]} {pr["dur"]:.1f}s {pr["size_mb"]:.1f}MB '
+                      f'audio={pr["audio"]} {info} | sheet {os.path.relpath(sheet, project)}'
+                      + (' | ' + '; '.join(probs) if probs else ''), flush=True)
+    if not a.keep_work: shutil.rmtree(workroot, ignore_errors=True)
 
 
 if __name__ == '__main__':
