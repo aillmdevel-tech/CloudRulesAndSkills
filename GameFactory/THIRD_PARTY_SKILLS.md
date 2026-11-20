@@ -30,8 +30,7 @@ npx -y skills@latest add daymade/claude-code-skills --skill frontend-visual-qa -
 
 ## Не установлено (осознанно)
 
-- **majidmanzarpour/threejs-game-skills** — ставить только при старте Three.js-проекта, выборочно и
-  в проект. Ревью и команда: `~/.claude/skills/game-project-workflow/references/threejs-skills.md`.
+- **majidmanzarpour/threejs-game-skills** — установлены глобально 2 адаптированные копии (2026-11-20): `threejs-debug-profiler`, `threejs-aaa-graphics-builder`; генераторы убраны. Ревью и команда: `~/.claude/skills/game-project-workflow/references/threejs-skills.md`.
   Генераторы (Tripo, Gemini, ElevenLabs) — платные внешние API, только с явного разрешения.
 - Отдельные скиллы для IK/процедурной анимации, видеоанализа, диагностики — качественных
   проверенных не искал массово; покрыто собственными скиллами

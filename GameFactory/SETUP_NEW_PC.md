@@ -51,8 +51,9 @@ bash ~/WebAIGames/Rules/GameFactory/scripts/restore.sh
 ls ~/.claude/skills
 ```
 
-Ожидается 25 папок: 16 PlayCanvas, frontend-design, webapp-testing, grilling,
-frontend-visual-qa и 5 собственных (game-*, levelcopier-asset-pipeline).
+Ожидается 17 папок (PlayCanvas лежит в `~/.claude/spares`): frontend-design, webapp-testing, grilling,
+frontend-visual-qa, threejs-debug-profiler, threejs-aaa-graphics-builder и собственные (game-*, character-animation,
+chat-handoff, save-context, github-account-router, levelcopier-asset-pipeline).
 
 ```bash
 python3 -c "from playwright.sync_api import sync_playwright; print('playwright ok')"

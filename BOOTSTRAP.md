@@ -36,7 +36,7 @@ bash <клон>/scripts/install.sh --games-dir <папка игр>        # + --
 ## 4. Проверить
 - `ls ~/.claude/skills` → 16 PlayCanvas + frontend-design, webapp-testing, grilling, frontend-visual-qa + свои
   (chat-handoff, game-autotest, game-project-workflow, game-reference-analysis, game-ui-motion-sound, game-visual-comparison,
-  github-account-router, levelcopier-asset-pipeline).
+  github-account-router, levelcopier-asset-pipeline, threejs-debug-profiler, threejs-aaa-graphics-builder).
 - `echo '{"cwd":"/tmp"}' | python3 ~/.claude/hooks/context_guard.py start` — без ошибок.
 - `python3 -c "from playwright.sync_api import sync_playwright"`.
 - Скажи Alex: открыть **новый чат** (правила, скиллы и хуки загружаются при старте сессии) и спросить

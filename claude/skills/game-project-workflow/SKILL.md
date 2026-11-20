@@ -51,13 +51,13 @@ Small but fully finished. Game feel, mechanics, elements, VFX and character come
   - **C. Finished scene** — objects, loop, VFX, sound, HUD, budget met; game link + comparison sheets + «как в оригинале / отличается и почему».
 - Real provided models/scenes; primitives only as labelled placeholders (`// PLACEHOLDER` + listed in PROJECT_STATE).
 - Debug surface from the start: `window.__game` (state, teleport, set camera, pause, seed RNG) behind `import.meta.env.DEV`.
-- Stack skills: Three.js → [references/threejs-skills.md](references/threejs-skills.md); PlayCanvas → its skills only if Alex enabled them. UI → `frontend-design` + `game-ui-motion-sound` (UIFX). Characters → `character-animation`. Unusual locomotion → [references/procedural-motion.md](references/procedural-motion.md).
+- Stack skills: Three.js → `threejs-aaa-graphics-builder` (render polish after A, scorecard for C) and `threejs-debug-profiler` (bugs, lags, budget), see [references/threejs-skills.md](references/threejs-skills.md); PlayCanvas → its skills only if Alex enabled them. UI → `frontend-design` + `game-ui-motion-sound` (UIFX). Characters → `character-animation`. Unusual locomotion → [references/procedural-motion.md](references/procedural-motion.md).
 
 ## 7. Expansion to the end
 After «MVP принят»: stages of the master plan (locations, content, economy, UI, platforms), each package with the package loop. Alex's feedback (text or voice video) is analysed like step 2 → `docs/TASKS.md` → fix → verify. Before submission: moderator (`game-autotest`).
 
 ## Testing (before saying «готово»)
-`tsc --noEmit`, build, dev server, real browser (Playwright via `webapp-testing` or the built-in browser): no console errors, controls, logic, collisions/physics, camera, UI, frame time, budget. Visual claims need screenshots against the reference. Report only what actually ran.
+`tsc --noEmit`, build, dev server, budget (`threejs-debug-profiler` in Three.js), real browser (Playwright via `webapp-testing` or the built-in browser): no console errors, controls, logic, collisions/physics, camera, UI, frame time, budget. Visual claims need screenshots against the reference. Report only what actually ran.
 
 ## Working style
 - Dependencies per project (npm), never global. Add a library only when it pays for itself.

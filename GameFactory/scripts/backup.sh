@@ -5,7 +5,7 @@
 set -euo pipefail
 GF="$(cd "$(dirname "$0")/.." && pwd)"
 B="$GF/backup"
-OWN="game-reference-analysis levelcopier-asset-pipeline game-project-workflow game-visual-comparison game-ui-motion-sound chat-handoff github-account-router game-autotest"
+OWN="game-reference-analysis levelcopier-asset-pipeline game-project-workflow game-visual-comparison game-ui-motion-sound chat-handoff github-account-router game-autotest threejs-debug-profiler threejs-aaa-graphics-builder"
 
 rm -rf "$B"
 mkdir -p "$B/claude/skills"

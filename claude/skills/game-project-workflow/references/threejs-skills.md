@@ -1,29 +1,16 @@
-# Three.js skills (conditional install)
+# Three.js skills
 
-Source reviewed 2026-11-04: https://github.com/majidmanzarpour/threejs-game-skills (commit 8286774).
-**Not installed globally.** Install only when a real Three.js project starts, and only the relevant ones.
+Source: https://github.com/majidmanzarpour/threejs-game-skills (commit 8286774, MIT), reviewed 2026-11-20.
 
-| Skill | Use | External services |
-|---|---|---|
-| threejs-gameplay-systems | scaffold, loop, input, camera, collision, game feel | none (ships a Vite+TS template) |
-| threejs-debug-profiler | blank canvas, loading bugs, draw calls, memory | none |
-| threejs-qa-release | playtests, visual regression, canvas pixel inspection, builds | none |
-| threejs-aaa-graphics-builder | lighting, materials, post, LOD/instancing | none |
-| threejs-game-ui-designer | HUD/menus | none |
-| threejs-game-director | router over the sibling skills | `probe_asset_credentials.sh` looks for API keys — skip unless generators are used |
-| threejs-3d-generator | Tripo API text/image→3D | paid API, uploads prompts/images |
-| threejs-image-generator | Gemini image API | paid API, uploads prompts/images |
-| threejs-audio-generator | ElevenLabs audio | paid API |
+**Installed globally (adapted copies, synced as own skills):**
 
-Default subset when a Three.js project starts (after re-checking the repo is still maintained and
-reading the SKILL.md + scripts of each):
+| Skill | When |
+|---|---|
+| `threejs-debug-profiler` | blank canvas, loading/animation/input bugs; lags, draw calls, memory, bundle size; budget check in the package loop |
+| `threejs-aaa-graphics-builder` | after checkpoint A: materials, light, post, shaders, VFX, LOD/instancing, visual scorecard; checkpoint C polish |
 
-```bash
-DO_NOT_TRACK=1 npx -y skills add majidmanzarpour/threejs-game-skills \
-  --skill threejs-gameplay-systems --skill threejs-debug-profiler --skill threejs-qa-release \
-  --skill threejs-aaa-graphics-builder -a claude-code --copy -y
-```
+Adaptation: paid generators and the credential probe removed; hero models come from Blender (`game-art-first`); style from `docs/ART_SPEC.md`. When updating from upstream, re-apply the GameFactory override note at the top of `threejs-aaa-graphics-builder/SKILL.md`.
 
-Prefer project scope (no `-g`, run inside the project) so they never trigger in PlayCanvas projects.
-Generator skills only with Alex's explicit OK (they send data to paid third-party APIs and need keys).
+**Not installed:** `threejs-game-director`, `threejs-gameplay-systems`, `threejs-game-ui-designer`, `threejs-qa-release` (overlap with game-project-workflow, game-ui-motion-sound, game-autotest), `threejs-3d-generator` / `threejs-image-generator` / `threejs-audio-generator` (paid APIs; only on Alex's explicit request).
+
 Never use threejs-* skills in a PlayCanvas project.

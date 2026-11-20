@@ -15,7 +15,7 @@
 - Видео и механика по референсу → `game-reference-analysis` (для всей игры — `docs/spec/` с пометками [видно]/[из ТЗ]/[пробел]). LevelCopier, GLB+JSON → `levelcopier-asset-pipeline`.
 - Сверка с референсом → `game-visual-comparison`. Новый UI → `frontend-design`. UI-вёрстка → `frontend-visual-qa`. Игровой UI → `game-ui-motion-sound` с UIFX из GameFactory.
 - Живая работа с ассетами и сценой Blender → существующий Blender MCP. Браузерная проверка → `webapp-testing` или встроенный браузер. PlayCanvas-скиллы выбирай по этапу PlayCanvas-проекта.
-- Three.js-игра → стек и версии из `GameFactory/THREEJS_STACK.md` (three 0.187, postprocessing, N8AO, three.quarks, GSAP, Rapier, Blender 5.2).
+- Three.js-игра → стек и версии из `GameFactory/THREEJS_STACK.md` (three 0.187, postprocessing, N8AO, three.quarks, GSAP, Rapier, Blender 5.2). Графика и пост после проверки A → `threejs-aaa-graphics-builder`; баги, лаги, бюджет → `threejs-debug-profiler`.
 - Проверка игры, смоук после каждого завершённого пакета игровых правок, модератор перед отправкой или по просьбе → `game-autotest`. Площадку бери из задания или актуального состояния.
 - «Упакуй контекст» и «продолжи работу» → `chat-handoff`. «Выполни план» → `docs/plans/CURRENT.md` (см. `GameFactory/WORKFLOW.md`).
 - GitHub → `github-account-router`, привязка аккаунта к репозиторию, глобальный конфиг и активный аккаунт gh не менять.
