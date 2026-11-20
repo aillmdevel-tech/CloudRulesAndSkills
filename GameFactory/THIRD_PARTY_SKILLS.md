@@ -8,7 +8,7 @@
 |---|---|---|---|
 | PlayCanvas (официальные) | add-effects, apply-conventions, assemble-scene, bake-lighting, build-app, calibrate-model, configure-animation, find-examples, inspect-glb, inspect-runtime, light-scene, load-assets, override-shader-chunks, reduce-draw-calls, reuse-scripts, verify-pixels | playcanvas/skills (de7dac4) | скрипты: `inspect-glb/scripts/inspect.mjs` (офлайн, только чтение), `inspect-runtime/scripts/devtools-hook.js` |
 | Anthropic | frontend-design, webapp-testing | anthropics/skills (ca45fc4) | webapp-testing требует Python Playwright (установлен user-wide) |
-| Matt Pocock | grilling, grill-me | mattpocock/skills (4ae2317) | **grill-me пропатчен локально**, см. ниже |
+| Matt Pocock | grilling | mattpocock/skills (4ae2317) | формат раундов вопросов; правила «только по пробелам» — в game-project-workflow |
 | daymade | frontend-visual-qa | daymade/claude-code-skills (2fee8de) | сетевые запросы скриптов — только к указанному URL/allowlist |
 
 Команды (то же делает `scripts/restore.sh`):
@@ -17,20 +17,16 @@
 export DO_NOT_TRACK=1 DISABLE_TELEMETRY=1
 npx -y skills@latest add playcanvas/skills -g -a claude-code --copy -y
 npx -y skills@latest add anthropics/skills --skill frontend-design --skill webapp-testing -g -a claude-code --copy -y
-npx -y skills@latest add mattpocock/skills --skill grill-me --skill grilling -g -a claude-code --copy -y
+npx -y skills@latest add mattpocock/skills --skill grilling -g -a claude-code --copy -y
 npx -y skills@latest add daymade/claude-code-skills --skill frontend-visual-qa -g -a claude-code --copy -y
 ```
 
-Обновление: `npx -y skills@latest update -g` — **после него заново примени патч grill-me**
+Обновление: `npx -y skills@latest update -g`
 (или `scripts/restore.sh` перезапишет его из `backup/`).
 
-## Патч grill-me (issue mattpocock/skills#1052, открыт на 2026-11-04)
+## Убрано 2026-11-20
 
-Апстрим: `disable-model-invocation: true` + тело «Call the Skill tool with "grilling"». Флаг блокирует
-именно этот вызов, поэтому `/grill-me` падает в обоих путях. Локальный патч сохраняет флаг
-(grill-me остаётся только ручной командой `/grill-me`), а тело заменено на «прочитай
-`~/.claude/skills/grilling/SKILL.md` и следуй ему». Автоматически используется `grilling`
-(model-invocable). Ограничения Claude Code не обходятся.
+- grill-me (дубль grilling) и studioigor (пересекался с game-project-workflow) перенесены в `~/.claude/spares/`.
 
 ## Не установлено (осознанно)
 

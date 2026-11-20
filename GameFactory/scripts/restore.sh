@@ -2,7 +2,7 @@
 # Restore GameFactory on a new machine (macOS/Linux). Run from the copied GameFactory folder.
 # usage: restore.sh [--games-dir DIR]
 #   --games-dir  where game projects live (default: parent folder of this GameFactory's parent)
-# Steps: ~/.claude/CLAUDE.md (old one backed up), own skills, third-party skills, grill-me patch,
+# Steps: ~/.claude/CLAUDE.md (old one backed up), own skills, third-party skills,
 #        Python Playwright + Chromium. Never touches secrets.
 set -euo pipefail
 GF="$(cd "$(dirname "$0")/.." && pwd)"
@@ -28,7 +28,7 @@ export DO_NOT_TRACK=1 DISABLE_TELEMETRY=1
 SK="npx -y skills@latest"
 $SK add playcanvas/skills -g -a claude-code --copy -y
 $SK add anthropics/skills --skill frontend-design --skill webapp-testing -g -a claude-code --copy -y
-$SK add mattpocock/skills --skill grill-me --skill grilling -g -a claude-code --copy -y
+$SK add mattpocock/skills --skill grilling -g -a claude-code --copy -y
 $SK add daymade/claude-code-skills --skill frontend-visual-qa -g -a claude-code --copy -y
 
 for s in "$B"/claude/skills/*; do

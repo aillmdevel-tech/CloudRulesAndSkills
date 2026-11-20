@@ -4,7 +4,7 @@
 #   scripts/sync.sh --commit "message"   # also commit (push stays manual: git push)
 # What is copied:
 #   ~/.claude/CLAUDE.md, ~/.claude/settings.json, ~/.claude/hooks/
-#   own skills = every ~/.claude/skills/* NOT installed by `npx skills` (lock file) + patched grill-me
+#   own skills = every ~/.claude/skills/* NOT installed by `npx skills` (lock file)
 #   GameFactory folder (path from CLAUDE.md), without node_modules/backup/build output
 set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
@@ -26,7 +26,7 @@ TP="$(third_party)"
 rm -rf "$REPO/claude/skills"/*
 for d in "$C"/skills/*/; do
   n="$(basename "$d")"
-  if [ "$n" = "grill-me" ] || ! grep -qx "$n" <<<"$TP"; then
+  if ! grep -qx "$n" <<<"$TP"; then
     rsync -a --exclude node_modules --exclude __pycache__ "$d" "$REPO/claude/skills/$n/"
   fi
 done

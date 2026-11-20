@@ -1,15 +1,15 @@
 ---
 name: game-art-first
-description: Use after the materials of a new or big-stage game project are studied and the plan is agreed, or whenever a game needs its look made before logic — "начинаем с визуала", "собери локацию/карту/модели в Blender", "подбери референсы и ассеты", "адаптируй Roblox-референс для веба", "стиль игры", "как видоизменить референс", "найди готовые ассеты/GitHub/игры для референса". Art-first stage: main Roblox/original reference → 3-4 adaptation options → found references and free assets → style board → map/location/objects built in Blender (Blender MCP) → GLB export → screenshot comparison → Alex approves the look. Only then logic/MVP.
+description: Use after the materials of a new or big-stage game project are studied and the plan is agreed, or whenever a game needs its look made before logic — "начинаем с визуала", "собери локацию/карту/модели в Blender", "подбери референсы и ассеты", "адаптируй Roblox-референс для веба", "стиль игры", "как видоизменить референс", "найди готовые ассеты/GitHub/игры для референса". Art-first stage: main Roblox/original reference → Steam style board approved by Alex → found references and free assets → style board → map/location/objects built in Blender (Blender MCP) → GLB export → screenshot comparison → Alex approves the look = MVP checkpoint A. Then game feel (checkpoint B).
 ---
 
 # Game art-first (GameFactory)
 
-Visual stage that always comes BEFORE gameplay logic. Output: an approved MVP scene (map, location, key objects, style) in Blender + exported GLB, ready to load in the engine. Coordinates other skills; does not replace them.
+Visual stage that always comes BEFORE gameplay logic. Output: checkpoint A of the MVP (`game-project-workflow` §6) — the starting zone in the approved style in Blender + exported GLB + an engine screenshot beside the Steam reference. Coordinates other skills; does not replace them.
 
 ## Rules
 - Main reference = the game/video/screenshots Alex gave (usually Roblox). It gets the biggest weight. Default = maximum closeness to the reference in composition, proportions, palette, lighting, camera and effects (own models/assets, no ripped files, no copying others' files). Do NOT simplify or drift to a looser style unless Alex picks it in step 2.
-- Quality first: map, location, models, style, camera = lead agent on Opus high. Mechanical steps (export, rename, batch material fix, smoke) → see [references/model-routing.md](references/model-routing.md).
+- The lead does map, location, models, style and camera itself; delegation rules: [references/delegation.md](references/delegation.md). Model and effort are Alex's choice.
 - Facts vs guesses: mark every gap in the reference as a hypothesis in `docs/ART_SPEC.md`.
 - Owner files (LevelCopier dumps, provided GLB) stay untouched; work on derived copies.
 - Licences: CC0 preferred; CC-BY only with credit in `docs/CREDITS.md`; no ripped/commercial assets unless Alex supplies them.
@@ -22,13 +22,13 @@ Read `GameFactory/StyleLibrary/README.md`, `TASTE.md` and the genre template clo
 2. Original game named by Alex: research it on the web (store page, wiki, gameplay), record in `docs/REFERENCE_ANALYSIS.md`: core look, palette, proportions, UI structure, camera.
 3. Extract numbers where possible: character height vs props/doors, camera FOV/angle, palette (5–8 hex), outline/shading style, UI layout grid.
 
-## 2. Adaptation options (always give Alex 3–4, with a recommendation)
-For a Roblox-like reference present options such as: **Faithful-lite** (same silhouette/palette, own models), **Stylised twist** (same layout, different art direction: low-poly pastel / toon outline / clay / voxel), **Polished casual** (cleaner shapes, soft light, bloom), **Own theme reskin** (same mechanics and scale, new world theme). For each: look in one line, cost, risk, what it borrows vs changes. Put the pick in `docs/DECISIONS.md`.
+## 2. Adaptation = the approved Steam game
+The Steam board from §0 is the set of adaptation options: gameplay, elements, VFX and character follow the Roblox original; the look follows the one Steam game Alex approves. Record the pick in `docs/DECISIONS.md`.
 
 ### Quality bar (mandatory, not optional)
 - Effects checklist per scene: post-processing (bloom, AO/N8AO, tone mapping, vignette as in reference), particles (three.quarks), soft shadows and lighting matching the reference, UI animations (game-ui-motion-sound), material detail (not flat defaults).
 - After EVERY batch of visual changes: capture reference vs game pairs (`game-visual-comparison`) and fix top differences until close; record verdict in `PROJECT_STATE.md`.
-- Visual/effects work stays on Opus high. Missing effect = listed as a gap, not silently skipped.
+- Missing effect = listed as a gap, not silently skipped.
 
 ## 3. Search for ready things (one pass, results in `docs/REFERENCES.md`)
 Follow [references/asset-sources.md](references/asset-sources.md): open asset packs, GitHub projects/tools, web/Steam games as visual benchmarks. For each: link, licence, what to take, fit 1–5. Max ~10 entries; no filler. Download only after Alex's OK (name, source, size).
@@ -43,5 +43,5 @@ Enable the Blender MCP only for this phase; turn it off after if you enabled it 
 ## 6. Export + engine check
 GLB to `assets/models/`, list in `docs/ASSET_MANIFEST.md` (source, licence, tris, scale, pivots). Load in the engine, capture with the matching camera, run `game-visual-comparison`. Fix the top differences, re-capture.
 
-## 7. Gate
-Show Alex: reference vs screenshot pair, style summary, what is placeholder. Ask for approval of the look. Record in `PROJECT_STATE.md`. Only then start gameplay logic / the MVP scene; new UI and locations come after the MVP.
+## 7. Checkpoint A
+Show Alex: Steam reference vs Blender render vs engine screenshot, style summary, what is placeholder. Record his verdict in `PROJECT_STATE.md`. Then checkpoint B (game feel) of `game-project-workflow` §6.

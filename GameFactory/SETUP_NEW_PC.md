@@ -10,7 +10,7 @@ bash /Users/mac/Downloads/WebAIGames/Rules/GameFactory/scripts/backup.sh
 ```
 
 Скопируй папку `GameFactory` (вместе с `backup/`, без `UIFX/node_modules`) на новый компьютер — флешка, облако, git-репозиторий.
-В `backup/` нет ключей, паролей и токенов: только CLAUDE.md, собственные скиллы, пропатченный grill-me
+В `backup/` нет ключей, паролей и токенов: только CLAUDE.md, собственные скиллы
 и lock-файл сторонних скиллов; скрипт проверяет на похожие на секреты строки.
 
 ## 1. Базовые инструменты (macOS, через Homebrew)
@@ -41,7 +41,7 @@ bash ~/WebAIGames/Rules/GameFactory/scripts/restore.sh
 Другая папка для игр: `--games-dir /путь/к/играм`. Скрипт:
 1. ставит `~/.claude/CLAUDE.md` (старый сохраняет как `.bak.*`), подставляя новые пути;
 2. устанавливает сторонние скиллы официальным CLI (список — THIRD_PARTY_SKILLS.md);
-3. копирует 5 собственных скиллов и пропатченный grill-me (пути внутри скиллов подставляются заново);
+3. копирует 5 собственных скиллов (пути внутри скиллов подставляются заново);
 4. ставит Python Playwright + Chromium (нужно для `webapp-testing` и `capture.py`);
 5. ставит зависимости демо UIFX (`npm install` внутри `GameFactory/UIFX`), сами звуки уже лежат в папке.
 
@@ -51,7 +51,7 @@ bash ~/WebAIGames/Rules/GameFactory/scripts/restore.sh
 ls ~/.claude/skills
 ```
 
-Ожидается 26 папок: 16 PlayCanvas, frontend-design, webapp-testing, grill-me, grilling,
+Ожидается 25 папок: 16 PlayCanvas, frontend-design, webapp-testing, grilling,
 frontend-visual-qa и 5 собственных (game-*, levelcopier-asset-pipeline).
 
 ```bash

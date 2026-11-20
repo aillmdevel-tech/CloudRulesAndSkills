@@ -1,6 +1,6 @@
 ---
 name: chat-handoff
-description: Use when the user is moving work to a new chat or resuming in one — "перехожу в новый чат", "собери контекст", "передай контекст", "сохрани контекст для нового чата", "подготовь передачу", "handoff", and in a fresh chat "продолжи работу", "продолжаем", "continue", "где мы остановились". Save mode writes an up-to-date docs/PROJECT_STATE.md in the project root so a new agent in the same folder understands everything; resume mode reads it and continues from the next step without asking for a re-brief. Also use at the end of a stage when the context is large (≥ ~150k tokens or after 2 compactions) to tell the user to switch chats.
+description: Use when the user is moving work to a new chat or resuming in one — "упакуй контекст", "перехожу в новый чат", "собери контекст", "передай контекст", "сохрани контекст для нового чата", "подготовь передачу", "handoff", and in a fresh chat "продолжи работу", "продолжаем", "continue", "где мы остановились". Save mode writes an up-to-date docs/PROJECT_STATE.md in the project root so a new agent in the same folder understands everything; resume mode reads it and continues from the next step without asking for a re-brief.
 ---
 
 # Chat handoff (save → new chat → «продолжи работу»)
@@ -9,7 +9,7 @@ Works in any project. The single source of truth is `docs/PROJECT_STATE.md` in t
 (create `docs/` if missing). It describes the project *as it is now* — rewrite it, never append a log.
 History belongs in the project's own chronology file (e.g. `docs/PROGRESS.md`) if it has one.
 
-## Save mode («перехожу в новый чат», «собери контекст», …)
+## Save mode («упакуй контекст», «перехожу в новый чат», «собери контекст», …)
 
 1. Finish or park the current edit so the code is consistent (don't leave a half-applied change; if
    you must, say exactly what is half-done in «Текущая задача»).
@@ -46,10 +46,8 @@ History belongs in the project's own chronology file (e.g. `docs/PROGRESS.md`) i
 4. No `PROJECT_STATE.md`: say so, look for the nearest equivalent (`docs/PROGRESS.md`, `README`,
    `CLAUDE.md`, git log), summarise in 3–5 lines and ask what to continue.
 
-## When to propose switching chats yourself
+## Who decides to switch
 
-At the end of each stage / fix batch (before the commit), check context usage (the session usage tool,
-e.g. `get_usage`, if available). Propose switching — after running Save mode — when any holds:
-≥ ~150k tokens used, the chat was compacted 2+ times, or the next step is a big new stage. Otherwise
-keep the state file current anyway, so a switch at any moment loses nothing. Don't rely on `/compact`
-for continuity: its summary is lossy.
+Alex alone. Never propose switching, never start a session or offer a session card. Keep the state file
+current after every package anyway, so a switch at any moment loses nothing. If the context guard hook
+hints that the chat is heavy, mention it in one line after answering.

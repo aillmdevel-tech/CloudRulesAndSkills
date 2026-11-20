@@ -34,7 +34,7 @@ bash <клон>/scripts/install.sh --games-dir <папка игр>        # + --
 Если что-то упало — исправь причину и перезапусти (скрипт идемпотентный).
 
 ## 4. Проверить
-- `ls ~/.claude/skills` → 16 PlayCanvas + frontend-design, webapp-testing, grilling, grill-me, frontend-visual-qa + свои
+- `ls ~/.claude/skills` → 16 PlayCanvas + frontend-design, webapp-testing, grilling, frontend-visual-qa + свои
   (chat-handoff, game-autotest, game-project-workflow, game-reference-analysis, game-ui-motion-sound, game-visual-comparison,
   github-account-router, levelcopier-asset-pipeline).
 - `echo '{"cwd":"/tmp"}' | python3 ~/.claude/hooks/context_guard.py start` — без ошибок.

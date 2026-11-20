@@ -56,7 +56,7 @@ if [ "$TP" = 1 ] && command -v npx >/dev/null; then
   bash "$REPO/third-party/install_third_party.sh" || echo "WARN: some third-party skills failed (see above)"
 fi
 
-# 4. own skills (overwrite; includes patched grill-me) + path rewrite inside them
+# 4. own skills (overwrite) + path rewrite inside them
 for s in "$REPO"/claude/skills/*/; do
   n="$(basename "$s")"; rm -rf "$C/skills/$n"; cp -R "$s" "$C/skills/$n"
   { grep -rlF -e "$OLD_GF" -e "$OLD_REPO" "$C/skills/$n" 2>/dev/null || true; } | while read -r f; do rewrite "$f"; done
