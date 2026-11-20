@@ -14,6 +14,9 @@ Visual stage that always comes BEFORE gameplay logic. Output: an approved MVP sc
 - Owner files (LevelCopier dumps, provided GLB) stay untouched; work on derived copies.
 - Licences: CC0 preferred; CC-BY only with credit in `docs/CREDITS.md`; no ripped/commercial assets unless Alex supplies them.
 
+## 0. Alex's style library (always first)
+Read `GameFactory/StyleLibrary/README.md`, `TASTE.md` and the genre template closest to the spec (`genres/*.md`, game cards in `games/*/CARD.md`). Priority: **Alex's explicit words about graphics in the spec > genre template > TASTE.md defaults**. Then find 3–6 Steam games that fit THIS spec visually (tags, "More like this"), and send Alex a board (link, 1–2 screenshots, why it fits, what we take) for approval before the style board. Link the chosen cards from `docs/ART_SPEC.md`. When Alex sends new liked games → add them to the library (README "Как добавлять").
+
 ## 1. Reference intake (script first, short summary to chat)
 1. Video → `game-reference-analysis` (`video_frames.py`), screenshots → same skill. Output goes to `docs/spec/{visual,ui,camera,...}` + `ART_REFERENCE.md`.
 2. Original game named by Alex: research it on the web (store page, wiki, gameplay), record in `docs/REFERENCE_ANALYSIS.md`: core look, palette, proportions, UI structure, camera.
