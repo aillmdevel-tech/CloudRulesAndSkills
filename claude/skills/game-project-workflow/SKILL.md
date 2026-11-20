@@ -25,7 +25,7 @@ Read the spec. Route materials:
 - LevelCopier dumps, GLB+JSON scenes → `levelcopier-asset-pipeline`
 - existing repo → detect the real stack from `package.json`/imports; never swap it without agreement.
 
-- original game named by Alex → research it on the web (store page, wiki, gameplay) into `REFERENCE_ANALYSIS.md`. The main reference (usually a Roblox game) carries the most weight; a web game must be an adaptation, not a 1:1 copy.
+- original game named by Alex → research it on the web (store page, wiki, gameplay) into `REFERENCE_ANALYSIS.md`. The main reference (usually a Roblox game) carries the most weight; a web game must match the reference as closely as possible with own assets (no ripped files).
 - inputs expected from Alex: short ТЗ (mechanics, requirements), original game name, video, screenshots, optional LevelCopier dump. Missing ones are not blocking — note the gap.
 - find ready things (asset packs, GitHub projects, web/Steam games as visual benchmarks) → `game-art-first` §3 → `docs/REFERENCES.md`.
 

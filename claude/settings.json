@@ -1,4 +1,7 @@
 {
+  "env": {
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "70"
+  },
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -21,12 +24,35 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "startup|resume|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$HOME/.claude/hooks/memory_bank_hook.py\" start",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$HOME/.claude/hooks/memory_bank_hook.py\" stop",
+            "timeout": 15
+          }
+        ]
       }
     ]
   },
   "outputStyle": "Concise",
-  "theme": "dark",
-  "env": {
-    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "70"
-  }
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "autoCompactWindow": 400000
+    }
+  },
+  "theme": "dark"
 }

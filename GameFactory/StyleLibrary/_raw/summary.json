@@ -1,0 +1,636 @@
+{
+ "2100980": {
+  "name": "Barji Kart",
+  "dev": [
+   "Barji"
+  ],
+  "date": "29 Oct, 2022",
+  "genres": [
+   "Action",
+   "Casual",
+   "Free To Play",
+   "Indie",
+   "Racing"
+  ],
+  "tags": [
+   "Racing",
+   "Multiplayer",
+   "Combat Racing",
+   "Driving",
+   "Colorful",
+   "PvP",
+   "3D",
+   "Action",
+   "Memes",
+   "Comedy",
+   "Stylized",
+   "Arcade",
+   "Third Person",
+   "Funny",
+   "Character Customization"
+  ],
+  "short": "Race head-to-head against up to 9 friends in BarjiKart! Choose from different Items to aid you in finishing 1st place!",
+  "shots": [
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2100980/ss_a008d8b7e6ac7b41e22b71530ad086006017b213.1920x1080.jpg?t=1667040313",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2100980/ss_0a59ee134bebbd0f5e713405b80bfaa74431a3fc.1920x1080.jpg?t=1667040313",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2100980/ss_055b629ddf958e1e1abbc676f53215c8211ca042.1920x1080.jpg?t=1667040313",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2100980/ss_679e4110065377e28eaafb8a2a75ea0c7ace66ea.1920x1080.jpg?t=1667040313",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2100980/ss_5d96f9c399dd32ab7f4321cc895a889c92dbde36.1920x1080.jpg?t=1667040313",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2100980/ss_fd061e18646913c35144da1f67aa2833c6ffd751.1920x1080.jpg?t=1667040313",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2100980/ss_b8cd0403fa318818e91d48a6249b0312370b1a19.1920x1080.jpg?t=1667040313",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2100980/ss_fd196ba9dd33705916d152af60696a634a4f632b.1920x1080.jpg?t=1667040313"
+  ],
+  "header": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2100980/header.jpg?t=1667040313",
+  "movies": [
+   {
+    "name": "Trailer_1",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/2100980/506699/d2becc209b0a6feea56127d842c2d9ff2ca0c6d5/1751076029/hls_264_master.m3u8?t=1666558846",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/2100980/506699/d2becc209b0a6feea56127d842c2d9ff2ca0c6d5/1751076029/dash_h264.mpd?t=1666558846"
+   }
+  ]
+ },
+ "2239140": {
+  "name": "Grapples Galore",
+  "dev": [
+   "Zoteling"
+  ],
+  "date": "7 Feb, 2025",
+  "genres": [
+   "Action",
+   "Indie",
+   "Free To Play"
+  ],
+  "tags": [
+   "Free to Play",
+   "Multiplayer",
+   "Physics",
+   "Parkour",
+   "Arena Shooter",
+   "PvP",
+   "Fast-Paced",
+   "Shooter",
+   "Funny",
+   "Third Person",
+   "Action",
+   "Cartoon",
+   "3D",
+   "Cartoony",
+   "Comedy"
+  ],
+  "short": "Grapples Galore is a fast-paced online multiplayer arena shooter with physics-based grappling hook movement, active ragdolls, and thrilling gunplay.",
+  "shots": [
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2239140/ss_6b58d48a3504dcd6907beaab8be1c2484b9afb07.1920x1080.jpg?t=1739020779",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2239140/ss_37d60426d186ef941e2dee2a39be3226ebafe69f.1920x1080.jpg?t=1739020779",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2239140/ss_ebf9be3744cb2ce0865b29110a40a4dd70810e06.1920x1080.jpg?t=1739020779",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2239140/ss_4563e1d806eb93fb3867119bc40849a2839ca0ed.1920x1080.jpg?t=1739020779",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2239140/ss_6044ca5496affceb573dbcb8eb5089dfe4884549.1920x1080.jpg?t=1739020779",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2239140/ss_7063ed3df6ed0a8b1a624b8edd0eff704c72592e.1920x1080.jpg?t=1739020779",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2239140/ss_666fd2c10d3929c606a8397abf52e59eebe77626.1920x1080.jpg?t=1739020779",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2239140/ss_97e1eb9031b1134af9502fdabcabed6906ea5425.1920x1080.jpg?t=1739020779",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2239140/ss_1236ab5debc08623082de66370dd4eb839035b40.1920x1080.jpg?t=1739020779",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2239140/ss_1e5d2fca673bd4a48612f21669528fa734c9d14a.1920x1080.jpg?t=1739020779"
+  ],
+  "header": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2239140/header.jpg?t=1739020779",
+  "movies": [
+   {
+    "name": "Grapples Galore - Release Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/2239140/820801/2f13d3c02ec49ecd828a7e8b15181b505cccf8b3/1751094106/hls_264_master.m3u8?t=1738261637",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/2239140/820801/2f13d3c02ec49ecd828a7e8b15181b505cccf8b3/1751094106/dash_h264.mpd?t=1738261637"
+   }
+  ]
+ },
+ "2626770": {
+  "name": "Yellowcake",
+  "dev": [
+   "Barji"
+  ],
+  "date": "Coming soon",
+  "genres": [
+   "Action",
+   "Adventure"
+  ],
+  "tags": [
+   "Online Co-Op",
+   "Action Roguelike",
+   "Multiple Endings",
+   "Horror",
+   "Choices Matter",
+   "Action",
+   "Exploration",
+   "Atmospheric",
+   "Post-apocalyptic",
+   "Adventure",
+   "Survival Horror",
+   "Cartoony",
+   "Stylized",
+   "3D",
+   "Survival"
+  ],
+  "short": "Fight your way through a post-war nuclear world by scavenging supplies, building your rocket, and taking on bosses! Explore a procedurally generated open world and find items to help you escape.",
+  "shots": [
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2626770/22d989053db3d28040991c10cd5c552a6916c116/ss_22d989053db3d28040991c10cd5c552a6916c116.1920x1080.jpg?t=1788532419",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2626770/f7c50a1cd10ff7517b85876c8135679fb8e12153/ss_f7c50a1cd10ff7517b85876c8135679fb8e12153.1920x1080.jpg?t=1788532419",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2626770/352c97a791230ed3cda9972fcb35cc7fd4a64ab6/ss_352c97a791230ed3cda9972fcb35cc7fd4a64ab6.1920x1080.jpg?t=1788532419",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2626770/3ccf0f542a103cf11cfbae09c3f3e30d42c9e157/ss_3ccf0f542a103cf11cfbae09c3f3e30d42c9e157.1920x1080.jpg?t=1788532419",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2626770/4c7bbfb1b90370d969828dfc0d286313ee097208/ss_4c7bbfb1b90370d969828dfc0d286313ee097208.1920x1080.jpg?t=1788532419",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2626770/184526c61eb10d76920ff1d351ff6691e1944cde/ss_184526c61eb10d76920ff1d351ff6691e1944cde.1920x1080.jpg?t=1788532419",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2626770/59e1a052b68453941e2d62582c7ef89833724f40/ss_59e1a052b68453941e2d62582c7ef89833724f40.1920x1080.jpg?t=1788532419"
+  ],
+  "header": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2626770/919b57cf017dc622b8d6a0c2ea2271a9b4743b24/header.jpg?t=1788532419",
+  "movies": [
+   {
+    "name": "The Bungas",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/2626770/931377841/f0d0bebaca4cf24d2ab88966190e35c5b9f22378/1779439260/hls_264_master.m3u8?t=1779444148",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/2626770/931377841/f0d0bebaca4cf24d2ab88966190e35c5b9f22378/1779439260/dash_h264.mpd?t=1779444148"
+   }
+  ]
+ },
+ "304430": {
+  "name": "INSIDE",
+  "dev": [
+   "Playdead"
+  ],
+  "date": "7 Jul, 2016",
+  "genres": [
+   "Action",
+   "Adventure",
+   "Indie"
+  ],
+  "tags": [
+   "2.5D",
+   "Puzzle Platformer",
+   "Atmospheric",
+   "Dark",
+   "Horror",
+   "Story Rich",
+   "Indie",
+   "Singleplayer",
+   "Cinematic",
+   "Adventure",
+   "Multiple Endings",
+   "Puzzle",
+   "2D Platformer",
+   "Platformer",
+   "Minimalist"
+  ],
+  "short": "Hunted and alone, a boy finds himself drawn into the center of a dark project. INSIDE is a dark, narrative-driven platformer combining intense action with challenging puzzles. It has been critically acclaimed for its moody art style, ambient soundtrack and unsettling atmosphere.",
+  "shots": [
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/304430/ss_d23769199f1e3d498f8293892f0456696458c717.1920x1080.jpg?t=1793958852",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/304430/ss_b15d0a5c037198b5b9db6a82fedf5018f1b43de5.1920x1080.jpg?t=1793958852",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/304430/ss_ebeba62a8d2141b4fd36760500529fb2d9a29190.1920x1080.jpg?t=1793958852",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/304430/ss_8b67b9a40e620c7316df60cb5a783820f77b935c.1920x1080.jpg?t=1793958852",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/304430/ss_82584c66b8ff7d935481e753596ab36d9b5e9fb7.1920x1080.jpg?t=1793958852",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/304430/ss_5fa85af6a5041f4671ce148cf3d768d5bfbd51b7.1920x1080.jpg?t=1793958852",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/304430/ss_272578bb9b90c54609d7071765caa6de3eecdd39.1920x1080.jpg?t=1793958852",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/304430/ss_a99d452b35944307eee85ff3fb9fe5ec8b32a23e.1920x1080.jpg?t=1793958852",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/304430/ss_c8cd5a5efd4050faeb87e7e7ade65adb31752237.1920x1080.jpg?t=1793958852",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/304430/ss_e8b0baf0fb398a23fe58d754a73280c7f0991be8.1920x1080.jpg?t=1793958852"
+  ],
+  "header": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/304430/header.jpg?t=1793958852",
+  "movies": [
+   {
+    "name": "INSIDE Mini-Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/304430/270913/f44db3dc6a15962e2f7c2905f32bcdee959717d3/1750504200/hls_264_master.m3u8?t=1584103602",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/304430/270913/f44db3dc6a15962e2f7c2905f32bcdee959717d3/1750504200/dash_h264.mpd?t=1584103602"
+   },
+   {
+    "name": "INSIDE Announcement Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/304430/47470/031afcb8c4cdedb8fe51699b0b300843e71e98b3/1750504169/hls_264_master.m3u8?t=1466209763",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/304430/47470/031afcb8c4cdedb8fe51699b0b300843e71e98b3/1750504169/dash_h264.mpd?t=1466209763"
+   },
+   {
+    "name": "INSIDE Release Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/304430/61779/766776424e4b03f12e3875f718620ffb5b52eddf/1750504171/hls_264_master.m3u8?t=1466209771",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/304430/61779/766776424e4b03f12e3875f718620ffb5b52eddf/1750504171/dash_h264.mpd?t=1466209771"
+   }
+  ]
+ },
+ "3173130": {
+  "name": "Gun Frog",
+  "dev": [
+   "Zoteling"
+  ],
+  "date": "12 Oct, 2024",
+  "genres": [
+   "Indie"
+  ],
+  "tags": [
+   "Indie",
+   "Physics",
+   "Fast-Paced",
+   "Action",
+   "Colorful",
+   "3D",
+   "Shooter",
+   "Third-Person Shooter",
+   "Cute",
+   "Character Customization",
+   "Third Person",
+   "Stylized",
+   "Bullet Time",
+   "Adventure",
+   "Singleplayer"
+  ],
+  "short": "Gun Frog is a unique physics-based movement shooter where you bounce on lily pads, kill flies and explore a vibrant world as a frog that ate a gun.",
+  "shots": [
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3173130/2547e9b0a9e0e18a59fe4e988c380db3630fc1fa/ss_2547e9b0a9e0e18a59fe4e988c380db3630fc1fa.1920x1080.jpg?t=1765989240",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3173130/fcedd8e47c08afb84698120316ce0774f4a51c71/ss_fcedd8e47c08afb84698120316ce0774f4a51c71.1920x1080.jpg?t=1765989240",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3173130/0019c2622ab05a372148ac57a91efd9bdbfe1bd3/ss_0019c2622ab05a372148ac57a91efd9bdbfe1bd3.1920x1080.jpg?t=1765989240",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3173130/437e3fa01bab1b29e3e92e8d1e721fb047766143/ss_437e3fa01bab1b29e3e92e8d1e721fb047766143.1920x1080.jpg?t=1765989240",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3173130/510ea11568d3d8187618a0e5f4a43febe5184a4b/ss_510ea11568d3d8187618a0e5f4a43febe5184a4b.1920x1080.jpg?t=1765989240",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3173130/995779307d1826e0075cacd24cee8da5c25b0bb7/ss_995779307d1826e0075cacd24cee8da5c25b0bb7.1920x1080.jpg?t=1765989240",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3173130/12b0888b0e2b7cbf622dbbee357bef1740700a14/ss_12b0888b0e2b7cbf622dbbee357bef1740700a14.1920x1080.jpg?t=1765989240",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3173130/fdb32a618d745549f7723ade7bf52971a67a3753/ss_fdb32a618d745549f7723ade7bf52971a67a3753.1920x1080.jpg?t=1765989240",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3173130/a68c83ac6a18f30b3e847b0af4c2741fd198ec4d/ss_a68c83ac6a18f30b3e847b0af4c2741fd198ec4d.1920x1080.jpg?t=1765989240",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3173130/f032959ce2386f0a3c9c0956385cc1eae6191b13/ss_f032959ce2386f0a3c9c0956385cc1eae6191b13.1920x1080.jpg?t=1765989240"
+  ],
+  "header": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3173130/17c082c5ff14655292be22031b8d57779df308d5/header.jpg?t=1765989240",
+  "movies": [
+   {
+    "name": "Gun Frog Official Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/3173130/295200259/071e40bf54c7b8c1baa87602d041718f37c3525f/1760020583/hls_264_master.m3u8?t=1760021590",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/3173130/295200259/071e40bf54c7b8c1baa87602d041718f37c3525f/1760020583/dash_h264.mpd?t=1760021590"
+   }
+  ]
+ },
+ "3722330": {
+  "name": "Shift At Midnight",
+  "dev": [
+   "Bun Muen"
+  ],
+  "date": "22 Jul, 2026",
+  "genres": [
+   "Indie",
+   "Simulation"
+  ],
+  "tags": [
+   "Horror",
+   "Online Co-Op",
+   "Multiplayer",
+   "Retro",
+   "Co-op",
+   "Survival Horror",
+   "Simulation",
+   "3D",
+   "First-Person",
+   "Comedy",
+   "Mystery",
+   "Investigation",
+   "Detective",
+   "1990's",
+   "Singleplayer"
+  ],
+  "short": "An online co-op detective horror for up to 3 players. Work together across randomly generated shifts to investigate your customers, as some are only pretending to be human. Make one mistake, and you\u2019ll be forced to board up, set traps, and hide.",
+  "shots": [
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3722330/a7b10d3b321f42e8b8c0c75a1c6202802ecd6f21/ss_a7b10d3b321f42e8b8c0c75a1c6202802ecd6f21.1920x1080.jpg?t=1793103951",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3722330/1c62449628755efbfd72771d8864b3d94975ddb2/ss_1c62449628755efbfd72771d8864b3d94975ddb2.1920x1080.jpg?t=1793103951",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3722330/96c8fbdfc9efd6fa203febc03ab1c3f77957c544/ss_96c8fbdfc9efd6fa203febc03ab1c3f77957c544.1920x1080.jpg?t=1793103951",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3722330/4aec47aa49aa7225a2f84ec4d02f514b7efb0f08/ss_4aec47aa49aa7225a2f84ec4d02f514b7efb0f08.1920x1080.jpg?t=1793103951",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3722330/d4e9e4a0d4e849106401f20a4c8083fdcb7688bc/ss_d4e9e4a0d4e849106401f20a4c8083fdcb7688bc.1920x1080.jpg?t=1793103951",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3722330/c8f33f8ce98e0bcd47a0ce4c3c9a302582ac6517/ss_c8f33f8ce98e0bcd47a0ce4c3c9a302582ac6517.1920x1080.jpg?t=1793103951",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3722330/707d82dfd9568894e23eb7d7418887ce30208123/ss_707d82dfd9568894e23eb7d7418887ce30208123.1920x1080.jpg?t=1793103951"
+  ],
+  "header": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3722330/759ecea2ffe1ad3819aefdda79e265b8b332bf8f/header.jpg?t=1793103951",
+  "movies": [
+   {
+    "name": "Launch Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/3722330/1380754498/2984c23e9c0f5cf62f15a3defa0da1a03743de2b/1784721856/hls_264_master.m3u8?t=1784731660",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/3722330/1380754498/2984c23e9c0f5cf62f15a3defa0da1a03743de2b/1784721856/dash_h264.mpd?t=1784731660"
+   },
+   {
+    "name": "New Release Date Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/3722330/397388334/619dd03f70fa6d7a57918992ed0e4b536ee5b785/1783686194/hls_264_master.m3u8?t=1783688593",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/3722330/397388334/619dd03f70fa6d7a57918992ed0e4b536ee5b785/1783686194/dash_h264.mpd?t=1783688593"
+   },
+   {
+    "name": "Steam Next Fest Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/3722330/305442674/39e9697f8c4f425beb0264dda1fb7e3a597fa0f0/1771866441/hls_264_master.m3u8?t=1771871612",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/3722330/305442674/39e9697f8c4f425beb0264dda1fb7e3a597fa0f0/1771866441/dash_h264.mpd?t=1771871612"
+   },
+   {
+    "name": "Wishlist Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/3722330/1157417708/011a6ec5a83fe349dfffba4fb8dfb552be713fb1/1758554219/hls_264_master.m3u8?t=1758557357",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/3722330/1157417708/011a6ec5a83fe349dfffba4fb8dfb552be713fb1/1758554219/dash_h264.mpd?t=1758557357"
+   },
+   {
+    "name": "Release Date Reveal Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/3722330/66839698/62c23d0170e141a54c3312db3253569bb20d3d44/1775752044/hls_264_master.m3u8?t=1775753109",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/3722330/66839698/62c23d0170e141a54c3312db3253569bb20d3d44/1775752044/dash_h264.mpd?t=1775753109"
+   }
+  ]
+ },
+ "3949040": {
+  "name": "RV There Yet?",
+  "dev": [
+   "Nuggets Entertainment"
+  ],
+  "date": "21 Oct, 2025",
+  "genres": [
+   "Action",
+   "Adventure",
+   "Indie"
+  ],
+  "tags": [
+   "Multiplayer",
+   "Co-op",
+   "Funny",
+   "Online Co-Op",
+   "Adventure",
+   "Driving",
+   "Physics",
+   "Exploration",
+   "First-Person",
+   "Indie",
+   "3D",
+   "Atmospheric",
+   "Offroad",
+   "Casual",
+   "Psychological Horror"
+  ],
+  "short": "A co-op adventure about driving your Recreational Vehicle home.",
+  "shots": [
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3949040/ed2f7080c6622688a72a86ca85af600f2a2bdfb9/ss_ed2f7080c6622688a72a86ca85af600f2a2bdfb9.1920x1080.jpg?t=1789134289",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3949040/7d246f94e4ec2ff4c7be3ded82bcdd558274d7c7/ss_7d246f94e4ec2ff4c7be3ded82bcdd558274d7c7.1920x1080.jpg?t=1789134289",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3949040/f5663e0220e188d4c9db0789f0cbb4ddefd762d5/ss_f5663e0220e188d4c9db0789f0cbb4ddefd762d5.1920x1080.jpg?t=1789134289",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3949040/9face7033df9bd0274428d6215711c5dec20f245/ss_9face7033df9bd0274428d6215711c5dec20f245.1920x1080.jpg?t=1789134289",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3949040/aa6d58ff1f0eb5c5b3e6d7cc10c1576b62a745b0/ss_aa6d58ff1f0eb5c5b3e6d7cc10c1576b62a745b0.1920x1080.jpg?t=1789134289",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3949040/9c06d0d1e31ab3e05b1ce24692a9397ca7bfabf1/ss_9c06d0d1e31ab3e05b1ce24692a9397ca7bfabf1.1920x1080.jpg?t=1789134289",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3949040/e1d049defe6110250dd1e0e50cf1112ff6391381/ss_e1d049defe6110250dd1e0e50cf1112ff6391381.1920x1080.jpg?t=1789134289",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3949040/4dfb30018ca9c4994883f20aa0a6edd4a944569c/ss_4dfb30018ca9c4994883f20aa0a6edd4a944569c.1920x1080.jpg?t=1789134289",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3949040/c30eb4f8c688a46edb891ea195acb14549a09c0f/ss_c30eb4f8c688a46edb891ea195acb14549a09c0f.1920x1080.jpg?t=1789134289",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3949040/fb646de9f84fdc610d394d78e81b4af4608c7045/ss_fb646de9f84fdc610d394d78e81b4af4608c7045.1920x1080.jpg?t=1789134289"
+  ],
+  "header": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3949040/cae24b4ed7f4531be51f0d63f785b7d253f92dc3/header.jpg?t=1789134289",
+  "movies": [
+   {
+    "name": "RV There Yet? - St. B\u00fattin Bay",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/3949040/1309387426/dce3fd504257a257abfe259fa3207a0bcf499582/1789049802/hls_264_master.m3u8?t=1789134288",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/3949040/1309387426/dce3fd504257a257abfe259fa3207a0bcf499582/1789049802/dash_h264.mpd?t=1789134288"
+   },
+   {
+    "name": "RV There Yet? Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/3949040/750434220/4debbf5fe1ea5546b18ab2c4c608e94b04a2a95f/1760356005/hls_264_master.m3u8?t=1760357938",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/3949040/750434220/4debbf5fe1ea5546b18ab2c4c608e94b04a2a95f/1760356005/dash_h264.mpd?t=1760357938"
+   },
+   {
+    "name": "RV There Yet? - Mt. Yurbuttsk",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/3949040/454755052/57242bfb6bbd49408528dc1a10302edb1665213d/1765892091/hls_264_master.m3u8?t=1765897881",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/3949040/454755052/57242bfb6bbd49408528dc1a10302edb1665213d/1765892091/dash_h264.mpd?t=1765897881"
+   }
+  ]
+ },
+ "4001890": {
+  "name": "How to Fish",
+  "dev": [
+   "Dazed Games"
+  ],
+  "date": "20 Aug, 2026",
+  "genres": [
+   "Action",
+   "Casual",
+   "Indie",
+   "Simulation"
+  ],
+  "tags": [
+   "Multiplayer",
+   "Online Co-Op",
+   "Co-op",
+   "Fishing",
+   "Indie",
+   "Shooter",
+   "First-Person",
+   "Physics",
+   "Adventure",
+   "FPS",
+   "Nature",
+   "Action",
+   "PvE",
+   "3D",
+   "Cartoony"
+  ],
+  "short": "A 1-4 player physics based fishing simulator. While drinking and boating you suddenly crash into a small island. To work your way back home you have to learn How to Fish.",
+  "shots": [
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4001890/48f6817fe466a7c9666605527558bf1fac48d0d2/ss_48f6817fe466a7c9666605527558bf1fac48d0d2.1920x1080.jpg?t=1792508550",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4001890/5f867d8c9b03c63867cc95b7bfaa4a3d2193ea48/ss_5f867d8c9b03c63867cc95b7bfaa4a3d2193ea48.1920x1080.jpg?t=1792508550",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4001890/2a912cdbf746286400cece1ca607ac077c11a1dc/ss_2a912cdbf746286400cece1ca607ac077c11a1dc.1920x1080.jpg?t=1792508550",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4001890/e15ab15c09cd3f6ec06d4ffacdf07f6c2b679db2/ss_e15ab15c09cd3f6ec06d4ffacdf07f6c2b679db2.1920x1080.jpg?t=1792508550",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4001890/65be87272efaa4bac87e16dc764a9535165effd2/ss_65be87272efaa4bac87e16dc764a9535165effd2.1920x1080.jpg?t=1792508550",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4001890/3c10ad99000bdcf9cd99509de59d2a1351496690/ss_3c10ad99000bdcf9cd99509de59d2a1351496690.1920x1080.jpg?t=1792508550",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4001890/57f53b814c84511019f86aa89cedaed37148dcfa/ss_57f53b814c84511019f86aa89cedaed37148dcfa.1920x1080.jpg?t=1792508550"
+  ],
+  "header": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4001890/45c4ddff4901e32c4b8b643e1b97d0d01898d299/header.jpg?t=1792508550",
+  "movies": [
+   {
+    "name": "How to Fish | Release Date Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/4001890/1509866700/0a2d65236b13d187ce8d7d8eca946a501b7fad47/1786614175/hls_264_master.m3u8?t=1786615113",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/4001890/1509866700/0a2d65236b13d187ce8d7d8eca946a501b7fad47/1786614175/dash_h264.mpd?t=1786615113"
+   },
+   {
+    "name": "How to Fish Gameplay Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/4001890/1292677147/fd5f1f32aa90769f379a4e2099d7147ccf63cd51/1777544367/hls_264_master.m3u8?t=1777545430",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/4001890/1292677147/fd5f1f32aa90769f379a4e2099d7147ccf63cd51/1777544367/dash_h264.mpd?t=1777545430"
+   }
+  ]
+ },
+ "4297360": {
+  "name": "Burg Tag",
+  "dev": [
+   "Barji"
+  ],
+  "date": "22 Oct, 2026",
+  "genres": [
+   "Action",
+   "Indie"
+  ],
+  "tags": [
+   "Parkour",
+   "Multiplayer",
+   "Combat",
+   "3D Platformer",
+   "Action",
+   "Online Co-Op",
+   "Competitive",
+   "Party Game",
+   "Platformer",
+   "Funny",
+   "PvP",
+   "Character Customization",
+   "Stealth",
+   "3D",
+   "Cartoony"
+  ],
+  "short": "A fast-paced online multiplayer game of tag built around ridiculously satisfying movement. Wall kick, swing, slide and roll through colourful maps, and do whatever it takes to escape your friends... or tag them. No friends? Run a time trial!",
+  "shots": [
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4297360/ba91480e4d4861b411eb8dd093ce8b995463b3bb/ss_ba91480e4d4861b411eb8dd093ce8b995463b3bb.1920x1080.jpg?t=1792683612",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4297360/cd412459475ba1e696e8e3cf0f799c3f5ad23cf1/ss_cd412459475ba1e696e8e3cf0f799c3f5ad23cf1.1920x1080.jpg?t=1792683612",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4297360/3d6cc69671c0fbb426de9c4c71e4716aab6c30f4/ss_3d6cc69671c0fbb426de9c4c71e4716aab6c30f4.1920x1080.jpg?t=1792683612",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4297360/b66b8e192668864487e50c8c8b5ebdaee97d2318/ss_b66b8e192668864487e50c8c8b5ebdaee97d2318.1920x1080.jpg?t=1792683612",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4297360/b61ac5636caf62380734478d3285935ca466632f/ss_b61ac5636caf62380734478d3285935ca466632f.1920x1080.jpg?t=1792683612",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4297360/5aa2ba231393f7e107b03c87903915ba608bcecf/ss_5aa2ba231393f7e107b03c87903915ba608bcecf.1920x1080.jpg?t=1792683612",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4297360/e071665505b776ba024a62f9ad143ded907bb9c7/ss_e071665505b776ba024a62f9ad143ded907bb9c7.1920x1080.jpg?t=1792683612",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4297360/aff01dc2306340f660594dbddd29f0f7cda0cf8c/ss_aff01dc2306340f660594dbddd29f0f7cda0cf8c.1920x1080.jpg?t=1792683612",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4297360/0f1668a5eaa0e18aad63a28314ad2d4912951e92/ss_0f1668a5eaa0e18aad63a28314ad2d4912951e92.1920x1080.jpg?t=1792683612"
+  ],
+  "header": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4297360/e604ca5c7378772263520888eb5a989a1ce5a079/header.jpg?t=1792683612",
+  "movies": [
+   {
+    "name": "Burg Tag Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/4297360/664300688/43020f31f6cba7b6cb0b8275ed68bd757d8f14f0/1791223528/hls_264_master.m3u8?t=1791223930",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/4297360/664300688/43020f31f6cba7b6cb0b8275ed68bd757d8f14f0/1791223528/dash_h264.mpd?t=1791223930"
+   }
+  ]
+ },
+ "4534960": {
+  "name": "Dear Passengers",
+  "dev": [
+   "FLEXUS"
+  ],
+  "date": "2026",
+  "genres": [
+   "Action",
+   "Adventure",
+   "Indie"
+  ],
+  "tags": [
+   "Multiplayer",
+   "Funny",
+   "Online Co-Op",
+   "Co-op",
+   "Comedy",
+   "Action",
+   "Free to Play",
+   "Adventure",
+   "Physics",
+   "First-Person",
+   "3D",
+   "Flight",
+   "Indie",
+   "Exploration",
+   "Atmospheric"
+  ],
+  "short": "Play in co-op as the crew of the world\u2019s worst airline. Your plane is falling apart, your cargo is illegal, and passenger safety barely makes the list.",
+  "shots": [
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4534960/b28210ec5549d2cda898099e6d4a5c29153b2f35/ss_b28210ec5549d2cda898099e6d4a5c29153b2f35.1920x1080.jpg?t=1787132605",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4534960/8587fe02b49b18e907bc271403aca145aac23b2d/ss_8587fe02b49b18e907bc271403aca145aac23b2d.1920x1080.jpg?t=1787132605",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4534960/de1051493ef5690ab1a17d7c2fc35a74a42a4ea1/ss_de1051493ef5690ab1a17d7c2fc35a74a42a4ea1.1920x1080.jpg?t=1787132605",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4534960/12ea170121330ac9040a00257436552a9b2368a1/ss_12ea170121330ac9040a00257436552a9b2368a1.1920x1080.jpg?t=1787132605",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4534960/7d572221193bf6d9a3294f7a59af4d093afb6ba1/ss_7d572221193bf6d9a3294f7a59af4d093afb6ba1.1920x1080.jpg?t=1787132605",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4534960/59919ca43b7423a86e31e69e5f7ddc7b1fe7dcc3/ss_59919ca43b7423a86e31e69e5f7ddc7b1fe7dcc3.1920x1080.jpg?t=1787132605",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4534960/442dcbff83ae722b28b063e2b453a96d75f1d465/ss_442dcbff83ae722b28b063e2b453a96d75f1d465.1920x1080.jpg?t=1787132605",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4534960/9fdf57c8e8d2946d9c82ebece8ce7c311f587d41/ss_9fdf57c8e8d2946d9c82ebece8ce7c311f587d41.1920x1080.jpg?t=1787132605",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4534960/a30af7fc82215257ef5f0934d3be1fb5d7f4d5fb/ss_a30af7fc82215257ef5f0934d3be1fb5d7f4d5fb.1920x1080.jpg?t=1787132605",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4534960/0f97770ed578a9ce1a20309e58a3bd1cc3cce099/ss_0f97770ed578a9ce1a20309e58a3bd1cc3cce099.1920x1080.jpg?t=1787132605"
+  ],
+  "header": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4534960/7ddef53346afe3e3d4d479dbed740cdb38cfe09a/header.jpg?t=1787132605",
+  "movies": [
+   {
+    "name": "Dear Passengers Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/4534960/176858668/0f21c3c6ad3b0997ac4ff3b5d339850810e8916a/1783965342/hls_264_master.m3u8?t=1783975744",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/4534960/176858668/0f21c3c6ad3b0997ac4ff3b5d339850810e8916a/1783965342/dash_h264.mpd?t=1783975744"
+   }
+  ]
+ },
+ "4954910": {
+  "name": "Scam With Your Friends",
+  "dev": [
+   "JakeHub",
+   "Metater"
+  ],
+  "date": "15 Oct, 2026",
+  "genres": [
+   "Action",
+   "Casual",
+   "Indie",
+   "Simulation",
+   "Early Access"
+  ],
+  "tags": [
+   "Early Access",
+   "Artificial Intelligence",
+   "Online Co-Op",
+   "Voice Control",
+   "Job Simulator",
+   "Funny",
+   "Co-op",
+   "Dark Comedy",
+   "Simulation",
+   "Comedy",
+   "Crime",
+   "Dialogue Heavy",
+   "Party Game",
+   "Hacking",
+   "Co-op Campaign"
+  ],
+  "short": "Run a scam call center with your friends. Use increasingly ridiculous schemes to trick AI callers out of their life savings. Hit your daily quota, cause chaos around the office, and survive a brutal performance review from your rageaholic boss.",
+  "shots": [
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/bcff5f79257b09d3477d82fbfc880c4d084bfee2/ss_bcff5f79257b09d3477d82fbfc880c4d084bfee2.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/afe1c51df0a3e01d5d238a949a2754e5a00636a2/ss_afe1c51df0a3e01d5d238a949a2754e5a00636a2.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/d7676d89d64b88d0c817009cbb08afed3cfbf8b6/ss_d7676d89d64b88d0c817009cbb08afed3cfbf8b6.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/e29f4717a68c3234d24b824db66c4d56a8102b21/ss_e29f4717a68c3234d24b824db66c4d56a8102b21.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/18907646f5bc51eb02f12c160181f89585897743/ss_18907646f5bc51eb02f12c160181f89585897743.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/e9b297c16108c1702873d59df1eedf5a39851be3/ss_e9b297c16108c1702873d59df1eedf5a39851be3.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/7ff96872b59a388158c5e9730b59a08357116592/ss_7ff96872b59a388158c5e9730b59a08357116592.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/734c840215de26b6b1c4d06579870a025746fdbf/ss_734c840215de26b6b1c4d06579870a025746fdbf.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/6cffc8c3b09d1088154661e35729891d64e2cff7/ss_6cffc8c3b09d1088154661e35729891d64e2cff7.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/0bad5dd0fa92399a999726f4947095952ad5f963/ss_0bad5dd0fa92399a999726f4947095952ad5f963.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/094feafd07fd5ddc7b2230d7c0af8c8ae68bdd88/ss_094feafd07fd5ddc7b2230d7c0af8c8ae68bdd88.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/75371b2173eb5f71cb176ac2b466cd90a8836e74/ss_75371b2173eb5f71cb176ac2b466cd90a8836e74.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/50f641632ab72de8bdcb230ca43bd41a4434c476/ss_50f641632ab72de8bdcb230ca43bd41a4434c476.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/0caccc2ff4bf8aa525e8ffd6159aa7389b9cb6ab/ss_0caccc2ff4bf8aa525e8ffd6159aa7389b9cb6ab.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/7f2cbf7e73844e1d500d124009753fb6720541c2/ss_7f2cbf7e73844e1d500d124009753fb6720541c2.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/0de88d51b58a77eb96a848df89af9d3f7adf3f16/ss_0de88d51b58a77eb96a848df89af9d3f7adf3f16.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/e3920cbb1c07287096a38574119788763d29967d/ss_e3920cbb1c07287096a38574119788763d29967d.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/ff3df4ad43b12710b47ea2a63def1ec73cbaedf4/ss_ff3df4ad43b12710b47ea2a63def1ec73cbaedf4.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/9e2a9afcfda31f4c3b1c02120e527e398ee2b6b2/ss_9e2a9afcfda31f4c3b1c02120e527e398ee2b6b2.1920x1080.jpg?t=1795124575",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/140b2e87e13ebc9f2963e06712c433b97e11cad0/ss_140b2e87e13ebc9f2963e06712c433b97e11cad0.1920x1080.jpg?t=1795124575"
+  ],
+  "header": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/128effac3212fc1b92b4f6cd8891995df0d4b199/header.jpg?t=1795124575",
+  "movies": [
+   {
+    "name": "Announcement Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/4954910/1609623990/c3f7c7667843a3e35b03c48ae3d09b322fe62dc2/1788230310/hls_264_master.m3u8?t=1788375220",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/4954910/1609623990/c3f7c7667843a3e35b03c48ae3d09b322fe62dc2/1788230310/dash_h264.mpd?t=1788375220"
+   }
+  ]
+ }
+}

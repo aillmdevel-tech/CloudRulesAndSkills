@@ -8,7 +8,7 @@ description: Use after the materials of a new or big-stage game project are stud
 Visual stage that always comes BEFORE gameplay logic. Output: an approved MVP scene (map, location, key objects, style) in Blender + exported GLB, ready to load in the engine. Coordinates other skills; does not replace them.
 
 ## Rules
-- Main reference = the game/video/screenshots Alex gave (usually Roblox). It gets the biggest weight. Web games can't copy 1:1: adapt, don't clone (see below).
+- Main reference = the game/video/screenshots Alex gave (usually Roblox). It gets the biggest weight. Default = maximum closeness to the reference in composition, proportions, palette, lighting, camera and effects (own models/assets, no ripped files, no copying others' files). Do NOT simplify or drift to a looser style unless Alex picks it in step 2.
 - Quality first: map, location, models, style, camera = lead agent on Opus high. Mechanical steps (export, rename, batch material fix, smoke) → see [references/model-routing.md](references/model-routing.md).
 - Facts vs guesses: mark every gap in the reference as a hypothesis in `docs/ART_SPEC.md`.
 - Owner files (LevelCopier dumps, provided GLB) stay untouched; work on derived copies.
@@ -21,6 +21,11 @@ Visual stage that always comes BEFORE gameplay logic. Output: an approved MVP sc
 
 ## 2. Adaptation options (always give Alex 3–4, with a recommendation)
 For a Roblox-like reference present options such as: **Faithful-lite** (same silhouette/palette, own models), **Stylised twist** (same layout, different art direction: low-poly pastel / toon outline / clay / voxel), **Polished casual** (cleaner shapes, soft light, bloom), **Own theme reskin** (same mechanics and scale, new world theme). For each: look in one line, cost, risk, what it borrows vs changes. Put the pick in `docs/DECISIONS.md`.
+
+### Quality bar (mandatory, not optional)
+- Effects checklist per scene: post-processing (bloom, AO/N8AO, tone mapping, vignette as in reference), particles (three.quarks), soft shadows and lighting matching the reference, UI animations (game-ui-motion-sound), material detail (not flat defaults).
+- After EVERY batch of visual changes: capture reference vs game pairs (`game-visual-comparison`) and fix top differences until close; record verdict in `PROJECT_STATE.md`.
+- Visual/effects work stays on Opus high. Missing effect = listed as a gap, not silently skipped.
 
 ## 3. Search for ready things (one pass, results in `docs/REFERENCES.md`)
 Follow [references/asset-sources.md](references/asset-sources.md): open asset packs, GitHub projects/tools, web/Steam games as visual benchmarks. For each: link, licence, what to take, fit 1–5. Max ~10 entries; no filler. Download only after Alex's OK (name, source, size).
