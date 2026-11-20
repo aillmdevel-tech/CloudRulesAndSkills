@@ -1,6 +1,6 @@
 ---
 name: game-project-workflow
-description: Use when starting or steering a browser game project — a new game, a game spec/ТЗ, a prototype, a Roblox-like or Steam/indie-inspired game, or an undecided game idea ("создаём игру", "вот ТЗ", "новый Roblox-like проект", "материалы в input/", "начинай новый игровой проект", "сделай прототип", "MVP принят", "разбери правки"), and when resuming a game project in a new chat. Runs Alex's single pipeline — materials → spec with gaps → gap-only questions → Steam style approval + budget → plan → MVP scene with three checkpoints (style frame, game feel, finished scene) → expansion to the end — in ONE chat, routes to the right skills, guards the agreed scope, keeps PROJECT_STATE.md / DECISIONS.md current.
+description: Use when starting or steering a browser game project — a new game, a game spec/ТЗ, a prototype, a Roblox-like or Steam/indie-inspired game, or an undecided game idea ("создаём игру", "вот ТЗ", "новый Roblox-like проект", "материалы в input/", "начинай новый игровой проект", "сделай прототип", "MVP принят", "разбери правки"), and when resuming a game project in a new chat. Runs Alex's single pipeline — materials → spec with gaps → gap-only questions → Steam style approval + budget → ready-made assets/projects search → plan → MVP scene with three checkpoints (style frame, game feel, finished scene) → expansion to the end — in ONE chat, routes to the right skills, guards the agreed scope, keeps PROJECT_STATE.md / DECISIONS.md current.
 ---
 
 # Game project workflow (GameFactory)
@@ -12,7 +12,7 @@ The human version of this pipeline is `GameFactory/WORKFLOW.md`; keep both ident
 - **Model and effort are Alex's choice.** Don't switch or request them; if a task seems to need a different level, say so in one line.
 - **Package loop** after every batch of game edits: code → `tsc --noEmit` + build → smoke (`game-autotest`) → reference | game screenshots (`game-visual-comparison`) → fix top diffs → git commit → update `docs/PROJECT_STATE.md` + memory-bank.
 - **Add nothing of your own.** Scope = ТЗ + Alex's answers. Any extra idea is a question, never an implementation.
-- Size the process to the request: a bug fix or tweak skips steps 1–5.
+- Size the process to the request: a bug fix or tweak skips steps 1–6.
 
 ## 0. Orient
 - Existing project: project `CLAUDE.md`, the current block of `docs/PROJECT_STATE.md`, then only the docs the task needs. `git status` before large edits.
@@ -38,10 +38,13 @@ Use the `grilling` round format, with these rules overriding it:
 - `docs/GAME_DESIGN.md` «Бюджет»: build size, FPS on a weak laptop, draw calls. Checked in every package loop.
 - Stack: [references/stack-selection.md](references/stack-selection.md); Three.js = `GameFactory/THREEJS_STACK.md`.
 
-## 5. Plan
-Briefly: how you see the game, exact MVP contents (step 6), stages to the end. Write `docs/plans/YYYY-MM-DD-master.md` (stages, checkboxes, acceptance criteria, verification commands, where each reference/asset lives) + one line in `docs/plans/CURRENT.md`. Start on «приступай».
+## 5. Ready-made (after style approval, before the plan)
+One pass via `game-art-first` §3: CC0 assets in the approved style (Poly Haven, Poly Pizza, Kenney, Quaternius; Blender MCP `search_assets`), open GitHub projects with similar mechanics, libraries → `docs/REFERENCES.md` (link, licence, what we take, fit 1–5). Download only after Alex's OK.
 
-## 6. MVP scene = the first 2–3 minutes of the game from the ТЗ
+## 6. Plan
+Briefly: how you see the game, what is reused from `REFERENCES.md` vs built in Blender, exact MVP contents (step 7), stages to the end. Write `docs/plans/YYYY-MM-DD-master.md` (stages, checkboxes, acceptance criteria, verification commands, where each reference/asset lives) + one line in `docs/plans/CURRENT.md`. Start on «приступай».
+
+## 7. MVP scene = the first 2–3 minutes of the game from the ТЗ
 Small but fully finished. Game feel, mechanics, elements, VFX and character come from the Roblox original; the look from the approved Steam game.
 - **Contents:** one starting zone built in Blender in the approved style (ground, borders, 5–10 decor kinds, sky, fog, light); character or vehicle with controls, camera and animations as in the original; 3–5 interactive object kinds with physics and collisions; one complete short loop from the ТЗ (action → result → reward); VFX, post-processing, action sounds and royalty-free music; minimal HUD.
 - **Not included:** other locations, progression, shop, saves, platform SDK, mobile controls (unless the ТЗ needs them now).
@@ -53,7 +56,7 @@ Small but fully finished. Game feel, mechanics, elements, VFX and character come
 - Debug surface from the start: `window.__game` (state, teleport, set camera, pause, seed RNG) behind `import.meta.env.DEV`.
 - Stack skills: Three.js → `threejs-aaa-graphics-builder` (render polish after A, scorecard for C) and `threejs-debug-profiler` (bugs, lags, budget), see [references/threejs-skills.md](references/threejs-skills.md); PlayCanvas → its skills only if Alex enabled them. UI → `frontend-design` + `game-ui-motion-sound` (UIFX). Characters → `character-animation`. Unusual locomotion → [references/procedural-motion.md](references/procedural-motion.md).
 
-## 7. Expansion to the end
+## 8. Expansion to the end
 After «MVP принят»: stages of the master plan (locations, content, economy, UI, platforms), each package with the package loop. Alex's feedback (text or voice video) is analysed like step 2 → `docs/TASKS.md` → fix → verify. Before submission: moderator (`game-autotest`).
 
 ## Testing (before saying «готово»)

@@ -1,0 +1,26 @@
+{
+  "user": {
+    "blender": {
+      "type": "stdio",
+      "command": "/Users/mac/.local/bin/uvx",
+      "args": [
+        "blender-mcp"
+      ]
+    },
+    "afk-rig": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "afk-rig",
+        "mcp"
+      ]
+    }
+  },
+  "project": {
+    "playgama-developer-cabinet": {
+      "type": "http",
+      "url": "https://developer.playgama.com/api/mcp"
+    }
+  }
+}

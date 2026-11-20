@@ -1,0 +1,1441 @@
+#!/usr/bin/env python3
+"""claude-profiles – multiple Claude accounts in ONE Claude Desktop app (macOS).
+
+The active profile always lives in the real data directory
+(~/Library/Application Support/Claude); every other profile is parked under
+~/Library/Application Support/Claude-profiles/<N>. Switching quits the app,
+syncs Code-tab sessions into the parked target, renames the two directories
+(each rename is atomic, sub-second), and relaunches the app.
+
+  claude-profiles                     status: profiles, active one, usage
+  claude-profiles <N|label>           switch (relaunches the app)
+  claude-profiles next                switch to the next signed-in profile
+  claude-profiles add [name] [--switch]
+                                      add a profile slot (and switch into it to sign in)
+  claude-profiles remove <N> [--yes]  delete a parked profile's data (never the active one)
+  claude-profiles label <N> <name>    name a profile
+  claude-profiles profiles <N>        set how many profile slots to show
+  claude-profiles import [--dry-run] [--archive-older-than DAYS] [--exclude PATH ...]
+                                      add Claude Code CLI / VS Code sessions to the app
+  claude-profiles usage-record        store the active account's plan limits (JSON on stdin,
+                                      as a Claude Code session's get_usage reports them)
+  claude-profiles status --json       machine-readable (used by the menu bar app)
+  claude-profiles repair              fix directory state after an interrupted switch
+  claude-profiles sync                repair current sessions/workspaces (relaunches the app)
+"""
+import fcntl, hashlib, json, os, re, shutil, subprocess, sys, tempfile, time, uuid
+from collections import Counter
+from contextlib import contextmanager, nullcontext
+from datetime import datetime, timezone
+from pathlib import Path
+
+HOME = Path(os.environ.get("CLAUDE_PROFILES_HOME", Path.home()))
+APP_SUPPORT = Path(os.environ.get("CLAUDE_PROFILES_APP_SUPPORT", HOME / "Library/Application Support"))
+LIVE = APP_SUPPORT / "Claude"
+PROFILES = APP_SUPPORT / "Claude-profiles"
+MANIFEST = PROFILES / "shared" / "sessions-manifest.json"
+SCRATCH = PROFILES / "shared" / "scratch-workspaces"
+WORKTREES = "git-worktrees.json"
+MARKER = ".claude-profiles-id"
+CONFIG = Path(os.environ.get("CLAUDE_PROFILES_CONFIG", HOME / ".config/claude-profiles/config.json"))
+LOG = Path(os.environ.get("CLAUDE_PROFILES_LOG", HOME / "Library/Logs/claude-profiles.log"))
+TRANSCRIPTS = HOME / ".claude/projects"
+APP = next((p for p in ("/Applications/Claude.app", str(HOME / "Applications/Claude.app")) if os.path.isdir(p)),
+           "/Applications/Claude.app")
+NO_APP = os.environ.get("CLAUDE_PROFILES_NO_APP") == "1"      # tests: never touch the real app
+POLL = float(os.environ.get("CLAUDE_PROFILES_POLL", "10"))     # seconds between index checks after a first login
+DEFAULT_PROFILES = 2
+# session fields tied to the account (connectors, remote control) – reset when copying between profiles
+RESET = {"remoteMcpServersConfig": [], "enabledMcpTools": {}, "bridgeSessionIds": [],
+         "sessionPermissionUpdates": [], "alwaysAllowedReasons": []}
+FIVE_H, SEVEN_D = 5 * 3600, 7 * 86400
+LIMITS = "plan-usage-limits.json"     # our own snapshot of the plan limits, next to the app's history
+AUTO_RESUME = "autoResumeRateLimit."   # + account id, in preferences.epitaxyPrefs of claude_desktop_config.json
+TITLE_MAX = 60
+TEMP_PREFIXES = ("/private/tmp/", "/tmp/", "/private/var/folders/", "/var/folders/")   # throwaway sessions
+# a session index entry the app accepts; used when no existing entry can serve as template
+ENTRY_TEMPLATE = {
+    "model": "claude-opus-5", "effort": "high", "titleSource": "auto", "permissionMode": "default",
+    "enabledMcpTools": {}, "remoteMcpServersConfig": [], "chromePermissionMode": "ask_permission",
+    "completedTurns": 0, "titleTurn": 0, "lastSpawnRootDetected": False, "bypassChosenInApp": False,
+    "bridgeSessionIds": [], "remoteControlAutoEligible": False, "alwaysAllowedReasons": [],
+    "sessionPermissionUpdates": [], "classifierSummaryEnabled": True, "reportFindingsCard": True,
+    "spawnSeed": {},
+}
+
+
+# ---------- helpers ----------
+
+def log(msg):
+    LOG.parent.mkdir(parents=True, exist_ok=True)
+    with LOG.open("a") as f:
+        f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')}  {msg}\n")
+    if sys.stdout.isatty():
+        print(msg)
+
+
+def load_json(p, default):
+    try:
+        return json.loads(Path(p).read_text())
+    except Exception:
+        return default
+
+
+def read_object(p, default=None):
+    """Only an absent file is optional. Never treat unreadable data as an empty index."""
+    try:
+        text = Path(p).read_text()
+    except FileNotFoundError:
+        return default
+    except (OSError, UnicodeError) as e:
+        raise ValueError(f"Cannot read {p}; no data was discarded") from e
+    try:
+        data = json.loads(text)
+    except (ValueError, UnicodeError) as e:
+        raise ValueError(f"Invalid JSON in {p}; repair or restore this file before switching") from e
+    if not isinstance(data, dict):
+        raise ValueError(f"Expected a JSON object in {p}")
+    return data
+
+
+def atomic_write(p, data):
+    """Replace a complete file; a failed write must not truncate its previous contents."""
+    p = Path(p)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    fd, name = tempfile.mkstemp(prefix=f".{p.name}.", suffix=".tmp", dir=p.parent)
+    tmp = Path(name)
+    try:
+        with os.fdopen(fd, "wb") as f:
+            if p.exists():
+                os.fchmod(f.fileno(), p.stat().st_mode & 0o777)
+            f.write(data)
+            f.flush()
+            os.fsync(f.fileno())
+        tmp.replace(p)
+    finally:
+        tmp.unlink(missing_ok=True)
+
+
+def save_json(p, data):
+    atomic_write(p, json.dumps(data, indent=2, ensure_ascii=False).encode())
+
+
+class RecoveryRequired(RuntimeError):
+    """Restoration failed; do not write more files or launch the app."""
+
+
+class SyncPlan:
+    """Prepare all JSON before writing. Roll back catchable write/activation failures."""
+    def __init__(self):
+        self.writes = {}
+        self.scratch = None
+
+    def add(self, p, data):
+        self.writes[Path(p)] = json.dumps(data, indent=2, ensure_ascii=False).encode()
+
+    @contextmanager
+    def apply(self):
+        with self.scratch.apply() if self.scratch else nullcontext():
+            with self.apply_files():
+                yield
+
+    @contextmanager
+    def apply_files(self):
+        before = {}
+        for p in self.writes:
+            if p.exists():
+                before[p] = (p.read_bytes(), p.stat())
+            else:
+                before[p] = None
+        written = []
+        try:
+            for p, data in self.writes.items():
+                atomic_write(p, data)
+                written.append(p)
+            yield
+        except RecoveryRequired:
+            raise
+        except Exception:
+            failed = []
+            for p in reversed(written):
+                try:
+                    old = before[p]
+                    if old is None:
+                        p.unlink(missing_ok=True)
+                    else:
+                        atomic_write(p, old[0])
+                        os.utime(p, ns=(old[1].st_atime_ns, old[1].st_mtime_ns))
+                except OSError:
+                    failed.append(str(p))
+            if failed:
+                raise RecoveryRequired("Rollback incomplete; inspect these files before retrying: " + ", ".join(failed))
+            raise
+
+
+def file_digest(path):
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for block in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def walk_error(error):
+    raise error
+
+
+class ScratchPlan:
+    """Keep scratch paths stable across directory swaps. Originals remain in recovery backups.
+
+    Root symlinks always point outside the rotating profile directories. Child symlinks are
+    copied as links, never followed. Ambiguous first-migration collisions fail before quitting.
+    After migration there is one tree, so edits and deletions cannot be resurrected by a
+    stale profile. Preparation is read-only; activation and rollback happen with Claude closed.
+    """
+    def __init__(self, dirs):
+        self.roots = [d / "scratch-workspaces" for d in dict.fromkeys(dirs.values())]
+        self.entries = {}
+        self.originals = []
+        if SCRATCH.is_symlink() or (SCRATCH.exists() and not SCRATCH.is_dir()):
+            raise ValueError(f"Invalid shared workspace directory: {SCRATCH}")
+        roots = [SCRATCH] if SCRATCH.exists() else []
+        for root in self.roots:
+            if root.is_symlink():
+                if root.resolve() != SCRATCH.resolve():
+                    raise ValueError(f"Unexpected workspace symlink: {root}")
+                if not SCRATCH.is_dir():
+                    raise ValueError(f"Shared workspaces are missing: {SCRATCH}; restore from workspace-backups before switching")
+            elif root.exists():
+                if not root.is_dir():
+                    raise ValueError(f"Expected a workspace directory: {root}")
+                roots.append(root)
+                self.originals.append(root)
+        # No data needs copying after the one-time migration.
+        self.rebuild = bool(self.originals) or not SCRATCH.exists()
+        if not self.rebuild:
+            return
+        for root in roots:
+            for parent, subdirs, files in os.walk(root, followlinks=False, onerror=walk_error):
+                for name in subdirs + files:
+                    p = Path(parent) / name
+                    rel = p.relative_to(root)
+                    if p.is_symlink():
+                        identity = ("link", os.readlink(p))
+                    elif p.is_dir():
+                        identity = ("dir",)
+                    elif p.is_file():
+                        identity = ("file", file_digest(p))
+                    else:
+                        raise ValueError(f"Unsupported workspace entry: {p}")
+                    if rel in self.entries and self.entries[rel][1] != identity:
+                        raise ValueError(f"Conflicting workspace copies: {self.entries[rel][0]} and {p}; originals kept")
+                    self.entries.setdefault(rel, (p, identity))
+
+    @contextmanager
+    def apply(self):
+        backup = PROFILES / "shared" / "workspace-backups" / uuid.uuid4().hex
+        staged = None
+        replaced = []
+        additions = []
+        installed_shared = False
+        try:
+            if self.rebuild:
+                SCRATCH.parent.mkdir(parents=True, exist_ok=True)
+                staged = Path(tempfile.mkdtemp(prefix=".scratch-stage-", dir=SCRATCH.parent))
+                for rel, (src, identity) in sorted(self.entries.items(), key=lambda x: len(x[0].parts)):
+                    dst = staged / rel
+                    dst.parent.mkdir(parents=True, exist_ok=True)
+                    if identity[0] == "dir":
+                        dst.mkdir(exist_ok=True)
+                    elif identity[0] == "link":
+                        dst.symlink_to(identity[1])
+                    else:
+                        shutil.copy2(src, dst)
+                        if file_digest(dst) != identity[1]:
+                            raise RuntimeError(f"Workspace changed during migration: {src}; retry after closing writers")
+                if not SCRATCH.exists():
+                    staged.rename(SCRATCH)
+                    installed_shared = True
+                    staged = None
+                else:
+                    # Extend an established shared tree without ever moving it away from
+                    # existing symlinks, even if a process/power failure interrupts migration.
+                    for rel, (_, identity) in sorted(self.entries.items(), key=lambda x: len(x[0].parts)):
+                        dst = SCRATCH / rel
+                        if dst.exists() or dst.is_symlink():
+                            continue
+                        if identity[0] == "dir":
+                            dst.mkdir()
+                        else:
+                            (staged / rel).rename(dst)
+                        additions.append((dst, identity[0]))
+            for i, root in enumerate(self.roots):
+                if root.is_symlink():
+                    continue
+                root.parent.mkdir(parents=True, exist_ok=True)
+                old = None
+                if root.exists():
+                    backup.mkdir(parents=True, exist_ok=True)
+                    old = backup / f"profile-{root.parent.name}-{i}"
+                    root.rename(old)
+                replaced.append((root, old))
+                root.symlink_to(SCRATCH, target_is_directory=True)
+            yield
+        except RecoveryRequired:
+            # Directory activation rollback failed; their current locations are uncertain.
+            # Leave the shared tree and backups intact for repair, never delete session data.
+            raise
+        except Exception:
+            try:
+                for root, old in reversed(replaced):
+                    root.unlink(missing_ok=True)
+                    if old is not None:
+                        old.rename(root)
+                if installed_shared:
+                    shutil.rmtree(SCRATCH)
+                else:
+                    for dst, kind in reversed(additions):
+                        dst.rmdir() if kind == "dir" else dst.unlink()
+            except OSError as e:
+                raise RecoveryRequired(f"Workspace rollback incomplete; preserve {backup} and {SCRATCH}") from e
+            raise
+        finally:
+            if staged is not None:
+                shutil.rmtree(staged)
+
+
+@contextmanager
+def switch_lock():
+    PROFILES.mkdir(parents=True, exist_ok=True)
+    with (PROFILES / "switch.lock").open("a") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            raise RuntimeError("Another profile switch is in progress; wait for it to finish")
+        try:
+            yield
+        finally:
+            fcntl.flock(lock, fcntl.LOCK_UN)
+
+
+def config():
+    c = read_object(CONFIG, {})
+    c.setdefault("labels", {})
+    c.setdefault("profiles", DEFAULT_PROFILES)
+    return c
+
+
+def n_profiles():
+    return max(2, int(config()["profiles"]))
+
+
+def osascript(script):
+    if NO_APP:
+        return
+    subprocess.run(["osascript", "-e", script], capture_output=True)
+
+
+def notify(text):
+    osascript(f'display notification {json.dumps(text, ensure_ascii=False)} with title "Claude Profiles"')
+
+
+def dialog(text):
+    osascript(f'display dialog {json.dumps(text, ensure_ascii=False)} with title "Claude Profiles" buttons {{"OK"}} with icon caution')
+
+
+# ---------- profiles ----------
+
+def active_profile():
+    m = LIVE / MARKER
+    if LIVE.is_dir() and m.exists():
+        try:
+            return int(m.read_text().strip())
+        except ValueError:
+            pass
+    return None
+
+
+def profile_dir(n):
+    return LIVE if n == active_profile() else PROFILES / str(n)
+
+
+def touched(d):
+    """Latest modification inside a directory – the app touches the active index on every session change."""
+    try:
+        return max([d.stat().st_mtime] + [p.stat().st_mtime for p in d.iterdir()])
+    except OSError:
+        return 0
+
+
+def index_dir(pdir):
+    """<profile>/claude-code-sessions/<account-id>/<org-id> – created by the app after login + opening the Code tab.
+    The directory can also hold indexes of earlier sign-ins and of other organizations of the same account:
+    prefer the account config.json names, and within it the most recently touched organization."""
+    base = pdir / "claude-code-sessions"
+    if not base.is_dir():
+        return None
+    known = read_object(pdir / "config.json", {}).get("lastKnownAccountUuid")
+    cands = []
+    for a in base.iterdir():
+        if not a.is_dir():
+            continue
+        orgs = [o for o in a.iterdir() if o.is_dir()]
+        if orgs:
+            best = max(orgs, key=touched)
+            cands.append((a.name == known, touched(best), best))
+    return max(cands, key=lambda c: c[:2])[2] if cands else None
+
+
+def window_key(label):
+    """'5-hour limit' -> five_hour, 'Weekly · all models' -> weekly, 'Weekly · Fable' -> weekly_fable."""
+    slug = lambda s: re.sub(r"[^a-z0-9]+", "_", s.lower()).strip("_")
+    low = label.lower()
+    if "5-hour" in low or "five-hour" in low or "5 h" in low:
+        return "five_hour"
+    if low.startswith("weekly"):
+        rest = re.split(r"[·:|]", label, maxsplit=1)
+        rest = rest[1].strip() if len(rest) > 1 else ""
+        return "weekly" if not rest or "all model" in rest.lower() else "weekly_" + slug(rest)
+    return slug(label)
+
+
+def window_period(key):
+    """How long the window lasts – used to expire stale usage samples."""
+    return FIVE_H if key == "five_hour" else SEVEN_D if str(key).startswith("weekly") else None
+
+
+def short_name(key, label=""):
+    if key == "five_hour":
+        return "5h"
+    if key == "weekly":
+        return "7d"
+    if key.startswith("weekly_") and "·" in label:
+        return label.split("·")[-1].strip()
+    return label or key
+
+
+def to_ms(v):
+    """ISO timestamp or epoch (s/ms) -> epoch ms."""
+    if isinstance(v, (int, float)):
+        return int(v if v > 1e11 else v * 1000)
+    if not isinstance(v, str):
+        return None
+    try:
+        return int(datetime.fromisoformat(v.replace("Z", "+00:00")).timestamp() * 1000)
+    except ValueError:
+        return None
+
+
+def parse_plan(payload):
+    """Validate the app's plan usage card (as `get_usage` reports it) into a record we can store."""
+    if isinstance(payload, dict) and isinstance(payload.get("plan"), dict):
+        payload = payload["plan"]                      # full get_usage output
+    if not isinstance(payload, dict):
+        raise ValueError("expected a JSON object with a windows list")
+    if payload.get("status") not in (None, "ok"):
+        raise ValueError(f"plan limits are '{payload['status']}' – nothing to record")
+    wins = payload.get("windows")
+    if not isinstance(wins, list) or not wins:
+        raise ValueError("no windows in the plan data")
+    out = []
+    for w in wins:
+        label = str((w or {}).get("label") or "").strip()
+        pct = (w or {}).get("percentUsed")
+        if not label or not isinstance(pct, (int, float)) or isinstance(pct, bool):
+            raise ValueError(f"window without label or percentUsed: {w}")
+        out.append({"key": window_key(label), "label": label,
+                    "percentUsed": int(pct), "resetsAt": to_ms(w.get("resetsAt"))})
+    return {"version": 1, "recordedAt": int(time.time() * 1000), "plan": payload.get("plan"),
+            "windows": out, "extraUsage": payload.get("extraUsage") or {}}
+
+
+def usage_record():
+    """Store the active account's limits (JSON on stdin). The app only persists 5-hour and
+    7-day percentages itself – per-model windows and reset times come from here."""
+    try:
+        payload = json.loads(sys.stdin.read())
+    except json.JSONDecodeError as e:
+        sys.exit(f"usage-record: not valid JSON ({e})")
+    try:
+        rec = parse_plan(payload)
+    except ValueError as e:
+        sys.exit(f"usage-record: {e}")
+    hist = (load_json(LIVE / "plan-usage-history.json", None) or {}).get("samples") or []
+    if hist:
+        rec["org"] = hist[-1].get("org")
+    save_json(LIVE / LIMITS, rec)
+    parts = "  ".join(f"{short_name(w['key'], w['label'])} {w['percentUsed']}%" for w in rec["windows"])
+    print(f"profile {active_profile()}: {parts}")
+
+
+def rate_limit_resets():
+    """When a session runs into a limit, the app notes the reset time to resume it automatically:
+    epitaxyPrefs["autoResumeRateLimit.<account>"] = {session: {"resetsAt": epoch s}}. The config file
+    travels between profiles, so any of them may hold another account's entry. -> {account: epoch ms}"""
+    out = {}
+    for f in [LIVE / "claude_desktop_config.json", *PROFILES.glob("*/claude_desktop_config.json")]:
+        prefs = ((load_json(f, {}) or {}).get("preferences") or {}).get("epitaxyPrefs") or {}
+        for k, v in prefs.items():
+            if not (k.startswith(AUTO_RESUME) and isinstance(v, dict)):
+                continue
+            for e in v.values():
+                ms = to_ms(e.get("resetsAt")) if isinstance(e, dict) else None
+                if ms and ms > out.get(k[len(AUTO_RESUME):], 0):
+                    out[k[len(AUTO_RESUME):]] = ms
+    return out
+
+
+def usage(pdir, blocked=None):
+    """What is left of the account's limits: the app's own samples (fh = 5-hour %, sd = 7-day %)
+    merged with our recorded windows, which also know the per-model limits and the reset times.
+    A window whose reset time has passed is empty again, however old the numbers are."""
+    now = time.time()
+    samples = (load_json(pdir / "plan-usage-history.json", None) or {}).get("samples") or []
+    s = samples[-1] if samples else None
+    u, h_t = (s or {}).get("u", {}), (s["t"] / 1000 if s else None)
+    rec = load_json(pdir / LIMITS, None)
+    windows, rec_t = [], None
+
+    if rec and isinstance(rec.get("windows"), list):
+        rec_t = (rec.get("recordedAt") or 0) / 1000
+        for w in rec["windows"]:
+            key, period, live = w.get("key"), window_period(w.get("key")), True
+            resets, start = w.get("resetsAt"), None
+            if resets:
+                resets /= 1000
+                live = resets > now
+                start = (resets - period if live else resets) if period else None
+                # A past reset does not tell us when the next window actually starts.
+                resets = int(resets * 1000) if live else None
+            pct, seen = (w.get("percentUsed"), rec_t) if live else (0, None)
+            h_pct = {"five_hour": u.get("fh"), "weekly": u.get("sd")}.get(key)
+            if h_pct is not None and h_t and (seen is None or h_t > seen) and (start is None or h_t >= start):
+                pct, seen = h_pct, h_t                 # the app kept counting after we recorded
+            if period and seen and now - seen > period:
+                pct = 0                                # nothing seen for a whole window: it has reset since
+            win = {"key": key, "label": w.get("label"), "percentUsed": pct, "resetsAt": resets}
+            windows.append(win)
+    else:
+        for key, label, pct, period in (("five_hour", "5-hour limit", u.get("fh"), FIVE_H),
+                                        ("weekly", "Weekly · all models", u.get("sd"), SEVEN_D)):
+            if h_t and now - h_t > period:             # the window has certainly reset
+                pct = 0
+            windows.append({"key": key, "label": label, "percentUsed": pct, "resetsAt": None})
+
+    if blocked and now * 1000 < blocked <= (now + FIVE_H) * 1000:
+        for w in windows:                              # a session ran into the limit: the app knows until when
+            if w["key"] == "five_hour" and not w["resetsAt"] and w["percentUsed"]:
+                w["resetsAt"] = blocked
+    by = {w["key"]: w["percentUsed"] for w in windows}
+    seen = max([t for t in (h_t, rec_t) if t], default=None)
+    return {"fh": by.get("five_hour"), "sd": by.get("weekly"),
+            "age": int(now - seen) if seen else None, "windows": windows}
+
+
+def logged_in(pdir):
+    c = load_json(pdir / "config.json", {})
+    return any(k.startswith("oauth:tokenCache") for k in c) or "lastKnownAccountUuid" in c
+
+
+def profiles():
+    cfg = config()
+    act = active_profile()
+    blocked = rate_limit_resets()
+    out = []
+    for n in range(1, n_profiles() + 1):
+        d = profile_dir(n)
+        exists = d.is_dir()
+        idx = index_dir(d) if exists else None
+        out.append({
+            "n": n,
+            "label": cfg["labels"].get(str(n), f"Account {n}"),
+            "active": n == act,
+            "exists": exists,
+            "logged_in": exists and logged_in(d),
+            "sessions": len(list(idx.glob("local_*.json"))) if idx else 0,
+            **(usage(d, blocked.get(idx.parent.name) if idx else None) if exists
+               else {"fh": None, "sd": None, "age": None, "windows": []}),
+        })
+    return out
+
+
+def resolve(arg):
+    if arg.isdigit() and 1 <= int(arg) <= n_profiles():
+        return int(arg)
+    for p in profiles():
+        if p["label"].lower() == arg.lower():
+            return p["n"]
+    sys.exit(f"Unknown profile: {arg}  (1–{n_profiles()} or a label)")
+
+
+# ---------- session sync ----------
+
+def sessions_in(pdir):
+    idx = index_dir(pdir)
+    if not idx:
+        return None
+    out = {}
+    for f in idx.glob("local_*.json"):
+        d = read_object(f)
+        if d is None or d.get("sessionId") != f.stem:
+            raise ValueError(f"Session identity does not match its filename: {f}")
+        out[d["sessionId"]] = (f, d)
+    return out
+
+
+def activity(d, f):
+    return d.get("lastActivityAt") or d.get("createdAt") or int(f.stat().st_mtime * 1000)
+
+
+def all_profile_dirs():
+    dirs = {n: profile_dir(n) for n in range(1, n_profiles() + 1)}
+    return {n: d for n, d in dirs.items() if d.is_dir()}
+
+
+SNAPSHOT = PROFILES / "shared" / "sessions-snapshot.json"
+MONOTONIC = {"lastActivityAt", "lastFocusedAt", "completedTurns"}      # never taken backwards
+GROUP_SCOPES = "dframe-group-scopes"          # preferences.epitaxyPrefs[...] in claude_desktop_config.json
+ROUTINES = "scheduled-tasks.json"             # the app registers routines per account, next to the session index
+ROUTINES_SNAPSHOT = PROFILES / "shared" / "routines-snapshot.json"
+RUN_STATE = ("lastRunAt", "lastScheduledFor", "missedRunScanFloor")   # newest wins, or a slot runs twice
+_MISSING = object()
+WORKSPACE_FIELDS = {"cwd", "originCwd", "worktreePath", "worktreeName", "branch", "sourceBranch",
+                    "gitAnchors", "gitAnchorsLookupOnly", "gitAnchorsFolderRealpath",
+                    "cliSessionId", "priorCliSessionIds"}
+
+
+def git_identity(folder):
+    """Read identity without changing a checkout or trusting a remote URL alone."""
+    try:
+        def rev(flag):
+            return subprocess.check_output(
+                ["git", "-C", str(folder), "rev-parse", "--path-format=absolute", flag],
+                stderr=subprocess.DEVNULL, text=True, timeout=5).strip()
+        return Path(rev("--show-toplevel")).resolve(), Path(rev("--git-common-dir")).resolve()
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+
+def missing_path(path):
+    try:
+        Path(path).stat()
+        return False
+    except FileNotFoundError:
+        return True
+    except OSError:
+        return False  # Inaccessible is not proof that a folder was removed.
+
+
+def stable_origin(session):
+    """Recover a deleted launch worktree only from previously recorded Git anchors.
+
+    The conversation's own checkout and transcript stay untouched. No guessed path,
+    clone, symlink or newly trusted repository is created.
+    """
+    origin, cwd = session.get("originCwd"), session.get("cwd")
+    if session.get("sshConfig") or session.get("wslConfig") or not origin or not cwd or origin == cwd:
+        return None
+    if not Path(origin).is_absolute() or not missing_path(origin):
+        return None
+    identity = git_identity(cwd)
+    if identity is None:
+        return None
+    root, common = identity
+    if root != Path(cwd).resolve() or common.name != ".git":
+        return None
+    anchors = session.get("gitAnchors") or []
+    if not isinstance(anchors, list):
+        return None
+    recorded = {a["gitRoot"] for a in anchors if isinstance(a, dict)
+                and isinstance(a.get("gitRoot"), str) and isinstance(a.get("commonDir"), str)
+                and Path(a["commonDir"]).resolve() == common}
+    stable = common.parent
+    stable_record = next((p for p in sorted(recorded) if Path(p).resolve() == stable), None)
+    if origin not in recorded or stable_record is None:
+        return None
+    if git_identity(stable) != (stable, common):
+        return None
+    return stable_record
+
+
+def fingerprint(v):
+    if v is _MISSING:
+        return "-"
+    return hashlib.sha1(json.dumps(v, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]
+
+
+def merge_session(copies, source_n, base):
+    """copies: {profile: session entry}; base: {field: fingerprint} written at the previous switch, or None.
+    Between two switches only the profile just left was in use, so with a trusted base its deviations are the
+    real changes and any other deviation is a stale copy. Without a trusted base the majority decides.
+    Renames, permission modes and archiving leave lastActivityAt alone - this is what carries them."""
+    order = sorted(copies, key=lambda n: (n == source_n, copies[n].get("lastActivityAt") or 0), reverse=True)
+    merged = {}
+    for k in set().union(*copies.values()) - set(RESET):
+        vals = {n: copies[n].get(k, _MISSING) for n in order}
+        want = base.get(k, "-") if base is not None else None
+        if k in MONOTONIC:
+            nums = [v for v in vals.values() if isinstance(v, (int, float)) and not isinstance(v, bool)]
+            v = max(nums) if nums else vals[order[0]]
+        elif base is not None and source_n in vals and fingerprint(vals[source_n]) != want:
+            v = vals[source_n]
+        elif base is not None and any(fingerprint(x) == want for x in vals.values()):
+            v = next(x for x in vals.values() if fingerprint(x) == want)
+        else:
+            counts = Counter(fingerprint(x) for x in vals.values())
+            top = max(counts.values())
+            v = next(x for x in vals.values() if counts[fingerprint(x)] == top)
+        if v is not _MISSING:
+            merged[k] = v
+    # A worktree move/resume changes a bundle of identifiers. Field-by-field majority
+    # can splice a new cwd into an old lease, or resurrect a pre-recovery transcript ID.
+    current = copies.get(source_n)
+    if current is not None and (base is not None or
+            (current.get("lastActivityAt") or 0) >= max(d.get("lastActivityAt") or 0 for d in copies.values())):
+        workspace = current
+    else:
+        workspace = max(copies.values(), key=lambda d: d.get("lastActivityAt") or 0)
+    for k in WORKSPACE_FIELDS:
+        merged.pop(k, None)
+        if k in workspace:
+            merged[k] = workspace[k]
+    return merged
+
+
+def plan_sync(target_n, source_n, dirs):
+    """Prepare a three-way merge without writing. Missing cards are never deletion evidence."""
+    per_profile = {n: sessions_in(d) for n, d in dirs.items()}
+    per_profile = {n: s for n, s in per_profile.items() if s is not None}
+    target_idx = index_dir(dirs[target_n])
+    if not target_idx:
+        log(f"profile {target_n}: no session index yet (sign in and open the Code tab) – syncing later")
+        return None
+    plan = SyncPlan()
+    manifest = read_object(MANIFEST, {})
+    snap = read_object(SNAPSHOT, {})
+    trusted = snap.get("target") == source_n
+    bases = snap.get("sessions", {}) if trusted else {}
+    if not trusted:
+        log(f"no trusted snapshot for profile {source_n} – majority decides this time")
+    for n, sess in per_profile.items():
+        for sid in sess:
+            m = manifest.setdefault(sid, {"profiles": []})
+            if n not in m["profiles"]:
+                m["profiles"].append(n)
+    all_sids = {sid for sess in per_profile.values() for sid in sess}
+    tgt = per_profile.get(target_n, {})
+    written, fps, archived, merged_sessions = 0, {}, set(), {}
+    for sid in all_sids:
+        copies = {n: sess[sid][1] for n, sess in per_profile.items() if sid in sess}
+        merged = merge_session(copies, source_n, bases.get(sid))
+        if not merged.get("isArchived"):
+            recovered_origin = stable_origin(merged)
+            if recovered_origin:
+                merged["originCwd"] = recovered_origin
+                log(f"recovered missing origin for {sid} from recorded Git anchors")
+        merged_sessions[sid] = merged
+        fps[sid] = {k: fingerprint(v) for k, v in merged.items()}
+        if merged.get("isArchived"):
+            archived.add(sid)
+        own = tgt[sid][1] if sid in tgt else {}
+        out = {**merged, **{k: own.get(k, v) for k, v in RESET.items()}}      # account-bound fields stay the target's
+        if sid in tgt and tgt[sid][1] == out:
+            continue
+        name = next(sess[sid][0].name for sess in per_profile.values() if sid in sess)
+        plan.add(target_idx / name, out)
+        written += 1
+        if target_n not in manifest[sid]["profiles"]:
+            manifest[sid]["profiles"].append(target_n)
+    plan.add(MANIFEST, manifest)
+    plan.add(SNAPSHOT, {"target": target_n, "sessions": fps})
+    write_archive_index(target_idx, archived, all_sids, plan)
+    log(f"prepared sessions -> profile {target_n}: {written} updates, {len(all_sids)} total")
+    sync_routines(target_n, source_n, dirs, plan)
+    sync_config(target_n, source_n, dirs, trusted, plan)
+    sync_worktrees(target_n, source_n, dirs, merged_sessions, plan)
+    plan.scratch = ScratchPlan(dirs)
+    return plan
+
+
+def sync_worktrees(target_n, source_n, dirs, sessions, plan):
+    """Carry local worktree leases with the exact merged session; never run Git mutations.
+
+    The worktrees themselves are already outside the profile directory. Claude must see
+    their registration *before launch*, otherwise it tries to check out an occupied branch.
+    Unknown schema/ambiguous ownership stops the switch instead of detaching or deleting.
+    """
+    registries = {}
+    for n, directory in dirs.items():
+        data = read_object(directory / WORKTREES)
+        if data is None:
+            continue
+        if data.get("schemaVersion") != 2:
+            raise ValueError(f"Unsupported worktree registry version in {directory / WORKTREES}")
+        for key in ("worktrees", "originUrls", "originPins"):
+            if not isinstance(data.get(key, {}), dict):
+                raise ValueError(f"Invalid {key} in {directory / WORKTREES}")
+        for name, e in data.get("worktrees", {}).items():
+            if not isinstance(e, dict) or e.get("name") != name or not isinstance(e.get("path"), str):
+                raise ValueError(f"Invalid worktree {name} in {directory / WORKTREES}")
+        registries[n] = data
+    if not registries:
+        return
+    order = sorted(registries, key=lambda n: (n == source_n, n == target_n,
+                   (dirs[n] / WORKTREES).stat().st_mtime))
+    merged = json.loads(json.dumps(registries[order[-1]]))
+    for key in ("worktrees", "originUrls", "originPins"):
+        merged[key] = {}
+        for n in order:
+            merged[key].update(registries[n].get(key, {}))
+    merged = json.loads(json.dumps(merged))
+    used_paths = {}
+    for sid, session in sessions.items():
+        if session.get("isArchived"):
+            continue
+        name, cwd = session.get("worktreeName"), session.get("cwd")
+        if not name or not cwd:
+            continue
+        candidates = [registries[n].get("worktrees", {}).get(name) for n in reversed(order)]
+        entry = next((e for e in candidates if e and e.get("path") == cwd and
+                      e.get("leasedBy") in (None, sid)), None)
+        if entry is None:
+            # No registry ever recorded this checkout: do not invent a trust record.
+            raise ValueError(f"No matching worktree registration for session {sid} at {cwd}; originals kept")
+        if cwd in used_paths and used_paths[cwd] != sid:
+            raise ValueError(f"Worktree {cwd} is claimed by two sessions; originals kept")
+        used_paths[cwd] = sid
+        for old_name, old in merged["worktrees"].items():
+            if old.get("leasedBy") == sid and old_name != name:
+                old["leasedBy"] = None
+        entry = json.loads(json.dumps(entry))
+        entry["leasedBy"] = sid
+        # The session may have recovered its deleted launch worktree above.
+        candidate = dict(session, originCwd=entry.get("baseRepo"))
+        recovered_origin = stable_origin(candidate)
+        if recovered_origin:
+            entry["baseRepo"] = recovered_origin
+        merged["worktrees"][name] = entry
+    # Claude's Choose folder recovery creates a continuation in the same checkout,
+    # archives the original card, but can leave its lease with that archived card.
+    # Transfer only to a unique active occupant; never steal another active lease.
+    for entry in merged["worktrees"].values():
+        path, owner = entry.get("path"), entry.get("leasedBy")
+        occupants = [sid for sid, s in sessions.items()
+                     if not s.get("isArchived") and s.get("cwd") == path]
+        if not occupants:
+            continue
+        used_paths.setdefault(path, occupants[0])
+        if len(occupants) == 1 and owner in sessions and sessions[owner].get("isArchived"):
+            entry["leasedBy"] = occupants[0]
+            candidate = dict(sessions[owner], originCwd=entry.get("baseRepo"))
+            recovered_origin = stable_origin(candidate)
+            if recovered_origin:
+                entry["baseRepo"] = recovered_origin
+    # Don't carry the old profile's orphan-GC countdown over a restored registration.
+    gc = merged.get("untrackedDirGc", {})
+    if isinstance(gc, dict) and isinstance(gc.get("sightings"), dict):
+        gc["sightings"] = {p: v for p, v in gc["sightings"].items() if p not in used_paths}
+    plan.add(dirs[target_n] / WORKTREES, merged)
+
+
+def sync_routines(target_n, source_n, dirs, plan):
+    """Routines (scheduled tasks) are registered per account in <index>/scheduled-tasks.json, while their
+    prompts live in the shared ~/.claude/scheduled-tasks. Treat them like sessions: every profile gets every
+    routine, the profile just left decides the definition, the newest run state wins everywhere (so a slot
+    that already ran is not caught up again after the switch), and a routine deleted in the profile just
+    left is removed from all profiles at once."""
+    files = {n: index_dir(d) / ROUTINES for n, d in dirs.items() if index_dir(d)}
+    if target_n not in files:
+        return
+    data = {n: read_object(f) for n, f in files.items()}
+    for n, d in data.items():
+        entries = (d or {}).get("scheduledTasks", [])
+        if (not isinstance(entries, list) or any(not isinstance(x, dict) or not isinstance(x.get("id"), str)
+                                                 or not x["id"] for x in entries)):
+            raise ValueError(f"Invalid scheduledTasks in {files[n]}")
+        if len({x["id"] for x in entries}) != len(entries):
+            raise ValueError(f"Duplicate scheduled task IDs in {files[n]}")
+    tasks = {n: {x["id"]: x for x in (d or {}).get("scheduledTasks", []) if isinstance(x, dict) and x.get("id")}
+             for n, d in data.items()}
+    snap = read_object(ROUTINES_SNAPSHOT, {})
+    known = set(snap.get("ids", [])) if snap.get("target") == source_n else set()
+    gone = known - set(tasks.get(source_n, {})) if data.get(source_n) is not None else set()
+    for n in tasks:
+        dropped = gone & set(tasks[n])
+        for rid in dropped:
+            del tasks[n][rid]
+            log(f"routine {rid} removed from profile {n} (deleted in profile {source_n})")
+        if dropped and n != target_n:                  # the target is written below anyway
+            plan.add(files[n], {**data[n], "scheduledTasks": list(tasks[n].values())})
+
+    merged = {}
+    for rid in sorted({rid for ts in tasks.values() for rid in ts}):
+        copies = [ts[rid] for ts in tasks.values() if rid in ts]
+        own = tasks.get(source_n, {}).get(rid) or max(copies, key=lambda c: to_ms(c.get("lastRunAt")) or 0)
+        entry = dict(own)
+        for k in RUN_STATE:
+            vals = [c[k] for c in copies if to_ms(c.get(k))]
+            if vals:
+                entry[k] = max(vals, key=to_ms)
+        merged[rid] = entry
+
+    base = {**(data.get(source_n) or {}), **(data.get(target_n) or {})}      # the target keeps its bookkeeping
+    out = {**base, "scheduledTasks": sorted(merged.values(), key=lambda x: (x.get("createdAt") or 0, x["id"]))}
+    if merged or data.get(target_n):
+        if out != data.get(target_n):
+            plan.add(files[target_n], out)
+            log(f"routines -> profile {target_n}: {len(merged)} ({', '.join(merged) or 'none'})")
+    plan.add(ROUTINES_SNAPSHOT, {"target": target_n, "ids": sorted(merged)})
+
+
+def write_archive_index(idx, archived, known, plan):
+    """The app keeps archiving twice: isArchived per entry and archived-sessions.idx - keep both in step."""
+    p = idx / "archived-sessions.idx"
+    cur = read_object(p, {})
+    have = cur.get("archived", [])
+    if not isinstance(have, list) or any(not isinstance(s, str) for s in have):
+        raise ValueError(f"Invalid archived session list in {p}")
+    want = sorted(archived | {s for s in have if s not in known})
+    if sorted(have) != want:
+        plan.add(p, {"v": cur.get("v", 1), "archived": want})
+
+
+def scope_of(pdir):
+    idx = index_dir(pdir)
+    return f"{idx.parent.name}/{idx.name}" if idx else None
+
+
+def group_entry(pdir):
+    """(scope, {groups, assignments, order}) the app stores for this profile's own account, or (scope, None)."""
+    scope = scope_of(pdir)
+    cfg = read_object(pdir / "claude_desktop_config.json", {})
+    scopes = cfg.get("preferences", {}).get("epitaxyPrefs", {}).get(GROUP_SCOPES, {})
+    e = scopes.get(scope) if scope else None
+    if e is not None and (not isinstance(e, dict) or not isinstance(e.get("groups"), list)):
+        raise ValueError(f"Invalid sidebar groups in {pdir / 'claude_desktop_config.json'}")
+    return scope, e
+
+
+def merge_groups(target, source):
+    """Source groups under the target's ids where the names match, so the app's bookkeeping stays consistent."""
+    if not source:
+        return target
+    by_name = {g["name"]: g["id"] for g in (target or {}).get("groups", []) if "name" in g and "id" in g}
+    idmap = {g["id"]: by_name.get(g["name"], g["id"]) for g in source.get("groups", [])}
+    return {
+        "groups": [{**g, "id": idmap[g["id"]]} for g in source.get("groups", [])],
+        "assignments": {k: idmap.get(v, v) for k, v in source.get("assignments", {}).items()},
+        "order": {idmap.get(gid, gid): list(keys) for gid, keys in source.get("order", {}).items()},
+    }
+
+
+def sync_config(target_n, source_n, dirs, trusted, plan):
+    """Local MCP servers are not account-bound: the newest claude_desktop_config.json wins. The same file
+    carries the Code-tab sidebar groups keyed by <account>/<org>, so those are re-keyed to the target's
+    scope instead of copied - and they follow the profile just left, whichever config file is newer."""
+    tgt_dir = dirs[target_n]
+    tgt_cfg = tgt_dir / "claude_desktop_config.json"
+    tgt_scope, tgt_entry = group_entry(tgt_dir)                  # read before anything is copied over
+    src_entry = group_entry(dirs[source_n])[1] if source_n in dirs else None
+    base, origin = read_object(tgt_cfg), None
+    cfgs = [(d / "claude_desktop_config.json") for d in dirs.values() if (d / "claude_desktop_config.json").exists()]
+    configs = {p: read_object(p) for p in cfgs}
+    if cfgs:
+        newest = max(cfgs, key=lambda p: p.stat().st_mtime)
+        if newest != tgt_cfg and (not tgt_cfg.exists() or newest.stat().st_mtime > tgt_cfg.stat().st_mtime):
+            cand = configs[newest]
+            base, origin = cand, newest.parent.name
+    if not isinstance(base, dict) or not tgt_scope:
+        return
+    entry = merge_groups(tgt_entry, src_entry) if trusted else (tgt_entry or merge_groups(None, src_entry))
+    if trusted and src_entry is None:
+        entry = None
+    prefs = base.setdefault("preferences", {}).setdefault("epitaxyPrefs", {})
+    scopes = {tgt_scope: entry} if entry else {}
+    if origin is None and prefs.get(GROUP_SCOPES, {}) == scopes:
+        return
+    prefs[GROUP_SCOPES] = scopes
+    plan.add(tgt_cfg, base)
+    n, a = (len(entry.get("groups", [])), len(entry.get("assignments", {}))) if entry else (0, 0)
+    log((f"claude_desktop_config.json taken from {origin}; " if origin else "")
+        + f"sidebar groups for profile {target_n}: {n} groups, {a} filed sessions")
+
+
+# ---------- app control ----------
+
+def claude_pids():
+    """Main process only (pgrep does not match it reliably on macOS)."""
+    r = subprocess.run(["ps", "-axo", "pid=,comm="], capture_output=True, text=True)
+    if r.returncode:
+        raise RuntimeError("Cannot check whether Claude is running; switch aborted")
+    pids = []
+    for line in r.stdout.splitlines():
+        pid, _, comm = line.strip().partition(" ")
+        if comm.strip() == APP + "/Contents/MacOS/Claude":
+            pids.append(int(pid))
+    return pids
+
+
+def quit_claude():
+    if NO_APP or not claude_pids():
+        return
+    log("quitting Claude …")
+    try:
+        result = subprocess.run(["osascript", "-e", 'tell application "Claude" to quit'],
+                                capture_output=True, timeout=15)
+    except subprocess.TimeoutExpired as e:
+        raise RuntimeError("Claude did not confirm quitting; finish your work and quit it manually, then retry") from e
+    if result.returncode:
+        raise RuntimeError("Claude refused to quit; finish your work and quit it manually, then retry")
+    for _ in range(30):
+        if not claude_pids():
+            return
+        time.sleep(1)
+    raise RuntimeError("Claude is still running; no force quit was attempted. Quit it manually, then retry")
+
+
+def launch_claude():
+    if not NO_APP:
+        if subprocess.run(["open", "-a", APP]).returncode:
+            raise RuntimeError("Could not launch Claude; open it manually after checking the active profile")
+
+
+# ---------- switching ----------
+
+def do_switch(target):
+    try:
+        with switch_lock():
+            switch_profile(target)
+    except Exception as e:
+        log(f"switch failed: {e}")
+        notify(f"Profile switch failed: {e}")
+        sys.exit(f"Profile switch failed: {e}")
+
+
+def switch_profile(target):
+    act = active_profile()
+    if act is None:
+        sys.exit("Active profile unknown – run `claude-profiles repair`.")
+    if target == act:
+        log(f"profile {target} is already active.")
+        return
+    cfg = config()
+    label = cfg["labels"].get(str(target), f"Account {target}")
+    log(f"=== switch profile {act} -> {target} ({label})")
+    parked = PROFILES / str(act)
+    incoming = PROFILES / str(target)
+    if parked.exists():
+        raise RuntimeError(f"{parked} already exists. Run `claude-profiles repair`")
+    dirs = {**all_profile_dirs(), target: incoming}
+    if plan_sync(target, act, dirs) is None:              # preflight before asking the app to quit
+        ScratchPlan(dirs)
+    if not incoming.exists():
+        read_object(LIVE / "claude_desktop_config.json")  # also validate the first-login config template
+    quit_claude()
+    try:
+        plan = plan_sync(target, act, dirs)               # re-read after the app flushes its final writes
+        synced = plan is not None
+        plan = plan or SyncPlan()
+        if plan.scratch is None:
+            plan.scratch = ScratchPlan(dirs)
+        if not incoming.exists():
+            src_cfg = read_object(LIVE / "claude_desktop_config.json")
+            if src_cfg is not None:
+                plan.add(incoming / "claude_desktop_config.json", src_cfg)
+        plan.writes[incoming / MARKER] = str(target).encode()
+        plan.add(CONFIG, {**cfg, "active": target})
+        if not NO_APP and claude_pids():
+            raise RuntimeError("Claude restarted during the switch; profile directories were not moved")
+        with plan.apply():
+            # Restore directory locations before the plan restores file contents on failure.
+            LIVE.rename(parked)
+            try:
+                incoming.rename(LIVE)
+            except Exception:
+                try:
+                    parked.rename(LIVE)
+                except OSError as e:
+                    raise RecoveryRequired(
+                        f"Could not restore profile {act} from {parked} to {LIVE}; "
+                        f"target profile remains at {incoming}. Claude was not relaunched. "
+                        "Inspect these directories before running repair") from e
+                raise
+    except RecoveryRequired:
+        raise
+    except Exception:
+        launch_claude()
+        raise
+    launch_claude()
+    if synced:
+        notify(f"Claude is now running as {label}.")
+    else:
+        notify(f"Claude is now running as {label}. Sign in and open the Code tab – your sessions follow automatically.")
+        for _ in range(90):                               # wait up to ~15 min for the first login
+            time.sleep(POLL)
+            if index_dir(LIVE):
+                time.sleep(POLL / 3)
+                dirs = all_profile_dirs()
+                plan_sync(target, act, dirs)
+                quit_claude()                             # never race the newly signed-in app's writes
+                try:
+                    plan = plan_sync(target, act, dirs)
+                    if plan is None:
+                        raise RuntimeError("The new profile's session index disappeared; retry switching")
+                    with plan.apply():
+                        pass
+                except RecoveryRequired:
+                    raise
+                except Exception:
+                    launch_claude()
+                    raise
+                launch_claude()
+                notify(f"Sessions added to {label}.")
+                break
+        else:
+            notify("Still waiting for sign-in. After opening the Code tab, switch away and back to sync sessions.")
+            log("first-login session sync pending; switch away and back after signing in")
+    log("switch complete.")
+
+
+def detach_and_switch(target):
+    """The switch must survive the app quitting (it may be our parent) -> run detached."""
+    if NO_APP:
+        return do_switch(target)
+    LOG.parent.mkdir(parents=True, exist_ok=True)
+    with LOG.open("a") as lf:
+        subprocess.Popen([sys.executable, __file__, "--detached", str(target)],
+                         stdin=subprocess.DEVNULL, stdout=lf, stderr=lf, start_new_session=True)
+    print(f"Switching to profile {target} in the background – Claude relaunches in a moment. Log: {LOG}")
+
+
+# ---------- import of CLI / VS Code sessions ----------
+
+SKIP_PREFIXES = ("<local-command-caveat>", "<command-name>", "<command-message>", "<system-reminder>",
+                 "<ide_opened_file>", "<bash-input>", "<bash-stdout>", "<local-command-stdout>")
+
+
+def message_text(msg):
+    c = msg.get("content")
+    if isinstance(c, str):
+        return c
+    if isinstance(c, list):
+        return "\n".join(b.get("text", "") for b in c if isinstance(b, dict) and b.get("type") == "text")
+    return ""
+
+
+def iso_ms(ts):
+    try:
+        return int(datetime.fromisoformat(ts.replace("Z", "+00:00")).timestamp() * 1000)
+    except Exception:
+        return None
+
+
+def make_title(text):
+    text = re.sub(r"<[^>]+>", " ", text)          # strip XML-ish tags
+    lines = [l.strip() for l in text.splitlines() if l.strip()]
+    text = re.sub(r"\s+", " ", lines[0] if lines else "")   # first non-empty line, like the app does
+    if len(text) > TITLE_MAX:
+        text = text[:TITLE_MAX].rsplit(" ", 1)[0].rstrip(" ,.;:") + "…"
+    return text
+
+
+def read_transcript(path):
+    """First real user message, cwd, permission mode, time span, last model, user-turn count."""
+    info = {"cwd": None, "permissionMode": None, "first_ts": None, "last_ts": None,
+            "model": None, "turns": 0, "title": None}
+    with open(path, encoding="utf-8", errors="replace") as fh:
+        for line in fh:
+            try:
+                d = json.loads(line)
+            except Exception:
+                continue
+            ts = iso_ms(d.get("timestamp", "")) if d.get("timestamp") else None
+            if ts:
+                info["first_ts"] = info["first_ts"] or ts
+                info["last_ts"] = max(info["last_ts"] or 0, ts)
+            t = d.get("type")
+            if t == "user" and not d.get("isSidechain"):
+                info["cwd"] = info["cwd"] or d.get("cwd")
+                info["permissionMode"] = info["permissionMode"] or d.get("permissionMode")
+                text = message_text(d.get("message", {}))
+                if text.strip() and not text.lstrip().startswith(SKIP_PREFIXES):
+                    info["turns"] += 1
+                    if info["title"] is None:
+                        info["title"] = make_title(text)
+            elif t == "assistant":
+                m = d.get("message", {}).get("model")
+                if m:
+                    info["model"] = m
+    return info
+
+
+def entry_template(idx):
+    """Copy the newest existing entry so the import matches whatever the installed app expects."""
+    files = sorted(idx.glob("local_*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+    for f in files:
+        d = load_json(f, None)
+        if isinstance(d, dict) and d.get("cliSessionId"):
+            return d
+    return dict(ENTRY_TEMPLATE)
+
+
+def do_add(args):
+    with switch_lock():
+        cfg = config()
+        n = n_profiles() + 1
+        cfg["profiles"] = n
+        label = " ".join(a for a in args if a != "--switch").strip()
+        if label:
+            cfg["labels"][str(n)] = label
+        save_json(CONFIG, cfg)
+    print(f"Added profile {n}{' (' + label + ')' if label else ''}. Switch into it and sign in: claude-profiles {n}")
+    if "--switch" in args:
+        detach_and_switch(n)
+
+
+def do_remove(args):
+    nums = [a for a in args if a.isdigit()]
+    if not nums:
+        sys.exit("Usage: claude-profiles remove <N> [--yes]")
+    n = int(nums[0])
+    if n == active_profile():
+        sys.exit(f"Profile {n} is active – switch to another profile first.")
+    if not 1 <= n <= n_profiles():
+        sys.exit(f"No profile {n}.")
+    d = PROFILES / str(n)
+    cfg = config()
+    label = cfg["labels"].get(str(n), f"Account {n}")
+    if d.is_dir() and "--yes" not in args:
+        if input(f"Delete the sign-in and data of profile {n} ({label})? Sessions stay in the other profiles. [y/N] ").strip().lower() != "y":
+            sys.exit("Cancelled.")
+    if d.is_dir():
+        shutil.rmtree(d)
+    manifest = load_json(MANIFEST, {})
+    for m in manifest.values():
+        if n in m.get("profiles", []):
+            m["profiles"].remove(n)
+    save_json(MANIFEST, manifest)
+    cfg["labels"].pop(str(n), None)
+    if n == n_profiles():                     # removing the last slot shrinks the list; others stay as empty slots
+        cfg["profiles"] = max(2, n - 1)
+    save_json(CONFIG, cfg)
+    log(f"profile {n} ({label}) removed")
+    print(f"Profile {n} ({label}) removed.")
+
+
+def do_import(args):
+    dry = "--dry-run" in args
+    days = 30
+    if "--archive-older-than" in args:
+        days = int(args[args.index("--archive-older-than") + 1])
+    excludes = [str(Path(args[i + 1]).expanduser().resolve()) for i, a in enumerate(args) if a == "--exclude"]
+    idx = index_dir(LIVE)
+    if not idx:
+        sys.exit("The active profile has no session index yet – open the Code tab in Claude once, then retry.")
+    known = set()
+    for d in all_profile_dirs().values():
+        for _, e in (sessions_in(d) or {}).values():
+            known.add(e.get("cliSessionId"))
+    template = entry_template(idx)
+    now = int(time.time() * 1000)
+    cutoff = now - days * 86400 * 1000
+    imported, skipped_known, skipped_empty, skipped_excluded, skipped_cwd = 0, 0, 0, 0, []
+    manifest = load_json(MANIFEST, {})
+    act = active_profile()
+    for t in sorted(TRANSCRIPTS.glob("*/*.jsonl")):
+        sid = t.stem
+        if sid in known:
+            skipped_known += 1
+            continue
+        info = read_transcript(t)
+        if not info["title"] or not info["cwd"]:
+            skipped_empty += 1
+            continue
+        cwd = info["cwd"].rstrip("/") + "/"
+        if cwd.startswith(TEMP_PREFIXES) or any(cwd.startswith(e + "/") for e in excludes):
+            skipped_excluded += 1
+            continue
+        if not Path(info["cwd"]).is_dir():
+            skipped_cwd.append((info["title"], info["cwd"]))
+            continue
+        created = info["first_ts"] or int(t.stat().st_ctime * 1000)
+        last = info["last_ts"] or int(t.stat().st_mtime * 1000)
+        pm = info["permissionMode"] if info["permissionMode"] in ("default", "acceptEdits", "bypassPermissions") else "default"
+        entry = dict(template)
+        entry.update(RESET)
+        entry.update({
+            "sessionId": f"local_{uuid.uuid4()}", "cliSessionId": sid,
+            "cwd": info["cwd"], "originCwd": info["cwd"],
+            "createdAt": created, "lastActivityAt": last, "lastFocusedAt": last,
+            "title": info["title"], "titleSource": "auto", "isArchived": last < cutoff,
+            "completedTurns": info["turns"], "permissionMode": pm,
+            "model": info["model"] or template.get("model", ENTRY_TEMPLATE["model"]),
+            "bypassChosenInApp": pm == "bypassPermissions",
+        })
+        flag = " (archived)" if entry["isArchived"] else ""
+        print(f"  + {entry['title'][:TITLE_MAX]:{TITLE_MAX}}  {time.strftime('%Y-%m-%d', time.localtime(last / 1000))}{flag}")
+        if not dry:
+            (idx / f"{entry['sessionId']}.json").write_text(json.dumps(entry))
+            manifest.setdefault(entry["sessionId"], {"profiles": []})["profiles"].append(act)
+        imported += 1
+    if not dry:
+        save_json(MANIFEST, manifest)
+    for title, cwd in skipped_cwd:
+        print(f"  - skipped (cwd no longer exists: {cwd}): {title}")
+    verb = "would import" if dry else "imported"
+    print(f"\n{imported} {verb}, {skipped_known} already in the app, {skipped_empty} empty, "
+          f"{skipped_excluded} excluded (temp dirs / --exclude), {len(skipped_cwd)} skipped because their cwd is gone. "
+          f"Sessions older than {days} days are archived.")
+    if imported and not dry:
+        print("Restart Claude once if the sessions do not show up in the sidebar.")
+
+
+# ---------- repair & status ----------
+
+def repair():
+    act = active_profile()
+    cfg = config()
+    if LIVE.is_dir() and act is not None:
+        print(f"OK: active profile {act} is at {LIVE}")
+    elif LIVE.is_dir():
+        n = cfg.get("active", 1)
+        (LIVE / MARKER).write_text(str(n))
+        print(f"marker was missing – {LIVE} marked as profile {n}")
+    else:
+        n = cfg.get("active")
+        cand = [PROFILES / str(n)] if n else []
+        cand += [PROFILES / str(i) for i in range(1, n_profiles() + 1)]
+        for c in cand:
+            if c.is_dir():
+                c.rename(LIVE)
+                (LIVE / MARKER).write_text(c.name)
+                print(f"{c} -> {LIVE} restored (profile {c.name})")
+                break
+        else:
+            sys.exit("No profile found.")
+    for n in range(1, n_profiles() + 1):
+        p = PROFILES / str(n)
+        if p.is_dir() and n == active_profile():
+            print(f"WARNING: profile {n} is active but {p} also exists – please check manually.")
+
+
+def sync_current(dry_run=False):
+    """Upgrade/repair the active profile with the same transaction used by a switch."""
+    act = active_profile()
+    if act is None:
+        raise RuntimeError("Active profile unknown; run claude-profiles repair first")
+    dirs = all_profile_dirs()
+    plan = plan_sync(act, act, dirs)
+    if plan is None:
+        raise RuntimeError("Open the Code tab once before synchronizing sessions")
+    if dry_run:
+        print(f"Ready: {len(plan.writes)} metadata files; {len(plan.scratch.originals)} workspace roots to share")
+        return
+    quit_claude()
+    try:
+        plan = plan_sync(act, act, dirs)
+        if plan is None:
+            raise RuntimeError("The session index disappeared; synchronization aborted")
+        if not NO_APP and claude_pids():
+            raise RuntimeError("Claude restarted during synchronization; retry after closing it")
+        with plan.apply():
+            pass
+    except RecoveryRequired:
+        raise
+    except Exception:
+        launch_claude()
+        raise
+    launch_claude()
+    print("Local sessions, scratch workspaces and Git worktree registrations synchronized.")
+
+
+def fmt_reset(ms, coarse=False):
+    """Clock time for today's resets, weekday + time for later ones, the weekday alone
+    when the time itself is only a guess."""
+    if not ms:
+        return ""
+    t, today = time.localtime(ms / 1000), time.localtime()
+    if coarse:
+        return time.strftime("%a", t)
+    same_day = (t.tm_year, t.tm_yday) == (today.tm_year, today.tm_yday)
+    return time.strftime("%H:%M" if same_day else "%a %H:%M", t)
+
+
+def fmt_window(w):
+    pct = f"{w['percentUsed']}%" if w["percentUsed"] is not None else "?"
+    est = w.get("estimated")
+    reset = fmt_reset(w.get("resetsAt"), coarse=bool(est) and (w.get("uncertaintyH") or 0) > 2)
+    mark = "~" if est else ""
+    return f"{short_name(w['key'], w.get('label') or '')} {pct:>4}" + (f" ↻{mark}{reset}" if reset else "")
+
+
+def status(as_json=False):
+    ps = profiles()
+    if as_json:
+        print(json.dumps({"active": active_profile(), "profiles": ps}))
+        return
+    for p in ps:
+        mark = "●" if p["active"] else "○"
+        if not p["logged_in"]:
+            state = "not signed in"
+        else:
+            state = "   ".join(fmt_window(w) for w in p["windows"]) + f"   {p['sessions']} sessions"
+        print(f" {mark} {p['n']}  {p['label']:16} {state}")
+
+
+def main(argv):
+    # Status stays readable while switching; every other data writer shares the lock.
+    # add releases its own lock before dispatching a switch (also in NO_APP tests).
+    if argv and argv[0] in {"repair", "sync", "usage-record", "import", "remove", "label", "profiles"}:
+        with switch_lock():
+            return run_command(argv)
+    return run_command(argv)
+
+
+def run_command(argv):
+    if not argv:
+        return status()
+    cmd, args = argv[0], argv[1:]
+    if cmd == "status":
+        return status(as_json="--json" in args)
+    if cmd == "repair":
+        return repair()
+    if cmd == "sync":
+        return sync_current(dry_run="--dry-run" in args)
+    if cmd == "usage-record":
+        return usage_record()
+    if cmd == "import":
+        return do_import(args)
+    if cmd == "add":
+        return do_add(args)
+    if cmd == "remove":
+        return do_remove(args)
+    if cmd == "label" and len(args) >= 2:
+        cfg = config()
+        cfg["labels"][str(resolve(args[0]))] = " ".join(args[1:])
+        save_json(CONFIG, cfg)
+        return status()
+    if cmd == "profiles" and len(args) == 1 and args[0].isdigit():
+        cfg = config()
+        cfg["profiles"] = max(2, int(args[0]))
+        save_json(CONFIG, cfg)
+        return status()
+    if cmd == "--detached":
+        return do_switch(int(args[0]))
+    if cmd == "next":
+        ps = [p["n"] for p in profiles() if p["logged_in"]]
+        act = active_profile()
+        if act not in ps or len(ps) < 2:
+            sys.exit("No other signed-in profile.")
+        return detach_and_switch(ps[(ps.index(act) + 1) % len(ps)])
+    if cmd in ("-h", "--help", "help"):
+        print(__doc__)
+        return
+    return detach_and_switch(resolve(cmd))
+
+
+if __name__ == "__main__":
+    try:
+        main(sys.argv[1:])
+    except Exception as e:
+        sys.exit(str(e))

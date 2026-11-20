@@ -6,6 +6,7 @@
 #   ~/.claude/CLAUDE.md, ~/.claude/settings.json, ~/.claude/hooks/
 #   own skills = every ~/.claude/skills/* NOT installed by `npx skills` (lock file)
 #   GameFactory folder (path from CLAUDE.md), without node_modules/backup/build output
+#   ~/.local/bin helpers, PlayCanvas list, MCP servers (~/.claude.json, no secrets), Blender MCP addon
 set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 C="$HOME/.claude"
@@ -31,6 +32,24 @@ for d in "$C"/skills/*/; do
   fi
 done
 [ -f "$LOCK" ] && cp "$LOCK" "$REPO/third-party/skill-lock.json"
+
+# helper tools, PlayCanvas list (skills themselves come from npx), MCP inventory (no env/headers), Blender addon
+mkdir -p "$REPO/tools/bin" "$REPO/claude/spares" "$REPO/mcp/blender"
+for t in playcanvas-skills claude-profiles; do [ -f "$HOME/.local/bin/$t" ] && cp "$HOME/.local/bin/$t" "$REPO/tools/bin/$t"; done
+[ -f "$C/spares/playcanvas.list" ] && cp "$C/spares/playcanvas.list" "$REPO/claude/spares/playcanvas.list"
+python3 - "$HOME/.claude.json" "$REPO/mcp/servers.json" <<'PY'
+import json, os, sys
+src, dst = sys.argv[1], sys.argv[2]
+d = json.load(open(src)) if os.path.exists(src) else {}
+keep = lambda m: {k: {kk: vv for kk, vv in v.items() if kk in ("type", "command", "args", "url")} for k, v in m.items()}
+out = {"user": keep(d.get("mcpServers", {})), "project": {}}
+for proj, v in d.get("projects", {}).items():
+    for k, s in keep(v.get("mcpServers", {})).items():
+        out["project"].setdefault(k, s)
+json.dump(out, open(dst, "w"), indent=2, ensure_ascii=False); print("mcp:", list(out["user"]), "+ project:", list(out["project"]))
+PY
+ADDON="$(ls -t "$HOME/Library/Application Support/Blender"/*/scripts/addons/blender_mcp_addon.py "$HOME/.config/blender"/*/scripts/addons/blender_mcp_addon.py 2>/dev/null | head -1 || true)"
+[ -n "$ADDON" ] && cp "$ADDON" "$REPO/mcp/blender/blender_mcp_addon.py"
 
 if [ "$(cd "$GF_SRC" && pwd)" != "$REPO/GameFactory" ]; then
   rsync -a --delete --exclude node_modules --exclude backup/ --exclude demo-dist \

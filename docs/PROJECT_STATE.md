@@ -2,7 +2,7 @@
 
 > Новый чат: прочитай этот файл, `docs/SYSTEM_MAP.md` (полная схема) и `README.md`, затем выполняй «Следующий шаг».
 
-Обновлено: 2026-11-07 · ветка `main` · аккаунт GitHub репо: aillmdevel-tech (привязан локально через github-account-router)
+Обновлено: 2026-11-20 (алгоритм WORKFLOW.md, шаг «Готовое», threejs-скиллы, MCP afk-rig/playgama, аддон Blender и утилиты в репо) · ветка `main` · аккаунт GitHub репо: aillmdevel-tech (привязан локально через github-account-router)
 
 ## Что это
 Переносимая копия всей настройки Claude Code Alex (GameFactory): правила, свои скиллы, хуки, список сторонних

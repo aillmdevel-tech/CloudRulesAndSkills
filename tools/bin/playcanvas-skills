@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# playcanvas-skills on|off|status — включает/выключает 16 PlayCanvas-скиллов (хранилище ~/.claude/spares/playcanvas)
+S=~/.claude/skills; D=~/.claude/spares/playcanvas
+case "${1:-status}" in
+  on)  for n in $(cat ~/.claude/spares/playcanvas.list); do [ -d "$D/$n" ] && mv "$D/$n" "$S/$n"; done; echo "ON: PlayCanvas-скиллы активны, открой НОВЫЙ чат" ;;
+  off) for n in $(cat ~/.claude/spares/playcanvas.list); do [ -d "$S/$n" ] && mv "$S/$n" "$D/$n"; done; echo "OFF: убраны в $D" ;;
+  *)   echo "в skills: $(for n in $(cat ~/.claude/spares/playcanvas.list); do [ -d "$S/$n" ] && echo $n; done | wc -l) / 16" ;;
+esac

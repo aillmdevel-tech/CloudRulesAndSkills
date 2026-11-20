@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Deploy Alex's Claude Code setup from this repo onto THIS machine (macOS / Linux; Windows: Git Bash/WSL).
-#   scripts/install.sh [--games-dir DIR] [--with-blender-mcp] [--skip-third-party] [--skip-playwright]
+#   scripts/install.sh [--games-dir DIR] [--with-mcp] [--skip-third-party] [--skip-playwright]
+#   --with-mcp (= old --with-blender-mcp): Blender MCP + its Blender addon, afk-rig MCP
 # Defaults: games dir = ~/WebAIGames, GameFactory = <this repo>/GameFactory (used in place, so edits
 # can be committed back with scripts/sync.sh).
 # Existing ~/.claude/CLAUDE.md and settings.json are backed up (*.bak.<time>); settings are MERGED.
@@ -9,7 +10,7 @@ REPO="$(cd "$(dirname "$0")/.." && pwd)"
 C="$HOME/.claude"
 GAMES="$HOME/WebAIGames"; BLENDER=0; TP=1; PW=1
 while [ $# -gt 0 ]; do case "$1" in
-  --games-dir) GAMES="$2"; shift 2 ;; --with-blender-mcp) BLENDER=1; shift ;;
+  --games-dir) GAMES="$2"; shift 2 ;; --with-mcp|--with-blender-mcp) BLENDER=1; shift ;;
   --skip-third-party) TP=0; shift ;; --skip-playwright) PW=0; shift ;;
   *) echo "unknown arg $1"; exit 1 ;; esac; done
 GAMES="${GAMES/#\~/$HOME}"; GF="$REPO/GameFactory"
@@ -56,6 +57,18 @@ if [ "$TP" = 1 ] && command -v npx >/dev/null; then
   bash "$REPO/third-party/install_third_party.sh" || echo "WARN: some third-party skills failed (see above)"
 fi
 
+# 3b. helper tools -> ~/.local/bin; PlayCanvas skills parked in spares (off by default)
+mkdir -p "$HOME/.local/bin" "$C/spares/playcanvas"
+for f in "$REPO"/tools/bin/*; do [ -f "$f" ] && cp "$f" "$HOME/.local/bin/" && chmod +x "$HOME/.local/bin/$(basename "$f")"; done
+if [ ! -x "$HOME/.local/bin/resource-run" ]; then   # source Mac has a resource policy; elsewhere a passthrough
+  printf '#!/bin/sh\nexec "$@"\n' > "$HOME/.local/bin/resource-run"
+  printf '#!/bin/sh\necho "no resource policy on this machine (resource-run = passthrough)"\n' > "$HOME/.local/bin/resource-status"
+  chmod +x "$HOME/.local/bin/resource-run" "$HOME/.local/bin/resource-status"
+fi
+[ -f "$REPO/claude/spares/playcanvas.list" ] && cp "$REPO/claude/spares/playcanvas.list" "$C/spares/playcanvas.list" \
+  && bash "$HOME/.local/bin/playcanvas-skills" off || true
+case ":$PATH:" in *":$HOME/.local/bin:"*) ;; *) echo "WARN: add ~/.local/bin to PATH (e.g. echo 'export PATH=\$HOME/.local/bin:\$PATH' >> ~/.zshrc)";; esac
+
 # 4. own skills (overwrite) + path rewrite inside them
 for s in "$REPO"/claude/skills/*/; do
   n="$(basename "$s")"; rm -rf "$C/skills/$n"; cp -R "$s" "$C/skills/$n"
@@ -73,12 +86,23 @@ fi
 
 # 6. MCP (optional)
 if [ "$BLENDER" = 1 ]; then
-  if command -v claude >/dev/null; then claude mcp add --scope user blender -- uvx blender-mcp || true
+  if command -v claude >/dev/null; then
+    claude mcp add --scope user blender -- uvx blender-mcp || true
+    claude mcp add --scope user afk-rig -- npx -y afk-rig mcp || true
   else echo "add MCP manually: see mcp/MCP.md"; fi
+  # Blender addon (MCP for Blender): copy into every installed Blender version, then enable it
+  for d in "$HOME/Library/Application Support/Blender"/*/ "$HOME/.config/blender"/*/ "${APPDATA:-/nonexistent}/Blender Foundation/Blender"/*/; do
+    [ -d "$d" ] || continue; mkdir -p "$d/scripts/addons"; cp "$REPO/mcp/blender/blender_mcp_addon.py" "$d/scripts/addons/"; echo "addon -> $d"
+  done
+  BL="$(command -v blender || ls /Applications/Blender.app/Contents/MacOS/Blender 2>/dev/null || true)"
+  if [ -n "$BL" ]; then
+    "$BL" -b --python-expr "import bpy,addon_utils;addon_utils.enable('blender_mcp_addon',default_set=True,persistent=True);bpy.ops.wm.save_userpref()" >/dev/null 2>&1 \
+      && echo "Blender addon enabled" || echo "WARN: enable the addon in Blender: Preferences -> Add-ons -> MCP for Blender"
+  else echo "Blender not found: install it, re-run with --with-mcp (or copy mcp/blender/blender_mcp_addon.py manually)"; fi
 fi
 
 echo; echo "== result"
 echo "CLAUDE.md -> GameFactory=$GF, games=$GAMES"
 echo "skills: $(ls "$C/skills" | wc -l | tr -d ' ') in $C/skills"
-for t in node gh ffmpeg ffprobe yt-dlp blender uvx; do printf "  %-8s %s\n" "$t" "$(command -v $t || echo 'missing — see BOOTSTRAP.md')"; done
+for t in node gh ffmpeg ffprobe yt-dlp blender uvx resource-run playcanvas-skills; do printf "  %-8s %s\n" "$t" "$(command -v $t || echo 'missing — see BOOTSTRAP.md')"; done
 echo "Open a NEW Claude Code chat to load rules, skills and hooks."

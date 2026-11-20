@@ -1,0 +1,1 @@
+add-effects apply-conventions assemble-scene bake-lighting build-app calibrate-model configure-animation find-examples inspect-glb inspect-runtime light-scene load-assets override-shader-chunks reduce-draw-calls reuse-scripts verify-pixels

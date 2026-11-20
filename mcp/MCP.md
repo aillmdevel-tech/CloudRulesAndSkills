@@ -1,11 +1,18 @@
 # MCP-серверы
 
+Список с исходной машины (без ключей): `servers.json` (обновляет `scripts/sync.sh`).
+
 | Сервер | Зачем | Установка |
 |---|---|---|
-| blender | Claude управляет живым Blender (bpy, просмотр сцены, импорт ассетов) | `uv` → `claude mcp add --scope user blender -- uvx blender-mcp` (или `scripts/install.sh --with-blender-mcp`) + аддон в Blender (ниже) |
+| blender | живой Blender: bpy, `look`, поиск/импорт ассетов, `generate_3d` | `claude mcp add --scope user blender -- uvx blender-mcp` + аддон (ниже) |
+| afk-rig | авториг GLB/FBX, анимации по типу тела, модель из картинки | `claude mcp add --scope user afk-rig -- npx -y afk-rig mcp`; ключ/аккаунт — afk.ai/developers, по запросу инструмента |
+| playgama-developer-cabinet | кабинет разработчика Playgama | в папке игры: `claude mcp add --transport http --scope local playgama-developer-cabinet https://developer.playgama.com/api/mcp`, вход в браузере |
 
-Аддон Blender: в Blender → Edit → Preferences → Add-ons → Install from Disk → файл `addon.py` из
-https://github.com/ahujasid/blender-mcp (на исходной машине стоял как `blender_mcp_addon.py`) → включить →
-в N-панели «BlenderMCP» нажать Connect. Проверь репозиторий перед установкой.
+Первые два ставит `scripts/install.sh --with-mcp`.
 
-Встроенные инструменты Claude Desktop (браузер, Chrome, артефакты, docs) ставятся вместе с приложением — переносить не нужно.
+## Аддон Blender
+`blender/blender_mcp_addon.py` — «MCP for Blender» 1.8 (ahujasid/blender-mcp, MIT), сервер `mcp-for-blender` 2.2.6, Blender 5.2.
+`install.sh --with-mcp` копирует его во все версии Blender и пытается включить. Если не включился: Blender → Edit → Preferences →
+Add-ons → Install from Disk → этот файл → включить → в N-панели «BlenderMCP» нажать Connect.
+
+Встроенные инструменты Claude Desktop (браузер, Chrome, артефакты, docs) ставятся с приложением.
