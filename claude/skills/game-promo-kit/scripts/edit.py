@@ -194,6 +194,10 @@ def plan_clips(ms, vp, style, total, a, xd):
             segs = [(s, p - 0.12, pre_speed, {}), (p - 0.12, p + 0.33, 0.5, {'impact': True}), (p + 0.33, e, 1.0, {})]
         else:
             segs = [(s, e, 1.0, {'impact': style == 'cartoon'})]
+        fixed = sum((b - a_) / sp for a_, b, sp, _ in segs[:-1]) + 0.2
+        if len(segs) > 1 and fixed > left + ov:  # no room for the slow-mo build-up: plain cut around the peak
+            room = left + ov; s2 = max(m['start'], p - 0.4 * room)
+            segs = [(s2, s2 + room, 1.0, {'impact': style == 'cartoon'})]
         segs[0][3]['first'] = True
         out = sum((b - a_) / sp for a_, b, sp, _ in segs)
         want = out
@@ -479,7 +483,7 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', va
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--project', required=True)
-    ap.add_argument('--platform', required=True)
+    ap.add_argument('--platform', default='ads_landscape', help='default: ads_landscape (Alex\'s main ad format, 16:9)')
     ap.add_argument('--video', help='preset name inside the platform (default: all videos of the platform)')
     ap.add_argument('--lang')
     ap.add_argument('--moments', help='ids from moments.json in the wanted order')

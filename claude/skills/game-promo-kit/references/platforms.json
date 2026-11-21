@@ -4,30 +4,111 @@
     "source": "https://docs.crazygames.com/requirements/game-covers/",
     "verified": "2026-11-20",
     "covers": [
-      {"name": "landscape", "w": 1920, "h": 1080},
-      {"name": "portrait", "w": 800, "h": 1200},
-      {"name": "square", "w": 800, "h": 800}
+      {
+        "name": "landscape",
+        "w": 1920,
+        "h": 1080
+      },
+      {
+        "name": "portrait",
+        "w": 800,
+        "h": 1200
+      },
+      {
+        "name": "square",
+        "w": 800,
+        "h": 800
+      }
     ],
     "cover_text": "title_only",
-    "cover_rules": ["no borders", "only the game title as text (no New/Updated/Play now)", "no icons or store logos", "no blurry or pixelated visuals", "stylized, not a plain screenshot"],
-    "videos": [
-      {"name": "preview_landscape", "w": 1920, "h": 1080, "fps": 30, "min_s": 15, "max_s": 20, "max_mb": 50, "audio": false, "text": "none"},
-      {"name": "preview_portrait", "w": 1080, "h": 1620, "fps": 30, "min_s": 15, "max_s": 20, "max_mb": 50, "audio": false, "text": "none"}
+    "cover_rules": [
+      "no borders",
+      "only the game title as text (no New/Updated/Play now)",
+      "no icons or store logos",
+      "no blurry or pixelated visuals",
+      "stylized, not a plain screenshot"
     ],
-    "video_rules": ["no sound", "no black screen or logo intro", "no black bars", "no mouse cursor", "no Play Now or promo text", "no app or social icons", "no fast-forward (they speed it up slightly)", "first frame = static cover", "animation allowed only if it represents gameplay"],
+    "videos": [
+      {
+        "name": "preview_landscape",
+        "w": 1920,
+        "h": 1080,
+        "fps": 30,
+        "min_s": 15,
+        "max_s": 20,
+        "max_mb": 50,
+        "audio": false,
+        "text": "none"
+      },
+      {
+        "name": "preview_portrait",
+        "w": 1080,
+        "h": 1620,
+        "fps": 30,
+        "min_s": 15,
+        "max_s": 20,
+        "max_mb": 50,
+        "audio": false,
+        "text": "none"
+      }
+    ],
+    "video_rules": [
+      "no sound",
+      "no black screen or logo intro",
+      "no black bars",
+      "no mouse cursor",
+      "no Play Now or promo text",
+      "no app or social icons",
+      "no fast-forward (they speed it up slightly)",
+      "first frame = static cover",
+      "animation allowed only if it represents gameplay"
+    ],
     "first_frame_cover": true,
     "speed_max": 1.0
   },
   "poki": {
     "source": "https://developers.poki.com/guide/game-thumbnail ; https://developers.poki.com/guide/your-game-page",
     "verified": "2026-11-20",
-    "covers": [{"name": "thumbnail", "w": 1024, "h": 1024, "min_w": 628}],
-    "cover_text": "none",
-    "cover_rules": ["full-bleed square, no borders, padding or letterboxing", "no text, no title", "avoid colours close to #83FFE7", "must match the game"],
-    "videos": [
-      {"name": "animated_thumbnail", "w": 1080, "h": 1080, "fps": 60, "min_s": 4, "max_s": 6, "max_mb": 100, "audio": false, "text": "none", "scenes": [2, 3]}
+    "covers": [
+      {
+        "name": "thumbnail",
+        "w": 1024,
+        "h": 1024,
+        "min_w": 628
+      }
     ],
-    "video_rules": ["muted", "2-3 scenes of 1-2 s", "start from the static artwork", "hide non-essential UI", "no cursor", "minimal text"],
+    "cover_text": "none",
+    "cover_rules": [
+      "full-bleed square, no borders, padding or letterboxing",
+      "no text, no title",
+      "avoid colours close to #83FFE7",
+      "must match the game"
+    ],
+    "videos": [
+      {
+        "name": "animated_thumbnail",
+        "w": 1080,
+        "h": 1080,
+        "fps": 60,
+        "min_s": 4,
+        "max_s": 6,
+        "max_mb": 100,
+        "audio": false,
+        "text": "none",
+        "scenes": [
+          2,
+          3
+        ]
+      }
+    ],
+    "video_rules": [
+      "muted",
+      "2-3 scenes of 1-2 s",
+      "start from the static artwork",
+      "hide non-essential UI",
+      "no cursor",
+      "minimal text"
+    ],
     "first_frame_cover": true,
     "speed_max": 1.0
   },
@@ -35,56 +116,291 @@
     "source": "https://yandex.ru/dev/games/doc/ru/console/add-new-game/draft",
     "verified": "unverified (page unreachable 2026-11-20; sizes from search snippets of the official docs)",
     "covers": [
-      {"name": "icon", "w": 512, "h": 512, "format": "png"},
-      {"name": "cover", "w": 800, "h": 470, "format": "png"}
+      {
+        "name": "icon",
+        "w": 512,
+        "h": 512,
+        "format": "png"
+      },
+      {
+        "name": "cover",
+        "w": 800,
+        "h": 470,
+        "format": "png"
+      }
     ],
     "cover_text": "title_localized",
-    "cover_rules": ["all words on icon, cover, screenshots and video translated into each localization language", "no gameplay from other games", "promo materials must not repeat another game's"],
-    "videos": [
-      {"name": "promo_vertical", "w": 1080, "h": 1920, "fps": 30, "min_s": 10, "max_s": 30, "max_mb": 100, "audio": true, "text": "localized"},
-      {"name": "promo_horizontal", "w": 1920, "h": 1080, "fps": 30, "min_s": 10, "max_s": 30, "max_mb": 100, "audio": true, "text": "localized"}
+    "cover_rules": [
+      "all words on icon, cover, screenshots and video translated into each localization language",
+      "no gameplay from other games",
+      "promo materials must not repeat another game's"
     ],
-    "screens": [{"name": "screen_landscape", "w": 1920, "h": 1080}, {"name": "screen_portrait", "w": 1080, "h": 1920}],
-    "video_rules": ["vertical 9:16 (confirmed); durations and MB limits not confirmed: check the console form"],
+    "videos": [
+      {
+        "name": "promo_vertical",
+        "w": 1080,
+        "h": 1920,
+        "fps": 30,
+        "min_s": 10,
+        "max_s": 30,
+        "max_mb": 100,
+        "audio": true,
+        "text": "localized"
+      },
+      {
+        "name": "promo_horizontal",
+        "w": 1920,
+        "h": 1080,
+        "fps": 30,
+        "min_s": 10,
+        "max_s": 30,
+        "max_mb": 100,
+        "audio": true,
+        "text": "localized"
+      }
+    ],
+    "screens": [
+      {
+        "name": "screen_landscape",
+        "w": 1920,
+        "h": 1080
+      },
+      {
+        "name": "screen_portrait",
+        "w": 1080,
+        "h": 1920
+      }
+    ],
+    "video_rules": [
+      "vertical 9:16 (confirmed); durations and MB limits not confirmed: check the console form"
+    ],
     "speed_max": 1.0
   },
   "playgama": {
     "source": "https://playgama.com/blog/business-faqs/what-thumbnail-and-metadata-assets-are-required-for-submitti/",
     "verified": "2026-11-20 (no own numbers: square + portrait + landscape covers, exact sizes in the developer.playgama.com form)",
     "covers": [
-      {"name": "landscape", "w": 1920, "h": 1080},
-      {"name": "portrait", "w": 800, "h": 1200},
-      {"name": "square", "w": 800, "h": 800}
+      {
+        "name": "landscape",
+        "w": 1920,
+        "h": 1080
+      },
+      {
+        "name": "portrait",
+        "w": 800,
+        "h": 1200
+      },
+      {
+        "name": "square",
+        "w": 800,
+        "h": 800
+      }
     ],
     "cover_text": "title_only",
     "videos": [
-      {"name": "gameplay_landscape", "w": 1920, "h": 1080, "fps": 30, "min_s": 15, "max_s": 30, "max_mb": 50, "audio": true, "text": "localized"}
+      {
+        "name": "gameplay_landscape",
+        "w": 1920,
+        "h": 1080,
+        "fps": 30,
+        "min_s": 15,
+        "max_s": 30,
+        "max_mb": 50,
+        "audio": true,
+        "text": "localized"
+      }
     ],
-    "video_rules": ["distributed to Yandex/CrazyGames/others: when in doubt also build their presets"],
+    "video_rules": [
+      "distributed to Yandex/CrazyGames/others: when in doubt also build their presets"
+    ],
     "speed_max": 1.0
   },
+  "ads_landscape": {
+    "primary": true,
+    "source": "Alex's main ad format: 16:9 for ads on game platforms and ad networks (Google Ads App / AdMob, Yandex Direct, YouTube). Limits = the strictest common window of https://support.google.com/google-ads/answer/9948381 ; https://support.google.com/google-ads/answer/17091269 ; https://yandex.com/support/direct/en/efficiency/video ; https://www.yandex.com/support/direct/products-mobile-apps-ads/recommendations.html",
+    "verified": "2026-11-21 (search snippets of the official help pages: Google 10-60 s, 1920x1080; Yandex 5-60 s, first 15 s used, 16:9 recommended, 20-30 fps, 100 MB)",
+    "videos": [
+      {
+        "name": "ad_16x9",
+        "w": 1920,
+        "h": 1080,
+        "fps": 30,
+        "min_s": 10,
+        "max_s": 30,
+        "max_mb": 100,
+        "audio": true,
+        "text": "localized",
+        "safe": {
+          "top": 0.08,
+          "bottom": 0.14,
+          "side": 0.06
+        }
+      }
+    ],
+    "video_rules": [
+      "the strong part must fit the first 15 s (Yandex uses only 15 s; viewers skip after 5 s)",
+      "hook in the first 1.5 s",
+      "real gameplay only",
+      "keep text off the corners: Skip / Ad labels and the app card sit there",
+      "end card with title + CTA"
+    ],
+    "speed_max": 1.6
+  },
+  "admob": {
+    "source": "Google Ads App campaigns (AdMob in-app inventory + YouTube): https://support.google.com/google-ads/answer/9948381 ; https://support.google.com/google-ads/answer/17091269",
+    "verified": "2026-11-21 (search snippets: 16:9 / 9:16 / 1:1, 10-60 s each, 1920x1080 / 1080x1920 / 1080x1080; uploaded through YouTube)",
+    "videos": [
+      {
+        "name": "ad_16x9",
+        "w": 1920,
+        "h": 1080,
+        "fps": 30,
+        "min_s": 10,
+        "max_s": 30,
+        "max_mb": 256,
+        "audio": true,
+        "text": "localized",
+        "safe": {
+          "top": 0.08,
+          "bottom": 0.14,
+          "side": 0.06
+        }
+      },
+      {
+        "name": "ad_9x16",
+        "w": 1080,
+        "h": 1920,
+        "fps": 30,
+        "min_s": 10,
+        "max_s": 30,
+        "max_mb": 256,
+        "audio": true,
+        "text": "localized",
+        "safe": {
+          "top": 0.1,
+          "bottom": 0.25,
+          "side": 0.06
+        }
+      },
+      {
+        "name": "ad_1x1",
+        "w": 1080,
+        "h": 1080,
+        "fps": 30,
+        "min_s": 10,
+        "max_s": 30,
+        "max_mb": 256,
+        "audio": true,
+        "text": "localized"
+      }
+    ],
+    "video_rules": [
+      "give all three ratios: the network picks per placement (more ratios = more inventory)",
+      "several hooks per ratio for A/B (Google recommends up to 20 videos)",
+      "9:16: app metadata covers the top 10% and bottom 25%",
+      "upload goes through YouTube (unlisted): Alex uploads"
+    ],
+    "speed_max": 1.6
+  },
+  "yandex_direct": {
+    "source": "Yandex Direct mobile app / video ads: https://yandex.com/support/direct/en/efficiency/video ; https://www.yandex.com/support/direct/products-mobile-apps-ads/recommendations.html",
+    "verified": "2026-11-21 (search snippets: 5-60 s but only the first 15 s are used, 16:9 / 1:1 / 9:16, 1080p, 20-30 fps, mp4, 100 MB)",
+    "videos": [
+      {
+        "name": "ad_16x9",
+        "w": 1920,
+        "h": 1080,
+        "fps": 30,
+        "min_s": 10,
+        "max_s": 15,
+        "max_mb": 100,
+        "audio": true,
+        "text": "localized",
+        "safe": {
+          "top": 0.08,
+          "bottom": 0.14,
+          "side": 0.06
+        }
+      },
+      {
+        "name": "ad_1x1",
+        "w": 1080,
+        "h": 1080,
+        "fps": 30,
+        "min_s": 10,
+        "max_s": 15,
+        "max_mb": 100,
+        "audio": true,
+        "text": "localized"
+      },
+      {
+        "name": "ad_9x16",
+        "w": 1080,
+        "h": 1920,
+        "fps": 30,
+        "min_s": 10,
+        "max_s": 15,
+        "max_mb": 100,
+        "audio": true,
+        "text": "localized",
+        "safe": {
+          "top": 0.12,
+          "bottom": 0.22,
+          "side": 0.06
+        }
+      }
+    ],
+    "video_rules": [
+      "15 s max: Yandex uses only the first 15 s",
+      "texts in Russian for RU campaigns",
+      "video banners accept 16:9 only"
+    ],
+    "speed_max": 1.6
+  },
   "ads_vertical": {
-    "source": "general practice for TikTok / Reels / Shorts creatives (not a platform rulebook)",
+    "source": "general practice for TikTok / Reels / Shorts (not Alex's main target; only on request)",
     "verified": "guideline",
     "videos": [
-      {"name": "ad_9x16", "w": 1080, "h": 1920, "fps": 30, "min_s": 9, "max_s": 25, "max_mb": 200, "audio": true, "text": "localized", "safe": {"top": 0.12, "bottom": 0.22, "side": 0.06}}
+      {
+        "name": "ad_9x16",
+        "w": 1080,
+        "h": 1920,
+        "fps": 30,
+        "min_s": 9,
+        "max_s": 25,
+        "max_mb": 200,
+        "audio": true,
+        "text": "localized",
+        "safe": {
+          "top": 0.12,
+          "bottom": 0.22,
+          "side": 0.06
+        }
+      }
     ],
-    "video_rules": ["hook in the first 1.5 s", "show real gameplay (misleading ads get rejected)", "keep text out of the bottom ~22% and top ~12% (UI overlays)", "end card with title + CTA"],
+    "video_rules": [
+      "hook in the first 1.5 s",
+      "show real gameplay (misleading ads get rejected)",
+      "keep text out of the bottom ~22% and top ~12% (UI overlays)",
+      "end card with title + CTA"
+    ],
     "speed_max": 1.6
   },
   "ads_square": {
     "source": "general practice for feed ads (Meta / VK)",
     "verified": "guideline",
     "videos": [
-      {"name": "ad_1x1", "w": 1080, "h": 1080, "fps": 30, "min_s": 9, "max_s": 20, "max_mb": 200, "audio": true, "text": "localized"}
-    ],
-    "speed_max": 1.6
-  },
-  "ads_landscape": {
-    "source": "general practice for YouTube / trailers",
-    "verified": "guideline",
-    "videos": [
-      {"name": "ad_16x9", "w": 1920, "h": 1080, "fps": 30, "min_s": 15, "max_s": 30, "max_mb": 300, "audio": true, "text": "localized"}
+      {
+        "name": "ad_1x1",
+        "w": 1080,
+        "h": 1080,
+        "fps": 30,
+        "min_s": 9,
+        "max_s": 20,
+        "max_mb": 200,
+        "audio": true,
+        "text": "localized"
+      }
     ],
     "speed_max": 1.6
   }

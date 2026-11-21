@@ -1,6 +1,6 @@
 ---
 name: game-promo-kit
-description: Use when Alex asks for promo materials of a browser game — "сделай рекламное видео/ролик/трейлер", "промо", "нарежь сочные моменты", "видео для CrazyGames/Poki/Яндекса/Playgama", "превью-видео", "ролик для TikTok/Reels/Shorts", "скриншоты для площадки", "обложка/иконка/кавер", "локализуй ролик/скрины на языки". Records real gameplay from the running game (Playwright: canvas + game audio + event log), finds the juiciest moments automatically, edits a dynamic cartoon montage (punch-zoom, flash cuts, slow-mo at the payoff, shake, pop-in localized texts, SFX, end card) or a clean platform preview, in the exact size/length/audio rules of each platform, plus sharp screenshots and covers per platform and language.
+description: Use when Alex asks for promo materials of a browser game — "сделай рекламное видео/ролик/трейлер", "промо", "нарежь сочные моменты", "видео для CrazyGames/Poki/Яндекса/Playgama", "реклама для AdMob/Google Ads/Яндекс Директа", "рекламный креатив", "превью-видео", "ролик для TikTok/Reels/Shorts", "скриншоты для площадки", "обложка/иконка/кавер", "локализуй ролик/скрины на языки". Records real gameplay from the running game (Playwright: canvas + game audio + event log), finds the juiciest moments automatically, edits a dynamic cartoon montage (punch-zoom, flash cuts, slow-mo at the payoff, shake, pop-in localized texts, SFX, end card) or a clean platform preview, in the exact size/length/audio rules of each platform, plus sharp screenshots and covers per platform and language.
 ---
 
 # Промо-набор: ролики, скриншоты, обложки
@@ -9,6 +9,8 @@ description: Use when Alex asks for promo materials of a browser game — "сд�
 Требования площадок: `references/platforms.json` (поле `verified` — когда сверено с официальной страницей). Стиль монтажа и локализация: `references/editing-style.md`.
 
 ## Правила
+- **Основной формат Alex — горизонтальная реклама 16:9** (`ads_landscape`, 1920×1080, 15 с) для рекламы на игровых площадках и в рекламных сетях (AdMob / Google Ads App, Яндекс Директ). «Сделай рекламный ролик» без уточнений = 16:9 на всех языках config, по ролику на каждый крючок. Сначала дубль `land` 1920×1080, проверка и сдача — по 16:9. Под сеть — её пресет: `admob` (16:9 + 9:16 + 1:1, 10–30 с), `yandex_direct` (≤15 с). Вертикаль и квадрат отдельно — только по просьбе. TikTok/Reels — не цель.
+- Сильная часть ролика — в первых 15 с (Директ берёт только 15 с, пропуск рекламы через 5 с); углы 16:9 свободны от текста (кнопки «Пропустить»/«Реклама», карточка приложения).
 - Только реальный геймплей нашей игры. ИИ-видео/генераторы — только по прямой просьбе Alex и только как вставка-крючок, не вместо игры (обманчивая реклама → отказ модерации).
 - Размер, fps, длину, звук, текст бери из пресета площадки, не на глаз. Пресет `verified: unverified/guideline` → скажи Alex, что цифры сверить в форме загрузки.
 - Звук и музыка: звуки игры, UIFX (CC0) или музыка, которую дал Alex. Чужую музыку не подставляй.
@@ -27,10 +29,10 @@ description: Use when Alex asks for promo materials of a browser game — "сд�
    Сервер: по умолчанию `npm run build` + `vite preview`; `--serve dist` — готовая папка без node; `--url` — уже запущенная игра; `--init-js tools/lib/spy.js` — эмуляция SDK площадки, если игра без неё не стартует; `--ready "() => !!window.__game"` — когда игра готова.
    `--ui` — писать страницу целиком с DOM-HUD (иначе только canvas). `--dpr 2` — скриншоты крупнее. Итог: `promo/raw/<take>.mp4` + `.events.json`.
 4. **Моменты.** `promo moments --project . [--take land] [--len 2.2]` → `promo/moments.json`, лист `promo/review/moments.jpg` (3 кадра на момент). Посмотри лист сам, выкинь скучное/битое (`--moments 1,4,2` в монтаже); при сомнении покажи лист Alex.
-5. **Монтаж.** `promo edit --project . --platform <имя> [--video <пресет>] [--lang en,ru] [--moments …] [--music track.mp3] [--bpm 128] [--variants 2] [--draft]`.
+5. **Монтаж.** `promo edit --project . [--platform <имя>, по умолчанию ads_landscape] [--video <пресет>] [--lang en,ru] [--moments …] [--music track.mp3] [--bpm 128] [--variants 2] [--draft]`.
    - Сначала `--draft` (быстро, без интерполяции) → посмотри лист и ключевые кадры → финальный рендер без `--draft`.
    - Пресеты с `text: none` (CrazyGames, Poki) → `clean`: без текста, звука, ускорений; первый кадр — обложка (сначала `shots --covers`).
-   - Рекламные (`ads_vertical`, `ads_square`, `ads_landscape`, Яндекс) → `cartoon`: развязка лучшего момента в первую секунду, крючок по словам, чередование переходов (зум, свайп, белая вспышка) на долях такта, на пике разгон → слоумо 0.5× + наезд + тряска + RGB-сдвиг + «бум», подписи событий, финал с лучами, названием или `logo` и пульсирующей кнопкой CTA, whoosh/pop из UIFX. Без музыки играет сгенерированный бит (`--no-beat` выключает); музыка Alex лучше.
+   - Рекламные (`ads_landscape` — по умолчанию, `admob`, `yandex_direct`, `ads_square`, `ads_vertical`, промо Яндекса) → `cartoon`: развязка лучшего момента в первую секунду, крючок по словам, чередование переходов (зум, свайп, белая вспышка) на долях такта, на пике разгон → слоумо 0.5× + наезд + тряска + RGB-сдвиг + «бум», подписи событий, финал с лучами, названием или `logo` и пульсирующей кнопкой CTA, whoosh/pop из UIFX. Без музыки играет сгенерированный бит (`--no-beat` выключает); музыка Alex лучше.
    - Вертикаль из ландшафтного дубля → `layout: stack`: игра карточкой на размытом фоне, крючок заголовком сверху весь ролик. Нативный вертикальный дубль (`--size 1080x1920`) даёт больше игры в кадре.
    - Список крючков в `texts.hook.<язык>` → по ролику на каждый (`_h2`, `_h3`), каждый открывается другим моментом: для A/B-теста в рекламном кабинете.
    - Вывод `promo/out/<платформа>/<язык|all>/<пресет>[_hN].mp4`; строка `FIX` = нарушение пресета (длина, размер, МБ) — исправь (больше моментов, `--duration`) до сдачи.
@@ -42,7 +44,10 @@ description: Use when Alex asks for promo materials of a browser game — "сд�
 - **Poki:** квадрат ≥628 px без текста; анимированный 1080×1080, ≥50 fps, 4–6 с, 2–3 сцены, без звука, mp4 ≤100 МБ.
 - **Яндекс (не сверено, страница была недоступна):** иконка 512×512, обложка 800×470 PNG; промо-видео вертикальное 9:16 и горизонтальное; все слова переведены на язык локализации; чужой геймплей и одинаковые промо в разных играх запрещены.
 - **Playgama:** своих цифр нет, размеры — в форме developer.playgama.com; собирай квадрат/портрет/ландшафт.
-- **Реклама (TikTok/Reels/Shorts, лента, YouTube):** не правила площадки, а практика: крючок ≤1,5 с, реальный геймплей, текст вне нижних ~22% и верхних ~12% в 9:16, финальная карточка.
+- **Реклама 16:9 (основной формат, `ads_landscape`):** 1920×1080, 30 fps, 10–30 с (по умолчанию 15), ≤100 МБ, со звуком и локализованным текстом; крючок ≤1,5 с, развязка в первые 5 с, финальная карточка с CTA.
+- **AdMob / Google Ads App (`admob`):** 16:9, 9:16, 1:1 по 10–60 с (берём 10–30); заливка через YouTube (делает Alex); давай все три формата и несколько крючков — сеть сама подбирает места; в 9:16 верх 10% и низ 25% заняты карточкой приложения.
+- **Яндекс Директ (`yandex_direct`):** 16:9 (видеобаннеры — только 16:9), 1:1, 9:16; 5–60 с, но используются первые 15 с → режем до 15; 1080p, 20–30 fps, ≤100 МБ.
+- **TikTok/Reels/Shorts, лента (`ads_vertical`, `ads_square`):** только по просьбе; текст вне нижних ~22% и верхних ~12% в 9:16.
 
 ## Если что-то не так
 - `ffmpeg does not start` → `brew upgrade ffmpeg`. Тексты рисует Pillow и накладывает ffmpeg `overlay`, libass/drawtext не нужны.
