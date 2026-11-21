@@ -1,7 +1,7 @@
 """Cut and edit promo videos from the picked moments, per platform preset, language and hook variant.
 
   edit.py --project DIR --platform ads_vertical [--video promo_vertical] [--lang en,ru]
-          [--moments 3,1,5] [--style cartoon|clean] [--duration 15] [--music file.mp3] [--bpm 128]
+          [--moments 3,1,5] [--style story|cartoon|clean] [--duration 15] [--music file.mp3] [--bpm 128]
           [--layout auto|cover|stack] [--variants 2] [--no-slowmo] [--no-sfx] [--no-beat] [--draft]
 
 cartoon (ads): opener = strongest payoff within the first second, word-by-word hook, varied transitions
@@ -12,7 +12,11 @@ cartoon (ads): opener = strongest payoff within the first second, word-by-word h
   the push-in jumps a notch on it and shake follows; the last payoff is the climax: music dips 0.35 s before it,
   then 3 anime impact frames (negative + speed lines). Captions and booms escalate clip by clip.
   Slow-mo segments are interpolated once into promo/cache/ in parallel and reused by every language and hook. Portrait output from a landscape take -> "stack": gameplay card on its blurred copy.
-clean (platform previews): hard cuts, no text/sound/speed tricks, optional cover as the first frame.
+story (ads, default; from the H2T / CrazyGames reference base): 3-5 long gameplay shots of 2.4-4.5 s with hard cuts,
+  payoff inside the first second, the game's own HUD left in, banner captions in the game's UI style ("RUN!"),
+  a small persistent CTA pill, one hit-stop + impact frame only on the climax (the biggest reward last), end card.
+clean (platform hover previews): 2-4 long shots of 3-6 s, hard cuts, no text/sound/speed tricks, action from frame 0,
+  12-15 s; --cover-first puts the static cover first (CrazyGames recommends it, most top previews skip it).
 texts.hook may hold a list per language -> one file per hook (A/B), each opening on a different moment.
 Output: promo/out/<platform>/<lang|all>/<video>[_hN].mp4 + promo/review/<platform>_<video>_<lang>[_hN].jpg.
 """
@@ -60,11 +64,12 @@ class TextLayer:
     def __init__(self, W, H, font_path, cfg):
         c = cfg['colors']; self.W, self.H, self.fp, self.items = W, H, font_path, []
         self.text, self.acc, self.out = hex_to_rgb(c['text']), hex_to_rgb(c['accent']), hex_to_rgb(c['outline'])
+        self.ban = hex_to_rgb(c.get('banner', '#E0262B'))
 
-    def pop(self, t0, t1, lines, size, x, y, colour=None, rot=-3, pulse=False, image=None, button=False):
+    def pop(self, t0, t1, lines, size, x, y, colour=None, rot=-3, pulse=False, image=None, button=False, banner=False):
         if t1 - t0 > 0.15:
             self.items.append(dict(t0=t0, t1=t1, lines=lines, size=int(size), x=x, y=y, col=colour or self.text,
-                                   rot=rot, pulse=pulse, image=image, button=button))
+                                   rot=rot, pulse=pulse, image=image, button=button, banner=banner))
 
     def pop_words(self, t0, t1, lines, size, cx, cy, colour=None, stagger=0.09):
         """Kinetic hook: every word pops on its own with alternating tilt; the phrase layout is kept."""
@@ -87,6 +92,18 @@ class TextLayer:
             im = Image.open(it['image']).convert('RGBA')
             sc = it['size'] / max(im.width, im.height)
             return im.resize((max(1, int(im.width * sc)), max(1, int(im.height * sc))), Image.LANCZOS)
+        if it.get('banner'):  # game-UI banner ("RUN!"): white caps on a red rounded plate with a dark lip, no tilt
+            f = ImageFont.truetype(self.fp, it['size']); sw = max(2, int(it['size'] * 0.06)); lh = int(it['size'] * 1.1)
+            ws = [f.getlength(l) for l in it['lines']]; px, py = it['size'] * 0.55, it['size'] * 0.22
+            bw_, bh_ = int(max(ws) + 2 * px), int(lh * len(it['lines']) + 2 * py); lip = max(3, int(bh_ * 0.08))
+            im = Image.new('RGBA', (bw_ + 6, bh_ + lip + 6), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+            r_ = int(bh_ * 0.28)
+            d.rounded_rectangle((3, 3 + lip, 3 + bw_, 3 + bh_ + lip), r_, fill=tuple(int(c * 0.55) for c in self.ban) + (255,))
+            d.rounded_rectangle((3, 3, 3 + bw_, 3 + bh_), r_, fill=self.ban + (255,), outline=(255, 255, 255, 230), width=max(2, sw))
+            for i, l in enumerate(it['lines']):
+                d.text((3 + bw_ / 2, 3 + py + i * lh + lh / 2), l, font=f, fill=(255, 255, 255, 255), anchor='mm',
+                       stroke_width=sw, stroke_fill=self.out + (255,))
+            return im
         if it.get('button'):  # CTA as a fat cartoon button: white rim, accent face over a darker lip, gloss, dark label
             f = ImageFont.truetype(self.fp, it['size']); l, t, rr, b = f.getbbox(it['lines'][0])
             tw, th = rr - l, b - t; px, py, rim = it['size'] * 0.8, it['size'] * 0.45, max(4, int(it['size'] * 0.09))
@@ -198,10 +215,42 @@ def payoff_segs(s, e, p, slow, pre_speed, cartoon, F, hold_f):
     return pre + hit + post
 
 
-def plan_clips(ms, vp, style, total, a, xd, F=30):
+def plan_long(ms, total, take_dur, story, a, F, hold_f):
+    """Few long shots, as in the reference base: top CrazyGames previews cut 0-7 times in 6-19 s, H2T-style ads hold
+    2.5-6 s shots of the game with its HUD. Story ads: payoff inside the first second, hit-stop only on the climax."""
+    lo, hi = (2.4, 4.5) if story else (3.0, 6.0)
+    n = max(1, min(len(ms), math.ceil(total / hi)))
+    while n > 1 and total / n < lo: n -= 1
+    per = total / n; clips = []
+    for i, m in enumerate(ms[:n]):
+        p = m['peak']; dur = take_dur.get(m['take'], p + per)
+        lead = 0.6 if (story and i == 0) else (0.3 if i == 0 else 0.4) * per
+        s0 = max(0.0, p - lead); e0 = min(dur, s0 + per); s0 = max(0.0, e0 - per)
+        segs = [(s0, e0, 1.0, {})]
+        if story and i == n - 1 and hold_f:  # the climax: biggest reward last, the only hit-stop of the video
+            segs = payoff_segs(s0, e0, p, not a.no_slowmo, 1.0, True, F, hold_f)
+            over_ = sum(seg_len(x) for x in segs) - (e0 - s0)
+            a_, b, sp, fx = segs[-1]
+            if b - over_ * sp - a_ >= 0.25: segs[-1] = (a_, b - over_ * sp, sp, fx)
+            else: segs = [(s0, e0, 1.0, {})]
+        segs[0][3]['first'] = True
+        clips.append([(x[0], x[1], x[2], dict(x[3], peak=p, ev=m)) for x in segs])
+    return clips
+
+
+def plan_clips(ms, vp, style, total, a, xd, F=30, take_dur=None):
     """-> list of clips, each a list of segments (start, end, speed, fx) on the source take."""
     beat = 60.0 / a.bpm if a.bpm else 0
     scenes = vp.get('scenes')
+    if style in ('story', 'clean') and not scenes:
+        clips = plan_long(ms, total, take_dur or {}, style == 'story', a, F, 0 if a.no_hitstop else 3)
+        if style == 'story' and not a.no_impact_frame:
+            for x in clips[-1]:
+                if x[3].get('hold'):
+                    x[3]['hold'] += 2.0 / F; x[3]['climax'] = True
+                    a_, b, sp, fx = clips[-1][-1]
+                    if (b - a_) / sp > 2.0 / F + 0.25: clips[-1][-1] = (a_, b - 2.0 / F * sp, sp, fx)
+        return clips
     cartoon = style == 'cartoon'
     slowmo = cartoon and not a.no_slowmo
     hold_f = 3 if cartoon and not a.no_hitstop else 0
@@ -304,16 +353,16 @@ def atempo_chain(sp):
 
 def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', variant=0):
     W, H, F = vp['w'], vp['h'], vp.get('fps', 30)
-    style = a.style or ('clean' if vp.get('text') == 'none' else 'cartoon')
-    cartoon = style == 'cartoon'
-    with_text = vp.get('text') != 'none' and cartoon
+    style = a.style or ('clean' if vp.get('text') == 'none' else 'story')
+    cartoon = style == 'cartoon'; story = style == 'story'; juicy = cartoon or story
+    with_text = vp.get('text') != 'none' and juicy
     with_audio = vp.get('audio', True)
-    total = a.duration or (vp['max_s'] if not cartoon else min(vp['max_s'], max(vp.get('min_s', 9), 15)))
+    total = a.duration or vp.get('target_s') or (vp['max_s'] if not juicy else min(vp['max_s'], max(vp.get('min_s', 9), 15)))
     total = max(vp.get('min_s', 1), min(vp['max_s'], total))
     title = text_for(cfg, 'title', lang); cta = text_for(cfg, 'cta', lang)
-    endcard = 1.8 if with_text and (cta or title) else 0.0
+    endcard = (1.5 if story else 1.8) if with_text and (cta or title) else 0.0
     cover = None
-    if plat.get('first_frame_cover'):
+    if a.cover_first or plat.get('first_frame_cover') is True:
         cdir = os.path.join(promo_dir(project), 'out', pname, 'covers')
         cands = [os.path.join(cdir, f) for f in os.listdir(cdir) if f.endswith('.png')] if os.path.isdir(cdir) else []
         if cands:
@@ -327,12 +376,12 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', va
     if not moments: die('no moments selected')
     src = {m['take']: probe(os.path.join(promo_dir(project), 'raw', f'{m["take"]}.mp4')) for m in moments}
     real_fps = {t: take_meta(project, t).get('real_fps', src[t]['fps']) for t in src}
-    clips = plan_clips(moments, vp, style, total - endcard - intro, a, xd, F)
+    clips = plan_clips(moments, vp, style, total - endcard - intro, a, xd, F, {t: src[t]['dur'] for t in src})
     if not clips: die('not enough material for this duration')
 
     # layout: portrait ad from a landscape take -> gameplay card on its own blurred copy
     sp0 = next(iter(src.values())); src_ar = sp0['w'] / max(1, sp0['h']); dst_ar = W / H
-    layout = a.layout if a.layout != 'auto' else ('stack' if cartoon and src_ar / dst_ar > 1.5 and H > W else 'cover')
+    layout = a.layout if a.layout != 'auto' else ('stack' if juicy and src_ar / dst_ar > 1.5 and H > W else 'cover')
     fam_path = font_file(cfg)
     safe = vp.get('safe', {'top': 0.06, 'bottom': 0.08, 'side': 0.05})
     top_y = H * safe['top']; bot_y = H * (1 - safe['bottom'])
@@ -348,7 +397,7 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', va
         FW, FH, card_top = W, H, 0
     work = tempfile.mkdtemp(prefix=f'{pname}_{vp["name"]}_{lang}_', dir=workroot)
     inputs, fc, idx = [], [], 0
-    over = 1.06 if cartoon else 1.0
+    over = 1.06 if juicy else 1.0
     fxp = cfg.get('focus_x', 0.5); fyp = cfg.get('focus_y', 0.5)
     sw, sh = int(math.ceil(FW * over / 2) * 2), int(math.ceil(FH * over / 2) * 2)
     clip_v, clip_a, clip_len, clip_caps, clip_imp = [], [], [], [], []
@@ -393,23 +442,23 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', va
                 ch = [f'[{L}fg0]'] + fg
             else:
                 ch = [f'[{idx}:v]'] + fg
-            if fx.get('shake') and cartoon:
+            if fx.get('shake') and juicy:
                 amp = int(min(FW, FH) * 0.014)
                 ch.append(f"crop={FW}:{FH}:x='(iw-ow)*{fxp}+{amp}*sin(t*57)*exp(-t*9)':y='(ih-oh)*{fyp}+{amp}*cos(t*43)*exp(-t*9)'")
             else:
                 ch.append(f"crop={FW}:{FH}:x='(iw-ow)*{fxp}':y='(ih-oh)*{fyp}'")
             if cartoon and fx.get('first'):
                 ch.append(f"zoompan=z='max(1,1.16-0.64*it)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s={FW}x{FH}:fps={F}")
-            elif cartoon and fx.get('zoom'):  # push-in into the hit, a notch up on it, on out of it
+            elif juicy and fx.get('zoom'):  # push-in into the hit, a notch up on it, on out of it
                 z0, z1 = fx['zoom']
                 z = f'{z0}' if z0 == z1 else f'{z0}+{z1 - z0:.4f}*min(1,it/{max(d_out, 0.1):.3f})'
                 ch.append(f"zoompan=z='{z}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s={FW}x{FH}:fps={F}")
-            if cartoon and fx.get('impact'):
+            if juicy and fx.get('impact'):
                 k = max(4, int(FW * 0.006))
                 ch.append(f"rgbashift=rh=-{k}:bh={k}:enable='lt(t,0.16)'")
                 ch.append(f"eq=brightness=0.12:enable='lt(t,{1.5 / F:.4f})'")
-            if cartoon:
-                ch.append('eq=saturation=1.16:contrast=1.05')
+            if juicy:
+                ch.append('eq=saturation=1.16:contrast=1.05' if cartoon else 'eq=saturation=1.08:contrast=1.03')
             ch += ['setsar=1', 'format=yuv420p']
             if layout == 'stack':
                 bw_ = max(4, int(W * 0.006))
@@ -424,11 +473,14 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', va
             else:  # the hit-stop is silent: the boom carries it
                 fc.append(f'anullsrc=r=48000:cl=stereo,atrim=0:{d_out:.3f}[a{idx}]')
             segv.append(f'[v{idx}]'); sega.append(f'[a{idx}]')
-            if fx.get('impact') and cartoon:
+            if fx.get('impact') and juicy:
                 imps.append((local, bool(fx.get('climax'))))
                 if with_text and fx.get('ev'):
                     txt = caption_for(cfg, fx['ev'], lang)
                     if txt: caps.append((local + 0.05, txt))
+            elif story and with_text and fx.get('ev') and not caps and s <= fx['peak'] < e:  # banner on every shot's event
+                txt = caption_for(cfg, fx['ev'], lang)
+                if txt: caps.append((local + (fx['peak'] - s) / sp, txt))
             idx += 1; local += d_out
         fc.append(''.join(v + a_ for v, a_ in zip(segv, sega)) + f'concat=n={len(segv)}:v=1:a=1[cv{ci}r][ca{ci}]')
         fc.append(f'[cv{ci}r]settb=AVTB,fps={F}[cv{ci}]')
@@ -473,9 +525,16 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', va
                   f"setpts=PTS-STARTPTS+{body_end:.3f}/TB[burst]")
         fc.append('[ce][burst]overlay=0:0:eof_action=pass:format=auto[ceb]')
         vtail = '[ceb]'; idx += 1
+    hook_end = 0.0
     if with_text:
         tl = TextLayer(W, H, fam_path, cfg)
-        if hook:
+        ban_size = int(base * 0.075)
+        ban_y = int(H * cfg['banner_y']) if cfg.get('banner_y') else int(top_y + ban_size * 0.9)  # lower it under the game's own top UI
+        if hook and story and layout != 'stack':  # the hook as the game's own banner ("RUN!") over the opener
+            b_lines, b_size = fit_text(hook, fam_path, ban_size * 1.15, maxw * 0.8)
+            hook_end = min(2.4 + intro, body_end)
+            tl.pop(0.10 + intro, hook_end, b_lines, b_size, W // 2, ban_y, rot=0, banner=True)
+        elif hook:
             if layout == 'stack':  # headline stays over the card for the whole body
                 tl.pop_words(0.10 + intro, body_end, hook_lines, hook_size, W // 2, int(top_y + hook_h / 2), colour=tl.acc)
             else:
@@ -483,14 +542,27 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', va
                 tl.pop_words(0.10 + intro, min(2.3 + intro, body_end), hook_lines, hook_size, W // 2, y, colour=tl.acc)
         shown = 0
         for t0, txt in captions:  # each caption a notch bigger and more tilted than the last
+            if story:  # banner captions: same size, no tilt, top centre, never over the hook banner
+                if t0 < hook_end or t0 > body_end - 0.4: continue
+                lines, size = fit_text(txt, fam_path, ban_size, maxw * 0.8)
+                y = ban_y if layout != 'stack' else int(min(bot_y, card_top + FH) - size * 1.2)
+                tl.pop(t0, min(t0 + 1.2, body_end), lines, size, W // 2, y, rot=0, banner=True)
+                shown += 1; continue
             if (layout != 'stack' and t0 < 2.2 + intro) or t0 > body_end - 0.4: continue
             lines, size = fit_text(txt, fam_path, base * 0.082 * min(1.3, 1 + 0.1 * shown), maxw)
             y = int(min(bot_y, card_top + FH) - size * 0.75 * len(lines) - size * 0.5)
             tl.pop(t0, min(t0 + 1.0, body_end), lines, size, W // 2, y, rot=(1 if shown % 2 else -1) * min(6, 3 + shown))
             shown += 1
+        logo = cfg.get('logo')
+        logo = (logo if os.path.isabs(logo) else os.path.join(project, logo)) if logo else ''
+        if story and cta and not a.no_cta_bar and body_end > 3.4:  # small persistent "Play free" pill under the action
+            p_lines, p_size = fit_text(cta, fam_path, base * 0.042, maxw * 0.4, max_lines=1)
+            tl.pop(2.4 + intro, body_end, p_lines, p_size, W // 2, int(bot_y - p_size * 1.3), colour=tl.acc, rot=0,
+                   pulse=True, button=True)
+        if story and cfg.get('corner_logo') and logo and os.path.exists(logo):  # game logo held in the top-left corner
+            lsz = int(base * 0.17)
+            tl.pop(0.0, body_end, [], lsz, int(W * safe.get('side', 0.05) + lsz * 0.55), int(top_y + lsz * 0.4), rot=0, image=logo)
         if endcard:
-            logo = cfg.get('logo')
-            logo = (logo if os.path.isabs(logo) else os.path.join(project, logo)) if logo else ''
             c_lines, c_size = fit_text(cta, fam_path, base * 0.075, maxw * 0.72, max_lines=1) if cta else ([], 0)
             btn_h = c_size * 2.2 if cta else 0; gap = base * 0.05
             if logo and os.path.exists(logo):
@@ -529,22 +601,23 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', va
             music = music if os.path.isabs(music) else os.path.join(project, music)
             if not os.path.exists(music):
                 print(f'  warn: music {music} not found'); music = ''
-        if not music and cartoon and not a.no_beat:
+        if not music and juicy and not a.no_beat:
             music = synth(os.path.join(work, 'beat.wav'), 'beat', a.bpm or 120, total_out + 1)
             beat_note = f' beat={int(a.bpm or 120)}bpm(generated)'
         if music:
             inputs += ['-stream_loop', '-1', '-i', music]
-            mv = cfg.get('music_volume', 0.8) * (0.7 if beat_note else 1.0)
+            mv = cfg.get('music_volume', 0.8) * (0.7 if beat_note else 1.0) * (0.75 if story else 1.0)  # story: the game leads
             mix.append(f'[{idx}:a]atrim=0:{total_out:.3f},afade=t=in:d=0.05,afade=t=out:st={max(0, total_out - 1.0):.2f}:d=1.0,'
                        f'{dip}volume={mv},aresample=48000,aformat=channel_layouts=stereo[m]')
             mixl.append('[m]'); idx += 1
-        if cartoon and not a.no_sfx:
+        if juicy and not a.no_sfx:
             wh = sound('whoosh_in.mp3'); pp = sound('pop.mp3'); win = sound('success_big.mp3') or sound('reward.mp3')
             boom = synth(os.path.join(work, 'boom.wav'), 'boom', dur=1.0)
             # sample peaks (measured): whoosh_in 0.19 s, success_big 0.16 s, boom/pop at 0 -> peak on the frame
-            sfx = [(wh, max(0, t_ + xd / 2 - 0.19), 0.5) for t_ in cut_times] if wh else []
+            sfx = [(wh, max(0, t_ + xd / 2 - 0.19), 0.5) for t_ in cut_times] if (wh and cartoon) else []
             sfx += [(boom, t_, 1.0 if cl else min(0.85, 0.6 + 0.08 * i)) for i, (t_, cl) in enumerate(impacts)]
-            sfx += [(pp, t_, 0.55) for t_, _ in captions if (layout == 'stack' or t_ >= 2.2 + intro) and t_ <= body_end - 0.4] if pp else []
+            sfx += [(pp, t_, 0.55) for t_, _ in captions if (layout == 'stack' or t_ >= (hook_end if story else 2.2 + intro))
+                    and t_ <= body_end - 0.4] if pp else []
             if pp and hook: sfx.append((pp, 0.10 + intro, 0.5))
             if win and endcard: sfx.append((win, max(0, body_end + 0.02 - 0.16), 0.7))
             for k, (f, t_, vol) in enumerate(sfx):
@@ -599,7 +672,9 @@ def main():
     ap.add_argument('--video', help='preset name inside the platform (default: all videos of the platform)')
     ap.add_argument('--lang')
     ap.add_argument('--moments', help='ids from moments.json in the wanted order')
-    ap.add_argument('--style', choices=['cartoon', 'clean'])
+    ap.add_argument('--style', choices=['story', 'cartoon', 'clean'], help='ads: story (default) or cartoon; previews: clean')
+    ap.add_argument('--cover-first', action='store_true', help='static cover as the first 0.5 s (CrazyGames recommends it)')
+    ap.add_argument('--no-cta-bar', action='store_true', help='story: no persistent CTA pill')
     ap.add_argument('--duration', type=float)
     ap.add_argument('--music')
     ap.add_argument('--bpm', type=float, default=0)
@@ -625,7 +700,7 @@ def main():
         by = {m['id']: m for m in ms}; ms = [by[int(i)] for i in a.moments.split(',') if int(i) in by]
     workroot = os.path.join(promo_dir(project), '.work'); os.makedirs(workroot, exist_ok=True)
     for vp in vids:
-        needs_text = vp.get('text') != 'none' and (a.style or 'cartoon') == 'cartoon'
+        needs_text = vp.get('text') != 'none' and (a.style or 'story') in ('story', 'cartoon')
         for lang in (langs_arg(cfg, a.lang) if needs_text else ['all']):
             hooks = hooks_for(cfg, lang) if needs_text else []
             hooks = (hooks[:a.variants] if a.variants else hooks) or ['']

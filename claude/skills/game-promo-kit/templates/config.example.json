@@ -46,7 +46,8 @@
   "colors": {
     "text": "#FFFFFF",
     "accent": "#FFD23F",
-    "outline": "#16162A"
+    "outline": "#16162A",
+    "banner": "#E0262B"
   },
   "music": "",
   "music_volume": 0.8,
@@ -64,6 +65,11 @@
     "hook": "string or list per language: a list makes one video per hook (A/B), each opening on another moment",
     "logo": "PNG with alpha for the end card (instead of the title text)",
     "music": "track from Alex; empty = generated beat bed in ads (--no-beat to turn off)",
-    "bpm": "tempo of the music: cuts land on beats"
-  }
+    "bpm": "tempo of the music: cuts land on beats",
+    "corner_logo": "story ads: keep the logo PNG small in the top-left corner for the whole video",
+    "colors.banner": "plate colour of story banners (hook, event captions), like the game's own RUN! banner",
+    "banner_y": "0 = top; 0.0-1.0 = banner centre as a share of the height, when the game's own top UI sits there"
+  },
+  "corner_logo": false,
+  "banner_y": 0
 }
