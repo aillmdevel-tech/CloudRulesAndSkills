@@ -632,5 +632,186 @@
     "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/4954910/1609623990/c3f7c7667843a3e35b03c48ae3d09b322fe62dc2/1788230310/dash_h264.mpd?t=1788375220"
    }
   ]
+ },
+ "3527290": {
+  "name": "PEAK",
+  "dev": [
+   "Team PEAK"
+  ],
+  "date": "16 Jun, 2025",
+  "genres": [
+   "Action",
+   "Adventure",
+   "Indie"
+  ],
+  "tags": [
+   "Multiplayer",
+   "Online Co-Op",
+   "Co-op",
+   "Adventure",
+   "Physics",
+   "Exploration",
+   "First-Person",
+   "Comedy",
+   "3D",
+   "Procedural Generation",
+   "Atmospheric",
+   "Action Roguelike",
+   "Character Customization",
+   "Action",
+   "Time Management"
+  ],
+  "short": "PEAK is a co-op climbing game where the slightest mistake can spell your doom. Either solo or as a group of lost nature scouts, your only hope of rescue from a mysterious island is to scale the mountain at its center. Do you have what it takes to reach the PEAK?",
+  "shots": [
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3527290/aa39b41b105aac51f2312a92979a3b9cb9909a46/ss_aa39b41b105aac51f2312a92979a3b9cb9909a46.1920x1080.jpg?t=1792684718",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3527290/9c500124c060f162f111afa679bf5d3a32b3fb40/ss_9c500124c060f162f111afa679bf5d3a32b3fb40.1920x1080.jpg?t=1792684718",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3527290/bac7b90dffb456afecc4517a3e1d69362b95d15b/ss_bac7b90dffb456afecc4517a3e1d69362b95d15b.1920x1080.jpg?t=1792684718",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3527290/e5ba2eae76c253832acfcf4b73bc966a7e8b8984/ss_e5ba2eae76c253832acfcf4b73bc966a7e8b8984.1920x1080.jpg?t=1792684718",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3527290/55365bfa09745df86bed72720a842f64d8724b9d/ss_55365bfa09745df86bed72720a842f64d8724b9d.1920x1080.jpg?t=1792684718",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3527290/c673fede352b201b3f897521e4e6eb6814a38c50/ss_c673fede352b201b3f897521e4e6eb6814a38c50.1920x1080.jpg?t=1792684718",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3527290/84436aac3675c39a9e21a14a4a9a3a8a7d9dea26/ss_84436aac3675c39a9e21a14a4a9a3a8a7d9dea26.1920x1080.jpg?t=1792684718",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3527290/63b22127ea64aba8b16c33a172b0fedbf542e834/ss_63b22127ea64aba8b16c33a172b0fedbf542e834.1920x1080.jpg?t=1792684718",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3527290/471f445657aaf8b8c1d039389e5dcc6a8bcc32c5/ss_471f445657aaf8b8c1d039389e5dcc6a8bcc32c5.1920x1080.jpg?t=1792684718",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3527290/1fa70611c0bc7c4393eae30827560d93687a6234/ss_1fa70611c0bc7c4393eae30827560d93687a6234.1920x1080.jpg?t=1792684718",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3527290/52547c087901dec5b065b4559503804c02c10c22/ss_52547c087901dec5b065b4559503804c02c10c22.1920x1080.jpg?t=1792684718",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3527290/5481a463ddc19a8def7eb64660caf6da12d9f22c/ss_5481a463ddc19a8def7eb64660caf6da12d9f22c.1920x1080.jpg?t=1792684718"
+  ],
+  "header": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3527290/31bac6b2eccf09b368f5e95ce510bae2baf3cfcd/header.jpg?t=1792684718",
+  "movies": [
+   {
+    "name": "The Final Ascent Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/3527290/1585242327/11b9dd1a0e2f05f7ed3e22255990a2293bacb8b9/1786469033/hls_264_master.m3u8?t=1786470570",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/3527290/1585242327/11b9dd1a0e2f05f7ed3e22255990a2293bacb8b9/1786469033/dash_h264.mpd?t=1786470570"
+   },
+   {
+    "name": "PEAK Release Trailer ",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/3527290/1124352640/46e621ec7cbf462dc1d877c8a841d5ba81038fe7/1750833231/hls_264_master.m3u8?t=1750093233",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/3527290/1124352640/46e621ec7cbf462dc1d877c8a841d5ba81038fe7/1750833231/dash_h264.mpd?t=1750093233"
+   },
+   {
+    "name": "The Roots Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/3527290/1176038585/6d72fc0c830be241b8fbac5853579819b726ecc1/1762367066/hls_264_master.m3u8?t=1762370965",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/3527290/1176038585/6d72fc0c830be241b8fbac5853579819b726ecc1/1762367066/dash_h264.mpd?t=1762370965"
+   },
+   {
+    "name": "The Mesa Update",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/3527290/363268313/a99c1275fc3066ce7b8e634df8e47f4ec39edb3d/1754929324/hls_264_master.m3u8?t=1754931583",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/3527290/363268313/a99c1275fc3066ce7b8e634df8e47f4ec39edb3d/1754929324/dash_h264.mpd?t=1754931583"
+   }
+  ]
+ },
+ "3690010": {
+  "name": "Who's at the door?",
+  "dev": [
+   " SKONEC Entertainment"
+  ],
+  "date": "18 Jul, 2025",
+  "genres": [
+   "Adventure",
+   "Indie",
+   "Simulation"
+  ],
+  "tags": [
+   "Simulation",
+   "Adventure",
+   "Horror",
+   "Walking Simulator",
+   "Immersive Sim",
+   "Choose Your Own Adventure",
+   "First-Person",
+   "3D",
+   "Realistic",
+   "1990's",
+   "Mystery",
+   "Retro",
+   "Survival Horror",
+   "Psychological Horror",
+   "Atmospheric"
+  ],
+  "short": "You are trapped in a small house, suffering from psychosis with no memory. Carefully observe your surroundings to distinguish reality from hallucinations, and overcome your illness by taking medication from visitors at the right time.",
+  "shots": [
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3690010/fd6f52c34390242f1a6f0ab289e54280d3ef3b15/ss_fd6f52c34390242f1a6f0ab289e54280d3ef3b15.1920x1080.jpg?t=1785493922",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3690010/e3ab6b58776d887a0b8f75a68d39cda5cd9f424e/ss_e3ab6b58776d887a0b8f75a68d39cda5cd9f424e.1920x1080.jpg?t=1785493922",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3690010/775841cbebfc5298e7ea4f6534e4c51c9126566f/ss_775841cbebfc5298e7ea4f6534e4c51c9126566f.1920x1080.jpg?t=1785493922",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3690010/ba2a6240f7d393072a6f3857d9112290e0b88a0d/ss_ba2a6240f7d393072a6f3857d9112290e0b88a0d.1920x1080.jpg?t=1785493922",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3690010/c1e4163c69cd861a21cb91af82ff2cda1e7de56c/ss_c1e4163c69cd861a21cb91af82ff2cda1e7de56c.1920x1080.jpg?t=1785493922"
+  ],
+  "header": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3690010/0f806f79ec822e9b3b6832b29afcc36cd7f64c3a/header.jpg?t=1785493922",
+  "movies": [
+   {
+    "name": "Game Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/3690010/1677184323/55da4112580bd6c1f7a47dbd9e0549a562f1877c/1752818613/hls_264_master.m3u8?t=1752820334",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/3690010/1677184323/55da4112580bd6c1f7a47dbd9e0549a562f1877c/1752818613/dash_h264.mpd?t=1752820334"
+   },
+   {
+    "name": "Whos at the Door_Teaser Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/3690010/400077164/7db3c1649a916145680a0985ca1ddea5808ab7c8/1750404081/hls_264_master.m3u8?t=1752820337",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/3690010/400077164/7db3c1649a916145680a0985ca1ddea5808ab7c8/1750404081/dash_h264.mpd?t=1752820337"
+   }
+  ]
+ },
+ "1966720": {
+  "name": "Lethal Company",
+  "dev": [
+   "Zeekerss"
+  ],
+  "date": "23 Oct, 2023",
+  "genres": [
+   "Action",
+   "Adventure",
+   "Indie",
+   "Early Access"
+  ],
+  "tags": [
+   "Online Co-Op",
+   "Horror",
+   "First-Person",
+   "Co-op",
+   "Survival Horror",
+   "Funny",
+   "Exploration",
+   "Psychological Horror",
+   "Sci-fi",
+   "PvE",
+   "Atmospheric",
+   "Procedural Generation",
+   "Aliens",
+   "Time Management",
+   "Adventure"
+  ],
+  "short": "A co-op horror about scavenging at abandoned moons to sell scrap to the Company.",
+  "shots": [
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1966720/ss_78075e9a94675823024f12fce9d69b243cca94f8.1920x1080.jpg?t=1775380053",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1966720/ss_51860be59845771c01a3a4d9ab1ebf773f16fef5.1920x1080.jpg?t=1775380053",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1966720/ss_08fa3ef83b6eb70313119096f82285fa411f02e5.1920x1080.jpg?t=1775380053",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1966720/ss_568d97dfa9d8d3128157d84c9437030ccc1011b0.1920x1080.jpg?t=1775380053",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1966720/ss_e07f1d6ee90e3669118096dab1fe52c20ec6ce10.1920x1080.jpg?t=1775380053",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1966720/ss_0499d96a2b9ca0fc8966d77e6d5c95ae94c38492.1920x1080.jpg?t=1775380053",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1966720/ss_d0bb214b1bf73ddc8315b96da6f32917043b13bc.1920x1080.jpg?t=1775380053",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1966720/ss_74060ff4c1fa60d977d6481c5bbbaa80919e1f06.1920x1080.jpg?t=1775380053",
+   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1966720/ss_27eb66c9d0e327f90915cef23b1377e9b10bc27b.1920x1080.jpg?t=1775380053"
+  ],
+  "header": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1966720/header.jpg?t=1775380053",
+  "movies": [
+   {
+    "name": "Lethal Company - Trailer",
+    "mp4": null,
+    "webm": null,
+    "hls_h264": "https://video.akamai.steamstatic.com/store_trailers/1966720/593018/d94ebe61f51f602028df99031bafd2ae075b1132/1750743020/hls_264_master.m3u8?t=1690909590",
+    "dash_h264": "https://video.akamai.steamstatic.com/store_trailers/1966720/593018/d94ebe61f51f602028df99031bafd2ae075b1132/1750743020/dash_h264.mpd?t=1690909590"
+   }
+  ]
  }
 }

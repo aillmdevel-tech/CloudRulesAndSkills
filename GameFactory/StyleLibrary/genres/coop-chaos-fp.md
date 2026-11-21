@@ -1,6 +1,6 @@
 # Шаблон: кооп-хаос от первого лица («friend-slop»)
 
-Игры: [RV There Yet?](../games/rv-there-yet/CARD.md) · [Dear Passengers](../games/dear-passengers/CARD.md) · [How to Fish](../games/how-to-fish/CARD.md) · [Scam With Your Friends](../games/scam-with-your-friends/CARD.md)
+Игры: [RV There Yet?](../games/rv-there-yet/CARD.md) · [Dear Passengers](../games/dear-passengers/CARD.md) · [How to Fish](../games/how-to-fish/CARD.md) · [Scam With Your Friends](../games/scam-with-your-friends/CARD.md) · [PEAK](../games/peak/CARD.md) · [Lethal Company](../games/lethal-company/CARD.md) (хоррор-край жанра)
 
 Когда применять: кооп 1–4 игрока, комедия, физика и хаос, первое лицо, «работа/поездка/выживание с друзьями».
 
@@ -22,6 +22,8 @@
 | B. Яркий мультсериал | Dear Passengers | чистые насыщенные цвета, выпученные глаза, много пропсов-хаоса |
 | C. Low-poly flat (Landfall) | How to Fish | видны грани, flatShading, жёсткие тени, кровь-кубики |
 | D. 3D + 2D-интерфейс | Scam With Your Friends | 3D-сцена тёплая тёмная, основной геймплей в juicy DOM-UI |
+| E. Тун-приключение в цветном воздухе | PEAK | 2–3-ступенчатый toon без обводки, нарисованные плоские лица, каждый биом — свой цвет тумана и неба |
+| F. Ретро кооп-хоррор | Lethal Company | низкое разрешение + постеризация + обводка, визор шлема, тьма и фонарик; см. horror.md линия B |
 
 ## Палитра жанра
 - База тёплая или голубая, насыщенность 20–27%, яркость 90–120. Яркие акценты (красный/жёлтый/зелёный) только на пропсах и персонажах.
