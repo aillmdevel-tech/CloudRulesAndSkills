@@ -8,12 +8,15 @@ cartoon (ads): opener = strongest payoff within the first second, word-by-word h
   (zoom, whip-slide, white flash) cut on the beat, speed-ramp -> 0.5x slow-mo (motion-interpolated when the
   game rendered < 50 fps) + push-in + shake + RGB split + boom at every payoff, pop-in captions, end card with
   blurred freeze-frame, rotating rays, logo/title and a pulsing CTA; whoosh/pop SFX; procedural beat bed when
-  no music is given. Portrait output from a landscape take -> "stack": gameplay card on its blurred copy.
+  no music is given. Every payoff lands on a hit-stop (3 held frames exactly on the event: flash, RGB split, boom),
+  the push-in jumps a notch on it and shake follows; the last payoff is the climax: music dips 0.35 s before it,
+  then 3 anime impact frames (negative + speed lines). Captions and booms escalate clip by clip.
+  Slow-mo segments are interpolated once into promo/cache/ in parallel and reused by every language and hook. Portrait output from a landscape take -> "stack": gameplay card on its blurred copy.
 clean (platform previews): hard cuts, no text/sound/speed tricks, optional cover as the first frame.
 texts.hook may hold a list per language -> one file per hook (A/B), each opening on a different moment.
 Output: promo/out/<platform>/<lang|all>/<video>[_hN].mp4 + promo/review/<platform>_<video>_<lang>[_hN].jpg.
 """
-import argparse, json, math, os, shutil, sys, tempfile
+import argparse, hashlib, json, math, os, shutil, sys, tempfile
 sys.path.insert(0, os.path.dirname(__file__))
 from common import (caption_for, die, font_file, hex_to_rgb, hooks_for, langs_arg, load_config,
                     load_moments, need_ffmpeg, platform, probe, promo_dir, run, sound, synth, text_for)
@@ -170,12 +173,39 @@ def order_moments(ms, explicit, variant=0):
     return ms
 
 
-def plan_clips(ms, vp, style, total, a, xd):
+def seg_len(x):
+    return x[3]['hold'] if x[3].get('hold') else (x[1] - x[0]) / x[2]
+
+
+def payoff_segs(s, e, p, slow, pre_speed, cartoon, F, hold_f):
+    """Segments of one clip around its payoff p. Cartoon: speed-ramp -> 0.5x slow-mo into the hit, a hit-stop
+    (held frame) exactly on p with flash + RGB split + boom, then shake + push-in out of it."""
+    if not cartoon:
+        return [(s, e, 1.0, {})]
+    hold = hold_f / F if hold_f else 0.0
+    if slow and p - s > 0.35 and e - p > 0.45:
+        pre = [(s, p - 0.12, pre_speed, {}), (p - 0.12, p, 0.5, {'zoom': (1.0, 1.04)})]
+        post = [(p, p + 0.33, 0.5, {'zoom': (1.06, 1.10), 'shake': True}), (p + 0.33, e, 1.0, {})]
+    elif p - s > 1.5 / F and e - p > 0.3:
+        pre = [(s, p, 1.0, {})]
+        post = [(p, e, 1.0, {'zoom': (1.06, 1.0), 'shake': True})]
+    else:  # payoff at the very edge of the clip: old-style hit on the cut
+        return [(s, e, 1.0, {'impact': True, 'shake': True, 'zoom': (1.0, 1.10)})]
+    if hold:
+        hit = [(p, p + 1.0 / F, 1.0, {'impact': True, 'hold': hold, 'zoom': (1.06, 1.06)})]
+    else:
+        hit = []; post[0][3]['impact'] = True
+    return pre + hit + post
+
+
+def plan_clips(ms, vp, style, total, a, xd, F=30):
     """-> list of clips, each a list of segments (start, end, speed, fx) on the source take."""
     beat = 60.0 / a.bpm if a.bpm else 0
     scenes = vp.get('scenes')
-    slowmo = style == 'cartoon' and not a.no_slowmo
-    pre_speed = min(1.25, vp.get('speed_max', 1.0)) if style == 'cartoon' else 1.0
+    cartoon = style == 'cartoon'
+    slowmo = cartoon and not a.no_slowmo
+    hold_f = 3 if cartoon and not a.no_hitstop else 0
+    pre_speed = min(1.25, vp.get('speed_max', 1.0)) if cartoon else 1.0
     clips, acc = [], 0.0
     if scenes:  # short loop (Poki): k scenes of equal length
         k = max(scenes[0], min(scenes[-1], len(ms)))
@@ -188,18 +218,15 @@ def plan_clips(ms, vp, style, total, a, xd):
         left = total - acc
         if left < 0.8: break
         s, e, p = m['start'], m['end'], m['peak']
-        if ci == 0 and style == 'cartoon':
+        if ci == 0 and cartoon:
             s = max(s, p - 0.85)  # the opener pays off inside the first second
-        if slowmo and p - s > 0.35 and e - p > 0.45:
-            segs = [(s, p - 0.12, pre_speed, {}), (p - 0.12, p + 0.33, 0.5, {'impact': True}), (p + 0.33, e, 1.0, {})]
-        else:
-            segs = [(s, e, 1.0, {'impact': style == 'cartoon'})]
-        fixed = sum((b - a_) / sp for a_, b, sp, _ in segs[:-1]) + 0.2
+        segs = payoff_segs(s, e, p, slowmo, pre_speed, cartoon, F, hold_f)
+        fixed = sum(seg_len(x) for x in segs[:-1]) + 0.2
         if len(segs) > 1 and fixed > left + ov:  # no room for the slow-mo build-up: plain cut around the peak
             room = left + ov; s2 = max(m['start'], p - 0.4 * room)
-            segs = [(s2, s2 + room, 1.0, {'impact': style == 'cartoon'})]
+            segs = payoff_segs(s2, s2 + room, p, False, 1.0, cartoon, F, hold_f)
         segs[0][3]['first'] = True
-        out = sum((b - a_) / sp for a_, b, sp, _ in segs)
+        out = sum(seg_len(x) for x in segs)
         want = out
         if beat:
             want = max(2 * beat, round((out - ov) / beat) * beat) + ov
@@ -207,8 +234,64 @@ def plan_clips(ms, vp, style, total, a, xd):
         a_, b, sp, fx = segs[-1]
         segs[-1] = (a_, max(a_ + 0.2, b + (want - out) * sp), sp, fx)
         clips.append([(x[0], x[1], x[2], dict(x[3], peak=p, ev=m)) for x in segs])
-        acc += sum((b_ - a__) / sp_ for a__, b_, sp_, _ in segs) - ov
+        acc += sum(seg_len(x) for x in segs) - ov
+    # the last payoff before the end card is the climax: 2 more held frames that carry the anime impact frame
+    if hold_f and not a.no_impact_frame:
+        for clip in reversed(clips):
+            hi = next((i for i, x in enumerate(clip) if x[3].get('hold')), None)
+            if hi is None: continue
+            extra = 2.0 / F; a_, b, sp, fx = clip[-1]
+            if (b - a_) / sp < extra + 0.25: continue
+            clip[-1] = (a_, b - extra * sp, sp, fx)
+            clip[hi][3]['hold'] += extra; clip[hi][3]['climax'] = True
+            break
     return clips
+
+
+def interp_cache(project, jobs, FW, FH, sw, sh, fxp, fyp, F, has_audio):
+    """Motion-interpolate slow-mo segments once (in parallel) into promo/cache/: {(take, s, e, sp): file}."""
+    from concurrent.futures import ThreadPoolExecutor
+    cdir = os.path.join(promo_dir(project), 'cache'); os.makedirs(cdir, exist_ok=True)
+    todo, out = [], {}
+    for (take, s, e, sp) in jobs:
+        raw = os.path.join(promo_dir(project), 'raw', f'{take}.mp4')
+        key = hashlib.sha1(repr((raw, os.path.getmtime(raw), round(s, 4), round(e, 4), round(sp, 4),
+                                 FW, FH, sw, sh, fxp, fyp, F)).encode()).hexdigest()[:16]
+        path = os.path.join(cdir, f'interp_{key}.mkv'); out[(take, s, e, sp)] = path
+        if not os.path.exists(path) and path not in [t[4] for t in todo]:
+            todo.append((raw, s, e, sp, path, has_audio[take]))
+
+    def one(j):
+        raw, s, e, sp, path, aud = j
+        vf = ','.join(['mpdecimate', f"crop='min(iw,ih*{FW}/{FH})':'min(ih,iw*{FH}/{FW})':'(iw-ow)*{fxp}':'(ih-oh)*{fyp}'",
+                       f'scale={sw}:{sh}:flags=lanczos', f'minterpolate=fps={int(round(F / sp))}:mi_mode=mci:mc_mode=obmc:me_mode=bidir',
+                       f'setpts=(PTS-STARTPTS)/{sp:.4f}', f'fps={F}'])
+        cmd = ['ffmpeg', '-y', '-v', 'error', '-ss', f'{max(0, s):.3f}', '-t', f'{e - s:.3f}', '-i', raw, '-vf', vf]
+        cmd += (['-af', f'asetpts=PTS-STARTPTS,{atempo_chain(sp)}', '-c:a', 'pcm_s16le'] if aud else ['-an'])
+        cmd += ['-c:v', 'libx264', '-preset', 'veryfast', '-crf', '12', '-pix_fmt', 'yuv420p', path + '.part.mkv']
+        run(cmd); os.replace(path + '.part.mkv', path)
+    if todo:
+        with ThreadPoolExecutor(max(1, min(4, (os.cpu_count() or 2) // 2))) as ex:
+            list(ex.map(one, todo))
+    return out
+
+
+def impact_lines(path, W, H, seed):
+    """Speed lines for the anime impact frame: black wedges converging on the centre, centre left clear."""
+    import random
+    from PIL import Image, ImageChops, ImageDraw
+    rnd = random.Random(seed)
+    img = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+    cx, cy = W / 2, H / 2; R = math.hypot(W, H) / 2 + 10; base = min(W, H)
+    for i in range(56):
+        ang = rnd.random() * 2 * math.pi; thick = i < 34
+        hw = rnd.uniform(0.010, 0.026) if thick else rnd.uniform(0.002, 0.006)
+        r_in = base * rnd.uniform(0.30, 0.50)
+        d.polygon([(cx + R * math.cos(ang - hw), cy + R * math.sin(ang - hw)), (cx + R * math.cos(ang + hw), cy + R * math.sin(ang + hw)),
+                   (cx + r_in * math.cos(ang), cy + r_in * math.sin(ang))], fill=(0, 0, 0, 255 if thick else 210))
+    mask = Image.radial_gradient('L').resize((W, H)).point(lambda v: min(255, int(max(0, v - 70) * 2.2)))
+    img.putalpha(ImageChops.multiply(img.split()[3], mask)); img.save(path)
+    return path
 
 
 def atempo_chain(sp):
@@ -244,7 +327,7 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', va
     if not moments: die('no moments selected')
     src = {m['take']: probe(os.path.join(promo_dir(project), 'raw', f'{m["take"]}.mp4')) for m in moments}
     real_fps = {t: take_meta(project, t).get('real_fps', src[t]['fps']) for t in src}
-    clips = plan_clips(moments, vp, style, total - endcard - intro, a, xd)
+    clips = plan_clips(moments, vp, style, total - endcard - intro, a, xd, F)
     if not clips: die('not enough material for this duration')
 
     # layout: portrait ad from a landscape take -> gameplay card on its own blurred copy
@@ -276,43 +359,55 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', va
         clip_v.append('[cvI]'); clip_a.append('[caI]'); clip_len.append(intro); clip_caps.append([]); clip_imp.append([])
         idx += 1
     interp_used = False
+    cache = {}
+    if not a.draft:  # slow-mo of a low-fps take: in-between frames synthesized once, in parallel, reused next time
+        jobs = [(fx['ev']['take'] if fx.get('ev') else moments[0]['take'], s_, e_, sp_) for clip in clips for (s_, e_, sp_, fx) in clip]
+        jobs = [j for j in jobs if j[3] < 0.99 and real_fps[j[0]] * j[3] < 40]
+        cache = interp_cache(project, jobs, FW, FH, sw, sh, fxp, fyp, F, {t: src[t]['audio'] for t in src}) if jobs else {}
     for ci, clip in enumerate(clips):
         segv, sega, local, caps, imps = [], [], 0.0, [], []
         for (s, e, sp, fx) in clip:
             take = fx['ev']['take'] if fx.get('ev') else moments[0]['take']
             pr = src[take]
-            inputs += ['-ss', f'{max(0, s):.3f}', '-t', f'{e - s:.3f}', '-i', os.path.join(promo_dir(project), 'raw', f'{take}.mp4')]
-            d_out = (e - s) / sp
+            hold = fx.get('hold', 0.0)
+            d_out = hold or (e - s) / sp
             L = f's{idx}'
-            interp = sp < 0.99 and real_fps[take] * sp < 40 and not a.draft
-            # crop to the target aspect first, scale once, then (slow-mo) interpolate on the small frame
-            fg = [f"crop='min(iw,ih*{FW}/{FH})':'min(ih,iw*{FH}/{FW})':'(iw-ow)*{fxp}':'(ih-oh)*{fyp}'",
-                  f'scale={sw}:{sh}:flags=lanczos']
-            if interp:  # slow-mo from a low-fps take: synthesize in-between frames
-                fg.append(f'minterpolate=fps={int(round(F / sp))}:mi_mode=mci:mc_mode=obmc:me_mode=bidir')
+            cached = None if hold else cache.get((take, s, e, sp))
+            if cached:  # already cropped, scaled, interpolated and retimed
+                inputs += ['-i', cached]; fg = []; bg_time = ''
                 interp_used = True
-            fg += [f'setpts=(PTS-STARTPTS)/{sp:.4f}', f'fps={F}']
-            head = f'[{idx}:v]' + ('mpdecimate,' if interp else '')
+            else:
+                inputs += ['-ss', f'{max(0, s):.3f}', '-t', f'{(max(e - s, 0.2) if hold else e - s):.3f}', '-i', os.path.join(promo_dir(project), 'raw', f'{take}.mp4')]
+                fg = [f"crop='min(iw,ih*{FW}/{FH})':'min(ih,iw*{FH}/{FW})':'(iw-ow)*{fxp}':'(ih-oh)*{fyp}'",
+                      f'scale={sw}:{sh}:flags=lanczos']
+                if hold:  # hit-stop: the event frame held still
+                    n_ = max(1, int(round(hold * F)))
+                    tm = ['trim=end_frame=1', f'loop=loop={n_ - 1}:size=1:start=0', f'setpts=N/{F}/TB']
+                else:
+                    tm = [f'setpts=(PTS-STARTPTS)/{sp:.4f}', f'fps={F}']
+                fg += tm; bg_time = ','.join(tm) + ','
             if layout == 'stack':
-                fc.append(head + f'split[{L}bg0][{L}fg0]')
-                fc.append(f'[{L}bg0]setpts=(PTS-STARTPTS)/{sp:.4f},fps={F},scale={W // 4}:{H // 4}:force_original_aspect_ratio=increase,'
+                fc.append(f'[{idx}:v]split[{L}bg0][{L}fg0]')
+                fc.append(f'[{L}bg0]{bg_time}scale={W // 4}:{H // 4}:force_original_aspect_ratio=increase,'
                           f'crop={W // 4}:{H // 4},gblur=sigma=10,scale={W}:{H},eq=brightness=-0.14:saturation=1.25[{L}bg]')
                 ch = [f'[{L}fg0]'] + fg
             else:
-                ch = [f'[{idx}:v]'] + (['mpdecimate'] if interp else []) + fg
-            if fx.get('impact') and cartoon:
+                ch = [f'[{idx}:v]'] + fg
+            if fx.get('shake') and cartoon:
                 amp = int(min(FW, FH) * 0.014)
-                ch.append(f"crop={FW}:{FH}:x='(iw-ow)*{fxp}+{amp}*sin(t*57)*exp(-t*6)':y='(ih-oh)*{fyp}+{amp}*cos(t*43)*exp(-t*6)'")
+                ch.append(f"crop={FW}:{FH}:x='(iw-ow)*{fxp}+{amp}*sin(t*57)*exp(-t*9)':y='(ih-oh)*{fyp}+{amp}*cos(t*43)*exp(-t*9)'")
             else:
                 ch.append(f"crop={FW}:{FH}:x='(iw-ow)*{fxp}':y='(ih-oh)*{fyp}'")
             if cartoon and fx.get('first'):
                 ch.append(f"zoompan=z='max(1,1.16-0.64*it)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s={FW}x{FH}:fps={F}")
-            elif cartoon and fx.get('impact'):  # push-in through the slow-mo
-                ch.append(f"zoompan=z='1+0.10*min(1,it/{max(d_out, 0.1):.3f})':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s={FW}x{FH}:fps={F}")
+            elif cartoon and fx.get('zoom'):  # push-in into the hit, a notch up on it, on out of it
+                z0, z1 = fx['zoom']
+                z = f'{z0}' if z0 == z1 else f'{z0}+{z1 - z0:.4f}*min(1,it/{max(d_out, 0.1):.3f})'
+                ch.append(f"zoompan=z='{z}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s={FW}x{FH}:fps={F}")
             if cartoon and fx.get('impact'):
                 k = max(4, int(FW * 0.006))
                 ch.append(f"rgbashift=rh=-{k}:bh={k}:enable='lt(t,0.16)'")
-                ch.append("eq=brightness=0.10:enable='lt(t,0.05)'")
+                ch.append(f"eq=brightness=0.12:enable='lt(t,{1.5 / F:.4f})'")
             if cartoon:
                 ch.append('eq=saturation=1.16:contrast=1.05')
             ch += ['setsar=1', 'format=yuv420p']
@@ -323,13 +418,14 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', va
                 fc.append(f'[{L}bg][{L}fg]overlay=(W-w)/2:{card_top - max(4, int(W * 0.006))},setsar=1,format=yuv420p[v{idx}]')
             else:
                 fc.append(ch[0] + ','.join(ch[1:]) + f'[v{idx}]')
-            if pr['audio']:
-                fc.append(f'[{idx}:a]asetpts=PTS-STARTPTS,{atempo_chain(sp)},aresample=48000,aformat=channel_layouts=stereo,apad,atrim=0:{d_out:.3f}[a{idx}]')
-            else:
+            if pr['audio'] and not hold:
+                tempo = '' if cached else f'{atempo_chain(sp)},'
+                fc.append(f'[{idx}:a]asetpts=PTS-STARTPTS,{tempo}aresample=48000,aformat=channel_layouts=stereo,apad,atrim=0:{d_out:.3f}[a{idx}]')
+            else:  # the hit-stop is silent: the boom carries it
                 fc.append(f'anullsrc=r=48000:cl=stereo,atrim=0:{d_out:.3f}[a{idx}]')
             segv.append(f'[v{idx}]'); sega.append(f'[a{idx}]')
             if fx.get('impact') and cartoon:
-                imps.append(local)
+                imps.append((local, bool(fx.get('climax'))))
                 if with_text and fx.get('ev'):
                     txt = caption_for(cfg, fx['ev'], lang)
                     if txt: caps.append((local + 0.05, txt))
@@ -354,7 +450,19 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', va
     body_end = t; total_out = body_end + endcard
     cut_times = starts[1:]
     captions = [(starts[k] + lt, txt) for k, cs in enumerate(clip_caps) for lt, txt in cs]
-    impacts = [starts[k] + lt for k, im in enumerate(clip_imp) for lt in im]
+    impacts = [(starts[k] + lt, cl) for k, im in enumerate(clip_imp) for lt, cl in im]
+    climax = next((round(t_ * F) / F for t_, cl in impacts if cl), None)
+    if climax is not None:  # anime impact frame: 3 frames of negative + speed lines on the climax hit-stop
+        def fwin(k0, k1): return f'between(t,{climax + (k0 - 0.5) / F:.4f},{climax + (k1 - 0.5) / F:.4f})'
+        en = fwin(0, 3)
+        lines = [impact_lines(os.path.join(work, f'lines{j}.png'), W, H, 11 + j) for j in (0, 1)]
+        for j, lp in enumerate(lines):
+            inputs += ['-loop', '1', '-framerate', str(F), '-t', f'{total_out:.3f}', '-i', lp]
+            fc.append(f'[{idx}:v]format=rgba[ln{j}]'); idx += 1
+        fc.append(f"{vcur}hue=s=0:enable='{en}',negate=enable='{en}',eq=contrast=1.45:enable='{en}'[cx0]")
+        fc.append(f"[cx0][ln0]overlay=0:0:enable='{fwin(0, 1)}+{fwin(2, 3)}':format=auto[cx1]")
+        fc.append(f"[cx1][ln1]overlay=0:0:enable='{fwin(1, 2)}':format=auto[cx2]")
+        vcur = '[cx2]'
     vtail = vcur
     if endcard:
         fc.append(f"{vcur}tpad=stop_mode=clone:stop_duration={endcard:.2f},gblur=sigma=18:enable='gte(t,{body_end:.2f})',"
@@ -373,11 +481,13 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', va
             else:
                 y = int(top_y + hook_h / 2 + H * (0.10 if H > W else 0.06))
                 tl.pop_words(0.10 + intro, min(2.3 + intro, body_end), hook_lines, hook_size, W // 2, y, colour=tl.acc)
-        for i, (t0, txt) in enumerate(captions):
+        shown = 0
+        for t0, txt in captions:  # each caption a notch bigger and more tilted than the last
             if (layout != 'stack' and t0 < 2.2 + intro) or t0 > body_end - 0.4: continue
-            lines, size = fit_text(txt, fam_path, base * 0.09, maxw)
+            lines, size = fit_text(txt, fam_path, base * 0.082 * min(1.3, 1 + 0.1 * shown), maxw)
             y = int(min(bot_y, card_top + FH) - size * 0.75 * len(lines) - size * 0.5)
-            tl.pop(t0, min(t0 + 1.0, body_end), lines, size, W // 2, y, rot=(3 if i % 2 else -3))
+            tl.pop(t0, min(t0 + 1.0, body_end), lines, size, W // 2, y, rot=(1 if shown % 2 else -1) * min(6, 3 + shown))
+            shown += 1
         if endcard:
             logo = cfg.get('logo')
             logo = (logo if os.path.isabs(logo) else os.path.join(project, logo)) if logo else ''
@@ -412,7 +522,8 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', va
     maps = ['-map', '[vout]']
     beat_note = ''
     if with_audio:
-        mix = [f'{acur}apad,atrim=0:{total_out:.3f},volume={cfg.get("game_volume", 0.7)}[g]']; mixl = ['[g]']
+        dip = f"volume='if(between(t,{climax - 0.35:.3f},{climax:.3f}),0.2,1)':eval=frame," if climax is not None else ''
+        mix = [f'{acur}apad,atrim=0:{total_out:.3f},{dip}volume={cfg.get("game_volume", 0.7)}[g]']; mixl = ['[g]']
         music = a.music or cfg.get('music')
         if music:
             music = music if os.path.isabs(music) else os.path.join(project, music)
@@ -425,16 +536,17 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', va
             inputs += ['-stream_loop', '-1', '-i', music]
             mv = cfg.get('music_volume', 0.8) * (0.7 if beat_note else 1.0)
             mix.append(f'[{idx}:a]atrim=0:{total_out:.3f},afade=t=in:d=0.05,afade=t=out:st={max(0, total_out - 1.0):.2f}:d=1.0,'
-                       f'volume={mv},aresample=48000,aformat=channel_layouts=stereo[m]')
+                       f'{dip}volume={mv},aresample=48000,aformat=channel_layouts=stereo[m]')
             mixl.append('[m]'); idx += 1
         if cartoon and not a.no_sfx:
             wh = sound('whoosh_in.mp3'); pp = sound('pop.mp3'); win = sound('success_big.mp3') or sound('reward.mp3')
             boom = synth(os.path.join(work, 'boom.wav'), 'boom', dur=1.0)
-            sfx = [(wh, max(0, t_ - 0.10), 0.5) for t_ in cut_times] if wh else []
-            sfx += [(boom, t_ + 0.02, 0.8) for t_ in impacts]
+            # sample peaks (measured): whoosh_in 0.19 s, success_big 0.16 s, boom/pop at 0 -> peak on the frame
+            sfx = [(wh, max(0, t_ + xd / 2 - 0.19), 0.5) for t_ in cut_times] if wh else []
+            sfx += [(boom, t_, 1.0 if cl else min(0.85, 0.6 + 0.08 * i)) for i, (t_, cl) in enumerate(impacts)]
             sfx += [(pp, t_, 0.55) for t_, _ in captions if (layout == 'stack' or t_ >= 2.2 + intro) and t_ <= body_end - 0.4] if pp else []
             if pp and hook: sfx.append((pp, 0.10 + intro, 0.5))
-            if win and endcard: sfx.append((win, body_end + 0.05, 0.7))
+            if win and endcard: sfx.append((win, max(0, body_end + 0.02 - 0.16), 0.7))
             for k, (f, t_, vol) in enumerate(sfx):
                 inputs += ['-i', f]
                 mix.append(f'[{idx}:a]adelay={int(t_ * 1000)}:all=1,volume={vol},aresample=48000,aformat=channel_layouts=stereo[s{k}]')
@@ -495,6 +607,8 @@ def main():
     ap.add_argument('--variants', type=int, default=0, help='hook variants per language (default: every hook in config)')
     ap.add_argument('--no-slowmo', action='store_true')
     ap.add_argument('--no-sfx', action='store_true')
+    ap.add_argument('--no-hitstop', action='store_true', help='no held frames on the payoffs')
+    ap.add_argument('--no-impact-frame', action='store_true', help='no negative + speed-lines frame on the climax')
     ap.add_argument('--no-beat', action='store_true', help='no generated beat bed when there is no music')
     ap.add_argument('--draft', action='store_true', help='fast preview: no motion interpolation, fast encoder')
     ap.add_argument('--keep-work', action='store_true', help='keep the filter graph and text frames (debug)')
