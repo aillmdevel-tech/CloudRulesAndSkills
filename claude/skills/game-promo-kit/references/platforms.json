@@ -408,5 +408,75 @@
    }
   ],
   "speed_max": 1.6
+ },
+ "google_play": {
+  "source": "Google Play install ads = Google Ads App campaigns (AdMob, YouTube, Search, Play) + store listing graphics: https://support.google.com/googleplay/android-developer/answer/9866151",
+  "verified": "2026-11-22 (videos = admob preset; icon 512x512 PNG and feature graphic 1024x500 from the Play Console help, check in the console form)",
+  "videos": [
+   {
+    "name": "ad_16x9",
+    "w": 1920,
+    "h": 1080,
+    "fps": 30,
+    "min_s": 10,
+    "max_s": 30,
+    "max_mb": 256,
+    "audio": true,
+    "text": "localized",
+    "safe": {
+     "top": 0.08,
+     "bottom": 0.14,
+     "side": 0.06
+    }
+   },
+   {
+    "name": "ad_9x16",
+    "w": 1080,
+    "h": 1920,
+    "fps": 30,
+    "min_s": 10,
+    "max_s": 30,
+    "max_mb": 256,
+    "audio": true,
+    "text": "localized",
+    "safe": {
+     "top": 0.1,
+     "bottom": 0.25,
+     "side": 0.06
+    }
+   },
+   {
+    "name": "ad_1x1",
+    "w": 1080,
+    "h": 1080,
+    "fps": 30,
+    "min_s": 10,
+    "max_s": 30,
+    "max_mb": 256,
+    "audio": true,
+    "text": "localized"
+   }
+  ],
+  "video_rules": [
+   "give all three ratios: the network picks per placement (more ratios = more inventory)",
+   "several hooks per ratio for A/B (Google recommends up to 20 videos)",
+   "9:16: app metadata covers the top 10% and bottom 25%",
+   "upload goes through YouTube (unlisted): Alex uploads"
+  ],
+  "speed_max": 1.6,
+  "covers": [
+   {
+    "name": "icon",
+    "w": 512,
+    "h": 512
+   },
+   {
+    "name": "feature_graphic",
+    "w": 1024,
+    "h": 500
+   }
+  ],
+  "cover_text": "title_localized",
+  "seen_in": "ads: inside other apps and YouTube, often muted at first, skippable after 5 s; listing: icon in search results, feature graphic on top of the store page"
  }
 }

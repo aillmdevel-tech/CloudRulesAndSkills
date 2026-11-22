@@ -68,8 +68,26 @@
     "bpm": "tempo of the music: cuts land on beats",
     "corner_logo": "story ads: keep the logo PNG small in the top-left corner for the whole video",
     "colors.banner": "plate colour of story banners (hook, event captions), like the game's own RUN! banner",
-    "banner_y": "0 = top; 0.0-1.0 = banner centre as a share of the height, when the game's own top UI sits there"
+    "banner_y": "0 = top; 0.0-1.0 = banner centre as a share of the height, when the game's own top UI sits there",
+    "profile": "what the game is, for picking references (promo refs): mechanics / style / keywords, ru or en words",
+    "ref_library": "empty = ~/Downloads/WebAIGames/PromoLibrary"
   },
   "corner_logo": false,
-  "banner_y": 0
+  "banner_y": 0,
+  "profile": {
+    "mechanics": [
+      "steal",
+      "escape",
+      "egg"
+    ],
+    "style": [
+      "roblox",
+      "toon"
+    ],
+    "keywords": [
+      "guardian",
+      "pets"
+    ]
+  },
+  "ref_library": ""
 }

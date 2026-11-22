@@ -1,12 +1,12 @@
 ---
 name: game-promo-kit
-description: Use when Alex asks for promo materials of a browser game — "сделай рекламное видео/ролик/трейлер", "промо", "нарежь сочные моменты", "видео для CrazyGames/Poki/Яндекса/Playgama", "реклама для AdMob/Google Ads/Яндекс Директа", "рекламный креатив", "превью-видео", "ролик для TikTok/Reels/Shorts", "скриншоты для площадки", "обложка/иконка/кавер", "локализуй ролик/скрины на языки". Records real gameplay from the running game (Playwright: canvas + game audio + event log), finds the juiciest moments automatically, edits a story ad in the style of top Roblox-like ads (long gameplay shots, game-UI banners like RUN!, persistent CTA, one climax hit-stop, end card), a dynamic cartoon montage (punch-zoom, flash cuts, slow-mo, shake, pop-in localized texts, SFX) or a clean hover preview for game catalogs, in the exact size/length/audio rules of each platform, plus sharp screenshots and covers per platform and language.
+description: Use when Alex asks for promo materials of a browser game — "сделай рекламное видео/ролик/трейлер", "промо", "нарежь сочные моменты", "видео для CrazyGames/Poki/Яндекса/Playgama", "реклама для AdMob/Google Ads/Яндекс Директа", "рекламный креатив", "превью-видео", "ролик для TikTok/Reels/Shorts", "скриншоты для площадки", "обложка/иконка/кавер", "локализуй ролик/скрины на языки". First picks 3-5 matching refs from Alex's PromoLibrary (videos, covers, timecoded breakdowns) and writes a per-second promo brief; records real gameplay from the running game (Playwright: canvas + game audio + event log), finds the juiciest moments automatically, edits a story ad in the style of top Roblox-like ads (long gameplay shots, game-UI banners like RUN!, persistent CTA, one climax hit-stop, end card), a dynamic cartoon montage (punch-zoom, flash cuts, slow-mo, shake, pop-in localized texts, SFX) or a clean hover preview for game catalogs, in the exact size/length/audio rules of each platform, plus sharp screenshots and covers per platform and language.
 ---
 
 # Промо-набор: ролики, скриншоты, обложки
 
 Скрипты: `~/.claude/skills/game-promo-kit/scripts/` (запуск через обёртку `promo`, она сама находит Python с Playwright и Pillow; на этом Mac — через `~/.local/bin/resource-run`).
-Требования площадок: `references/platforms.json` (поле `verified` — когда сверено с официальной страницей). Стиль монтажа и локализация: `references/editing-style.md` (там же выводы из базы референсов: 14 превью CrazyGames и 20 рекламных роликов H2T и соседей).
+Библиотека референсов: `~/Downloads/WebAIGames/PromoLibrary` (шаг 0, каждый вызов). Требования площадок: `references/platforms.json` (поле `verified` — когда сверено с официальной страницей). Стиль монтажа и локализация: `references/editing-style.md` (там же выводы из базы референсов: 14 превью CrazyGames и 20 рекламных роликов H2T и соседей).
 
 ## Правила
 - **Основной формат Alex — горизонтальная реклама 16:9** (`ads_landscape`, 1920×1080, 15 с) для рекламы на игровых площадках и в рекламных сетях (AdMob / Google Ads App, Яндекс Директ). «Сделай рекламный ролик» без уточнений = 16:9 на всех языках config, по ролику на каждый крючок. Сначала дубль `land` 1920×1080, проверка и сдача — по 16:9. Под сеть — её пресет: `admob` (16:9 + 9:16 + 1:1, 10–30 с), `yandex_direct` (≤15 с). Вертикаль и квадрат отдельно — только по просьбе. TikTok/Reels — не цель.
@@ -18,6 +18,18 @@ description: Use when Alex asks for promo materials of a browser game — "сд�
 - Перед «готово» смотри результат: листы `promo/review/*.jpg` (Read) и `ffprobe`-итог из вывода. Финальный вкус — за Alex.
 
 ## Шаги
+0. **Референсы — при каждом вызове, до захвата и монтажа.** Библиотека Alex: `~/Downloads/WebAIGames/PromoLibrary` (видео превью и рекламы, обложки, кадры-разбивки `NN — 07.45 — что происходит.jpg`, тексты разбивок, каталоги .md). Alex её пополняет: новые пачки — папками `YYYY-MM-DD <что>`; скрипт пересканирует её каждый раз, поэтому не опирайся на прошлый вызов.
+   ```bash
+   ~/.local/bin/resource-run ~/.claude/skills/game-promo-kit/scripts/promo refs --project . --platform all --top 5 [--draft черновик.mp4 --draft-notes разбивка.md]
+   ```
+   Профиль игры для подбора — `profile` в `promo/config.json` (`mechanics`, `style`, `keywords`), иначе берётся из docs/README. Итог: `promo/refs/REFS.md` (3–5 лучших превью и рекламы с файлами, длинами, таймкодами склеек и разбивкой) + листы кадров с таймкодами и метками CUT + `covers_tile.jpg` (обложки в размере плитки каталога).
+   Затем сам: открой листы (Read) и в спорных местах сами видео (кадр ffmpeg на таймкоде), сверь с разбивкой и заполни `promo/BRIEF.md` по `templates/promo-brief.md`:
+   - по каждому референсу — файл, таймкод, что происходит, какой приём адаптировать под нашу механику;
+   - по обложкам — что считывается первым на маленькой плитке;
+   - план по секундам отдельно для превью CrazyGames (каталог, без звука, при наведении), рекламы установки Google Play (AdMob/YouTube, со звуком, пропуск через 5 с) и обложек: первый кадр, когда понятна механика, что держит, какой результат;
+   - если Alex дал видео/разбивку — это черновик: что оставить, что раньше, что сократить, чего не хватает;
+   - один основной монтаж и один альтернативный первый кадр или обложка для A/B, с объяснением через конкретные кадры референсов и реальные механики игры.
+   Покажи Alex бриф кратко (план и A/B) и только потом снимай/монтируй. Чужие видео — только для анализа, в наши ролики не попадают.
 1. **Подготовка (один раз на игру).** `promo/config.json` из `templates/config.example.json`: название и тексты (hook, cta, captions по типам событий) на всех языках игры, шрифт с нужными алфавитами, цвета из ART_SPEC. В игру — `templates/promo-hooks.ts`: `promoEvent(type, weight, label)` в местах сочных событий (комбо, взрыв, крупная награда, босс, рекорд) и `installPromoDirector` (прячет HUD/курсор/dev-панели). Это маленькая правка кода — согласуй с Alex как обычный пакет, после неё смоук. Без хуков всё работает, но моменты ищутся только по движению и громкости.
 2. **Сценарий захвата.** `promo/scenario.py` из `templates/scenario.example.py`: короткие проходы через лучшие места игры (через `window.__game` и клавиши), `api.event(...)` на пиках, `api.shot(name)` в красивых кадрах. Альтернатива — `--manual`: Alex играет сам в открытом окне, F9 или ` отмечает момент.
 3. **Захват.** Отдельный дубль под каждый формат, игра рендерит его нативно (так нет обрезки и чёрных полос):
@@ -48,6 +60,7 @@ description: Use when Alex asks for promo materials of a browser game — "сд�
 - **Playgama:** своих цифр нет, размеры — в форме developer.playgama.com; собирай квадрат/портрет/ландшафт.
 - **Реклама 16:9 (основной формат, `ads_landscape`):** 1920×1080, 30 fps, 10–30 с (по умолчанию 15), ≤100 МБ, со звуком и локализованным текстом; крючок ≤1,5 с, развязка в первые 5 с, финальная карточка с CTA.
 - **AdMob / Google Ads App (`admob`):** 16:9, 9:16, 1:1 по 10–60 с (берём 10–30); заливка через YouTube (делает Alex); давай все три формата и несколько крючков — сеть сама подбирает места; в 9:16 верх 10% и низ 25% заняты карточкой приложения.
+- **Реклама установки Google Play (`google_play`):** видео как `admob` (16:9 основной + 9:16 + 1:1, 10–30 с) — их видят внутри чужих приложений и на YouTube, часто сначала без звука, пропуск через 5 с: механика должна читаться без звука в первые 2 с. Графика карточки: иконка 512×512, feature graphic 1024×500 (сверить в Play Console).
 - **Яндекс Директ (`yandex_direct`):** 16:9 (видеобаннеры — только 16:9), 1:1, 9:16; 5–60 с, но используются первые 15 с → режем до 15; 1080p, 20–30 fps, ≤100 МБ.
 - **TikTok/Reels/Shorts, лента (`ads_vertical`, `ads_square`):** только по просьбе; текст вне нижних ~22% и верхних ~12% в 9:16.
 
