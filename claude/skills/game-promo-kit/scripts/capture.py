@@ -10,7 +10,7 @@ window.__promo.director = (on) => hide HUD/cursor, free camera, etc.
 --manual: you play in the opened window; F9 (or `) marks a juicy moment.
 --ui: record the whole page (DOM HUD included) via CDP screencast instead of the canvas only.
 """
-import argparse, base64, importlib.util, json, os, signal, subprocess, sys, time, urllib.request
+import argparse, base64, importlib.util, json, os, shutil, signal, subprocess, sys, time, urllib.request
 sys.path.insert(0, os.path.dirname(__file__))
 from common import die, load_config, need_ffmpeg, promo_dir, run, probe
 
@@ -227,8 +227,22 @@ def main():
     ap.add_argument('--bitrate', type=int, default=24_000_000)
     ap.add_argument('--chrome-arg', action='append', default=[], help='extra Chromium flag (repeatable)')
     ap.add_argument('--keep-rec', action='store_true', help='keep the raw recorder file (debug)')
+    ap.add_argument('--min-fps', type=float, default=0, help='re-record the take until the game rendered >= this fps')
+    ap.add_argument('--retries', type=int, default=3, help='tries for --min-fps')
     ap.add_argument('--init-js', action='append', default=[], help='extra init script, e.g. tools/lib/spy.js (SDK emulation)')
     a = ap.parse_args()
+    if a.min_fps and not os.environ.get('PROMO_CAPTURE_TRY'):  # retry loop: each try is a fresh child capture
+        meta_p = os.path.join(promo_dir(os.path.abspath(a.project)), 'raw', f'{a.take}.events.json')
+        best = 0.0
+        for k in range(1, max(1, a.retries) + 1):
+            rc = subprocess.run([sys.executable] + sys.argv, env=dict(os.environ, PROMO_CAPTURE_TRY=str(k))).returncode
+            got = json.load(open(meta_p)).get('real_fps', 0) if rc == 0 and os.path.exists(meta_p) else 0
+            print(f'try {k}: real_fps={got}', flush=True); best = max(best, got)
+            if rc and rc != 0 and not got: sys.exit(rc)
+            if got >= a.min_fps: return
+        print(f'WARN real_fps {got} < {a.min_fps} after {a.retries} tries: the machine is busy (close heavy apps, '
+              'run no ffmpeg/analysis during capture) — the last take is kept')
+        return
 
     from playwright.sync_api import sync_playwright
     need_ffmpeg()
@@ -238,6 +252,11 @@ def main():
     W, H = (int(x) for x in size.lower().split('x'))
     fps = a.fps or int(cfg['capture'].get('fps', 60))
     raw = os.path.join(promo_dir(project), 'raw'); os.makedirs(raw, exist_ok=True)
+    free = shutil.disk_usage(raw).free / 1e9
+    need = (0.03 if a.ui else 0.01) * (a.seconds if a.manual or not a.scenario else 60) + 1.5   # --ui frames ~25 MB/s
+    if free < need:
+        die(f'only {free:.1f} GB free on disk, a take needs ~{need:.1f} GB (--ui JPEG frames ~25 MB/s): '
+            'free space or record one short take per loop')
     tmp = os.path.join(raw, f'.{a.take}.v.webm'); tmpa = os.path.join(raw, f'.{a.take}.a.webm'); shots_dir = os.path.join(raw, a.take, 'shots')
     scenario = None
     if not a.manual:
@@ -371,7 +390,6 @@ def main():
         try: os.remove(p)
         except OSError: pass
     if a.ui:
-        import shutil
         shutil.rmtree(os.path.join(raw, f'.{a.take}.frames'), ignore_errors=True)
         try: os.remove(os.path.join(raw, f'.{a.take}.frames.txt'))
         except OSError: pass

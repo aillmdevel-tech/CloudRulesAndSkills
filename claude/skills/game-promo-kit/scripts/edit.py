@@ -182,6 +182,51 @@ def take_meta(project, take):
     return json.load(open(p, encoding='utf-8')) if os.path.exists(p) else {}
 
 
+def take_beats(project, take, F=30):
+    """Game's own black beats (luma<22), white flashes (>225) and letterbox (top 3% strip <6, >=0.3 s) of a take,
+    measured once into promo/cache/<take>.edit-beats.json (re-measured when the take changes)."""
+    raw = os.path.join(promo_dir(project), 'raw', f'{take}.mp4')
+    cdir = os.path.join(promo_dir(project), 'cache'); os.makedirs(cdir, exist_ok=True)
+    cp = os.path.join(cdir, f'{take}.edit-beats.json')
+    if os.path.exists(cp) and os.path.getmtime(cp) > os.path.getmtime(raw):
+        b = json.load(open(cp))
+        if {'dark', 'letterbox'} <= set(b): return b
+    def luma(vf):
+        out = run(['ffmpeg', '-v', 'error', '-i', raw, '-vf', f'{vf},fps={F},signalstats,metadata=print:key=lavfi.signalstats.YAVG:file=-',
+                   '-f', 'null', '-']).stdout
+        return [float(l.split('=')[1]) for l in out.splitlines() if 'YAVG' in l]
+    def spans(flags, min_len=0.0):
+        r, st = [], None
+        for i, f in enumerate(flags + [False]):
+            if f and st is None: st = i
+            if not f and st is not None:
+                if (i - st) / F >= min_len: r.append((st / F, i / F))
+                st = None
+        return r
+    ys = luma('null')
+    b = {'dark': sorted(spans([y < 22 for y in ys]) + spans([y > 225 for y in ys])),
+         'letterbox': spans([y < 6 for y in luma('crop=iw:ih*0.03:0:0')], 0.3)}
+    json.dump(b, open(cp, 'w'))
+    return b
+
+
+def cut_out(segs, bad, min_len=0.25):
+    """split (s, e, speed, fx) segments around bad spans (1 frame of padding); pieces < min_len s are dropped"""
+    out = []
+    for s, e, sp, fx in segs:
+        cur = [(s, e)]
+        for b0, b1 in bad:
+            b0, b1 = b0 - 1 / 30, b1 + 1 / 30; nxt = []
+            for x, y in cur:
+                if b1 <= x or b0 >= y: nxt.append((x, y)); continue
+                if b0 > x: nxt.append((x, b0))
+                if b1 < y: nxt.append((b1, y))
+            cur = nxt
+        out += [(x, y, sp, dict(fx)) for x, y in cur if y - x >= min_len]
+    if out: out[0][3]['first'] = True
+    return out
+
+
 def order_moments(ms, explicit, variant=0):
     if not explicit and len(ms) >= 3:
         ms = [ms[0]] + ms[2:] + [ms[1]]  # best first, second-best right before the end card
@@ -218,6 +263,16 @@ def payoff_segs(s, e, p, slow, pre_speed, cartoon, F, hold_f):
 def plan_long(ms, total, take_dur, story, a, F, hold_f):
     """Few long shots, as in the reference base: top CrazyGames previews cut 0-7 times in 6-19 s, H2T-style ads hold
     2.5-6 s shots of the game with its HUD. Story ads: payoff inside the first second, hit-stop only on the climax."""
+    if getattr(a, 'exact', False):  # per-second brief: clip i = moment i's own start..end, in the given order
+        clips = []
+        for i, m in enumerate(ms):
+            s0, e0, p = m['start'], m['end'], m.get('peak', m['start'])
+            segs = [(s0, e0, 1.0, {})]
+            if story and i == len(ms) - 1 and hold_f and s0 < p < e0:
+                segs = payoff_segs(s0, e0, p, False, 1.0, True, F, hold_f)
+            segs[0][3]['first'] = True
+            clips.append([(x[0], x[1], x[2], dict(x[3], peak=p, ev=m)) for x in segs])
+        return clips
     lo, hi = (2.4, 4.5) if story else (3.0, 6.0)
     n = max(1, min(len(ms), math.ceil(total / hi)))
     while n > 1 and total / n < lo: n -= 1
@@ -244,6 +299,13 @@ def plan_clips(ms, vp, style, total, a, xd, F=30, take_dur=None):
     scenes = vp.get('scenes')
     if style in ('story', 'clean') and not scenes:
         clips = plan_long(ms, total, take_dur or {}, style == 'story', a, F, 0 if a.no_hitstop else 3)
+        if getattr(a, 'drop_dark', False):  # the game's black/white beats (and, in clean previews, its letterbox) never reach the cut
+            for i, clip in enumerate(clips):
+                take = clip[0][3]['ev']['take']; b = take_beats(a.project_abs, take, F)
+                bad = b['dark'] + (b['letterbox'] if style == 'clean' else [])
+                held = [x for x in clip if x[3].get('hold')]
+                clips[i] = cut_out([x for x in clip if not x[3].get('hold')], bad) if not held else clip
+            clips = [c for c in clips if c]
         if style == 'story' and not a.no_impact_frame:
             for x in clips[-1]:
                 if x[3].get('hold'):
@@ -318,11 +380,20 @@ def interp_cache(project, jobs, FW, FH, sw, sh, fxp, fyp, F, has_audio):
         cmd = ['ffmpeg', '-y', '-v', 'error', '-ss', f'{max(0, s):.3f}', '-t', f'{e - s:.3f}', '-i', raw, '-vf', vf]
         cmd += (['-af', f'asetpts=PTS-STARTPTS,{atempo_chain(sp)}', '-c:a', 'pcm_s16le'] if aud else ['-an'])
         cmd += ['-c:v', 'libx264', '-preset', 'veryfast', '-crf', '12', '-pix_fmt', 'yuv420p', path + '.part.mkv']
-        run(cmd); os.replace(path + '.part.mkv', path)
+        try:
+            run(cmd)
+            n = run(['ffprobe', '-v', 'error', '-count_packets', '-select_streams', 'v:0', '-show_entries', 'stream=nb_read_packets',
+                     '-of', 'csv=p=0', path + '.part.mkv']).stdout.strip()
+            if int(n or 0) < 2: raise RuntimeError('empty interpolation')
+            os.replace(path + '.part.mkv', path)
+        except Exception as err:  # too few source frames (low-fps take, static shot): plain slow-mo instead of a crash
+            print(f'note: slow-mo interpolation skipped ({os.path.basename(raw)} @ {s:.2f}s): {str(err)[:80]}')
+            try: os.remove(path + '.part.mkv')
+            except OSError: pass
     if todo:
         with ThreadPoolExecutor(max(1, min(4, (os.cpu_count() or 2) // 2))) as ex:
             list(ex.map(one, todo))
-    return out
+    return {k: p for k, p in out.items() if os.path.exists(p) and os.path.getsize(p) > 1000}
 
 
 def impact_lines(path, W, H, seed):
@@ -360,7 +431,7 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', va
     total = a.duration or vp.get('target_s') or (vp['max_s'] if not juicy else min(vp['max_s'], max(vp.get('min_s', 9), 15)))
     total = max(vp.get('min_s', 1), min(vp['max_s'], total))
     title = text_for(cfg, 'title', lang); cta = text_for(cfg, 'cta', lang)
-    endcard = (1.5 if story else 1.8) if with_text and (cta or title) else 0.0
+    endcard = ((a.endcard or (1.5 if story else 1.8)) if with_text and (cta or title) else 0.0)
     cover = None
     if a.cover_first or plat.get('first_frame_cover') is True:
         cdir = os.path.join(promo_dir(project), 'out', pname, 'covers')
@@ -632,7 +703,7 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', va
     open(os.path.join(work, 'graph.txt'), 'w').write(';\n'.join(fc))
     odir = os.path.join(promo_dir(project), 'out', pname, lang if with_text else 'all'); os.makedirs(odir, exist_ok=True)
     suffix = f'_h{variant + 1}' if variant else ''
-    out = os.path.join(odir, f'{vp["name"]}{suffix}.mp4')
+    out = os.path.join(odir, f'{a.name or vp["name"]}{suffix}.mp4')
     enc = ['-c:v', 'libx264', '-preset', 'veryfast' if a.draft else 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', str(F), '-movflags', '+faststart']
     enc += (['-c:a', 'aac', '-b:a', '192k'] if with_audio else ['-an'])
     cmd = ['ffmpeg', '-y', '-v', 'error'] + inputs + ['-/filter_complex', 'graph.txt'] + maps + enc + ['-t', f'{total_out:.3f}', out]
@@ -649,7 +720,7 @@ def build(project, cfg, pname, plat, vp, lang, moments, a, workroot, hook='', va
         os.chdir(cwd)
         if a.keep_work: print('  work dir:', work)
     rev = os.path.join(promo_dir(project), 'review'); os.makedirs(rev, exist_ok=True)
-    sheet = os.path.join(rev, f'{pname}_{vp["name"]}_{lang if with_text else "all"}{suffix}.jpg')
+    sheet = os.path.join(rev, f'{pname}_{a.name or vp["name"]}_{lang if with_text else "all"}{suffix}.jpg')
     cols = 4 if W >= H else 6; nfr = 12 if W < H else 8
     run(['ffmpeg', '-y', '-v', 'error', '-i', out, '-vf', f'fps={nfr / max(pr["dur"], 1):.4f},scale={480 if W >= H else 240}:-2,tile={cols}x{math.ceil(nfr / cols)}',
          '-frames:v', '1', sheet])
@@ -685,11 +756,16 @@ def main():
     ap.add_argument('--no-hitstop', action='store_true', help='no held frames on the payoffs')
     ap.add_argument('--no-impact-frame', action='store_true', help='no negative + speed-lines frame on the climax')
     ap.add_argument('--no-beat', action='store_true', help='no generated beat bed when there is no music')
+    ap.add_argument('--exact', action='store_true', help='per-second brief: each moment = one clip of its own start..end, given order')
+    ap.add_argument('--keep-order', action='store_true', help='hook variants keep the narrative order (no rotation of moments)')
+    ap.add_argument('--name', help='output file name instead of the preset name (variants of one preset do not overwrite)')
+    ap.add_argument('--drop-dark', action='store_true', help="cut the game's black/white beats (+ letterbox in clean previews) out of clips")
+    ap.add_argument('--endcard', type=float, default=0, help='end card length, s (story default 1.5)')
     ap.add_argument('--draft', action='store_true', help='fast preview: no motion interpolation, fast encoder')
     ap.add_argument('--keep-work', action='store_true', help='keep the filter graph and text frames (debug)')
     a = ap.parse_args()
     need_ffmpeg()
-    project = os.path.abspath(a.project); cfg = load_config(project)
+    project = os.path.abspath(a.project); cfg = load_config(project); a.project_abs = project
     if not a.bpm: a.bpm = cfg.get('bpm', 0)
     if not a.bpm and not (a.music or cfg.get('music')) and not a.no_beat: a.bpm = 120
     plat = platform(a.platform)
@@ -705,7 +781,7 @@ def main():
             hooks = hooks_for(cfg, lang) if needs_text else []
             hooks = (hooks[:a.variants] if a.variants else hooks) or ['']
             for v, hook in enumerate(hooks):
-                order = order_moments(ms, bool(a.moments), v)
+                order = ms if (a.keep_order or a.exact) else order_moments(ms, bool(a.moments), v)
                 a_ = argparse.Namespace(**{**vars(a), 'bpm': a.bpm if needs_text else 0})
                 out, pr, sheet, probs, info = build(project, cfg, a.platform, plat, vp, lang, order, a_, workroot, hook, v)
                 flag = 'OK ' if not probs else 'FIX'
