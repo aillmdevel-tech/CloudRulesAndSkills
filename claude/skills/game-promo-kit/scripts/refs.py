@@ -11,7 +11,9 @@ re-scanned on every call, so new batches dropped into it are picked up. It under
   - breakdown text: <video stem>.md / .txt next to the video, or "разбивк*"/"breakdown*" files in the game folder
   - catalogue notes: table rows of any *.md that mention the game folder name -> description of the game
 Matching: game profile ("profile" in promo/config.json: mechanics, style, keywords; else docs/PROJECT_STATE.md,
-docs/ART_SPEC.md, README.md) vs ref text (path + description + breakdown), plus platform and aspect fit.
+docs/ART_SPEC.md, README.md) vs ref text (name + genre + description + breakdown), plus platform and aspect fit.
+Genres: folders holding "Паттерны жанра.md" are genre folders; the profile picks 1-3 of them (GENRES stems), refs from
+the main genre get +6, from related ones +4, and REFS.md opens with the genres and their pattern files.
 Output: promo/refs/REFS.md (picked refs with files, lengths, cut timecodes, breakdown, sheet paths) + sheets:
   promo/refs/<kind>_<n>_<game>.jpg  (frame every second with timecode, CUT marks)
   promo/refs/covers_tile.jpg        (covers at real catalogue tile size next to full size: what reads first)
@@ -28,7 +30,7 @@ AD_PLATFORMS = {'google_play', 'admob', 'ads_landscape', 'ads_vertical', 'ads_sq
 PREVIEW_PLATFORMS = {'crazygames', 'poki', 'playgama', 'yandex'}
 # synonym groups (ru/en): a group counts when the game profile and the ref both hit it
 GROUPS = {
-    'steal': ['steal', 'rob', 'heist', 'кра', 'укра', 'вор', 'грабе'],
+    'steal': ['steal', 'heist', 'краж', 'укра', 'украд', 'грабе'],
     'escape': ['escape', 'run', 'chase', 'flee', 'побег', 'погон', 'убега', 'беж'],
     'egg': ['egg', 'яйц', 'яйц', 'инкубат', 'hatch'],
     'pet': ['animal', 'pet', 'dragon', 'monster', 'животн', 'питом', 'дракон', 'монстр', 'страж', 'guard'],
@@ -41,15 +43,41 @@ GROUPS = {
     'brainrot': ['brainrot', 'брейнрот'],
     'tsunami': ['tsunami', 'wave', 'flood', 'цунами', 'волн'],
     'physics': ['ragdoll', 'physics', 'rope', 'физик', 'рэгдолл', 'верёвк', 'щупал', 'tentacle', 'arm'],
-    'race': ['kart', 'race', 'racing', 'гонк', 'карт'],
+    'race': ['kart', ' race', 'racing', 'гонк', 'картинг'],
     'shooter': ['archer', 'arrow', 'shoot', 'лук', 'стрел'],
-    'slice': ['slice', 'cut', 'knife', 'нож', 'реза'],
+    'slice': ['slice', 'knife', 'ножом', 'разрез'],
     'farm': ['farm', 'garden', 'ферм', 'сад', 'огород'],
     'arcade': ['wave', 'neon', 'dash', 'arcade', 'аркад', 'неон'],
     'underwater': ['underwater', 'ocean', 'sea', 'octopus', 'подвод', 'океан', 'море', 'осьмин'],
     'roblox': ['roblox', 'blocky', 'block', 'роблокс', 'блочн', 'кубич', 'voxel'],
     'toon': ['toon', 'cartoon', 'мульт', 'тун', 'стилиз'],
+    'fishing': ['fish', 'rod', 'cast', 'рыб', 'удочк', 'улов', 'заброс'],
+    'odds': ['1 in ', 'odds', 'chance', 'luck', 'шанс', 'удач', 'редкост', 'rarity', 'legendary', 'secret', 'легендар'],
+    'horror': ['horror', 'scary', 'anomal', 'backroom', 'screamer', 'хоррор', 'ужас', 'страш', 'скример', 'аномал'],
+    'survival': ['surviv', 'night', 'craft', 'выжив', 'крафт', 'ноч', 'день n', 'day '],
+    'social': ['roleplay', ' rp', 'adopt', 'dress', 'fashion', 'trade', 'ролев', 'одева', 'мода', 'трейд', 'дом '],
+    'defense': ['tower defense', 'td ', 'turret', 'башенк', 'оборон', 'волны враг'],
+    'pvp': ['pvp', 'arena', 'gun', 'weapon', 'skin', 'blade', 'арен', 'оружи', 'скин', 'дуэл'],
+    'sim': ['simulator', 'tycoon', 'mining', 'prospect', 'seed', 'симулят', 'тайкун', 'добыч', 'семен', 'шахт'],
+    'car': [' car ', ' cars', 'driv', 'drift', 'crash', 'машин', 'авто', 'дрифт', 'вожд'],
+    'sport': ['soccer', 'football', 'ball', 'футбол', 'мяч', 'спорт'],
 }
+# genre folders of the library (a folder holding "Паттерны жанра.md"): profile stems that point to each genre
+GENRES = {
+    'Яйца и питомцы': ['egg', 'яйц', 'hatch', 'инкубат', 'steal', 'краж', 'укра', 'pet', 'питом', 'safe zone', 'база', 'base', '$/s', 'доход'],
+    'Рыбалка и сбор животных': ['fish', 'рыб', 'удочк', 'throw', 'брос', 'кида', '1 in', 'шанс', 'улов', 'животн', 'animal', 'множит', 'ферм'],
+    'Симуляторы и тайкуны': ['simulator', 'симулят', 'tycoon', 'тайкун', 'добыч', 'mining', 'prospect', 'seed', 'семен', 'сад', 'продаж', 'апгрейд'],
+    'Платформеры и побеги': ['obby', 'обби', 'parkour', 'паркур', 'платформ', 'speed', 'скорост', '+1', 'rope', 'верёвк', 'бег', 'climb', 'лаз'],
+    'Выживание': ['surviv', 'выжив', 'craft', 'крафт', 'night', 'ноч', 'монстр', 'monster', 'база', 'кооп', 'coop'],
+    'Социальные и ролевые игры': ['roleplay', 'ролев', 'adopt', 'dress', 'одева', 'мода', 'trade', 'трейд', 'свой дом', 'дракон', 'dragon', 'кастомиз'],
+    'Спорт и гонки': ['race', 'гонк', 'kart', 'car', 'машин', 'drift', 'soccer', 'футбол', 'ball', 'мяч', 'спорт'],
+    'Стратегии': ['tower defense', 'башн', 'turret', 'оборон', 'волн', 'wave', 'strategy', 'стратег'],
+    'Физические песочницы': ['ragdoll', 'рэгдолл', 'physics', 'физик', 'crash', 'разруш', 'destroy', 'взрыв'],
+    'Хорроры': ['horror', 'хоррор', 'scary', 'страш', 'anomal', 'аномал', 'backroom', 'скример', 'escape', 'побег'],
+    'Экшен и PvP': ['pvp', 'arena', 'арен', 'gun', 'оружи', 'shoot', 'стрел', 'skin', 'скин', 'blade', 'дуэл', 'перестрел'],
+}
+GENRE_FILE = 'Паттерны жанра.md'
+CROSS_FILE = 'Паттерны Roblox-промо.md'
 STYLE_GROUPS = {'roblox', 'toon', 'arcade', 'underwater'}
 
 
@@ -154,17 +182,45 @@ def profile_text(project):
     return ' '.join(str(x) for x in parts).lower(), explicit
 
 
+def genre_of(G):
+    """Genre folder a ref game sits in (nearest parent holding Паттерны жанра.md)."""
+    d = os.path.dirname(G['dir'])
+    for _ in range(3):
+        if os.path.exists(os.path.join(d, GENRE_FILE)): return os.path.basename(d), d
+        d = os.path.dirname(d)
+    return None, None
+
+
+def detect_genres(ptxt, games, lib):
+    """Rank library genres for this game: profile stems per genre; returns [(genre, hits, patterns path)] best first."""
+    have = {}
+    for G in games.values():
+        g, d = genre_of(G)
+        if g: have.setdefault(g, os.path.join(d, GENRE_FILE))
+    out = []
+    for g, path in have.items():
+        h = sorted({w.strip() for w in GENRES.get(g, []) if w in ptxt})
+        if h: out.append((g, h, path))
+    out.sort(key=lambda x: -len(x[1]))
+    if out: out = [x for x in out if len(x[1]) >= max(2, len(out[0][1]) // 2)][:3] or out[:1]
+    return out
+
+
 def hits(text):
     return {g for g, words in GROUPS.items() if any(w in text for w in words)}
 
 
-def score_game(G, prof, kind_want, aspect_want):
-    text = (G['name'] + ' ' + G['desc'] + ' ' + ' '.join(open(b, encoding='utf-8', errors='ignore').read()[:3000]
+def score_game(G, prof, kind_want, aspect_want, genres=()):
+    gname = genre_of(G)[0]
+    text = (G['name'] + ' ' + (gname or '') + ' ' + G['desc'] + ' ' + ' '.join(open(b, encoding='utf-8', errors='ignore').read()[:3000]
                                                             for b in G['breakdown']) + ' ' +
             ' '.join(os.path.basename(f['path']) + ' ' + f['what'] for f in G['frames'])).lower()
     common = prof & hits(text)
     sc = sum(1.5 if g in STYLE_GROUPS else 3.0 for g in common)
     if G['breakdown'] or G['frames']: sc += 1.0  # timecoded breakdown available
+    gl = [g for g, _, _ in genres]
+    if gname in gl:  # same genre as the game: main genre +6, next ones +4
+        sc += 6.0 if gl.index(gname) == 0 else 4.0; common = set(common) | {'жанр: ' + gname}
     return sc, sorted(common)
 
 
@@ -245,7 +301,7 @@ def main():
     json.dump(cache, open(cache_p, 'w', encoding='utf-8'))
     json.dump({k: v for k, v in games.items()}, open(os.path.join(idx_dir, 'index.json'), 'w', encoding='utf-8'),
               ensure_ascii=False, indent=1, default=str)
-    ptxt, explicit = profile_text(project); prof = hits(ptxt)
+    ptxt, explicit = profile_text(project); prof = hits(ptxt); genres = detect_genres(ptxt, games, lib)
     out = os.path.join(promo_dir(project), 'refs'); os.makedirs(out, exist_ok=True)
     for f in os.listdir(out):
         if f.endswith('.jpg'): os.remove(os.path.join(out, f))
@@ -258,18 +314,33 @@ def main():
           f'обложек: {sum(len(g["covers"]) for g in games.values())} · кадров-разбивок: {sum(len(g["frames"]) for g in games.values())}',
           f'Профиль игры ({"promo/config.json profile" if explicit else "из docs/README, задай profile в config для точности"}): '
           f'{", ".join(sorted(prof)) or "не найден"}', '']
+    md += ['## Жанр игры → паттерны Roblox-промо', '']
+    if genres:
+        for i, (g, h, path) in enumerate(genres):
+            md.append(f'- {"Основной" if i == 0 else "Смежный"}: **{g}** (совпало: {", ".join(h)}) — прочитай `{path}`')
+    else:
+        md.append('- Жанр не определён: выбери вручную по references/roblox-genres.md (карта механика → жанр).')
+    cross = next((os.path.join(r, CROSS_FILE) for r, _, fs in os.walk(lib) if CROSS_FILE in fs), None)
+    if cross: md.append(f'- Общие правила и карта всех жанров: `{cross}`')
+    md.append('')
     picked_games = []
     for kind, title in sections:
         cands = []
         for G in games.values():
             vs = [v for v in G['videos'] if v['kind'] == kind]
             if not vs: continue
-            sc, why = score_game(G, prof, kind, None)
+            sc, why = score_game(G, prof, kind, None, genres)
             v = max(vs, key=lambda v: (v['w'] >= v['h'], v['dur'] > 0))  # landscape first, it is Alex's main format
             cands.append((sc, why, G, v))
         cands.sort(key=lambda x: -x[0])
+        # genre refs give the structure; keep up to 2 slots for the best refs of other batches (formats, older breakdowns)
+        ing = [c for c in cands if genre_of(c[2])[0]]; oth = [c for c in cands if not genre_of(c[2])[0]]
+        keep = min(2, len(oth)) if ing and genres else 0
+        chosen = ing[:a.top - keep] + oth[:keep]
+        chosen += [c for c in cands if c not in chosen][:a.top - len(chosen)]
+        chosen.sort(key=lambda x: -x[0])
         md += [f'## {title}', '']
-        for n, (sc, why, G, v) in enumerate(cands[:a.top], 1):
+        for n, (sc, why, G, v) in enumerate(chosen, 1):
             sp = sheet(v['path'], v, os.path.join(out, f'{kind}_{n}_{re.sub(r"[^A-Za-z0-9]+", "-", G["name"])[:30]}.jpg'),
                        1.0 if v['dur'] <= 30 else 2.0, f'{G["name"]} · {os.path.basename(v["path"])} · {v["dur"]}s')
             picked_games.append(G)
@@ -288,7 +359,7 @@ def main():
     for G in picked_games:
         if id(G) not in seen and G['covers']: seen.add(id(G)); cov_games.append(G)
     if len(cov_games) < 3:
-        for G in sorted(games.values(), key=lambda g: -score_game(g, prof, None, None)[0]):
+        for G in sorted(games.values(), key=lambda g: -score_game(g, prof, None, None, genres)[0]):
             if id(G) not in seen and G['covers']: seen.add(id(G)); cov_games.append(G)
             if len(cov_games) >= 5: break
     ct = covers_tile(cov_games[:5], os.path.join(out, 'covers_tile.jpg'))
@@ -303,7 +374,8 @@ def main():
     md += ['Дальше: открой листы и сами видео в нужных таймкодах, сверь с разбивкой и заполни promo/BRIEF.md '
            'по templates/promo-brief.md.']
     open(os.path.join(out, 'REFS.md'), 'w', encoding='utf-8').write('\n'.join(md))
-    print(f'library {lib}: {len(games)} folders; profile: {", ".join(sorted(prof)) or "-"}')
+    print(f'library {lib}: {len(games)} folders; profile: {", ".join(sorted(prof)) or "-"}; '
+          f'genres: {", ".join(g for g, _, _ in genres) or "-"}')
     print(f'-> {os.path.relpath(os.path.join(out, "REFS.md"), project)} + {len([f for f in os.listdir(out) if f.endswith(".jpg")])} sheets')
 
 
