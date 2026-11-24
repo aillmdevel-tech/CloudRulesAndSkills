@@ -77,6 +77,13 @@ done
 chmod +x "$C"/skills/*/scripts/* 2>/dev/null || true
 ln -sfn "$C/skills/game-project-workflow/templates" "$GF/templates" 2>/dev/null || true
 
+# 4b. promo reference library, text part (breakdowns, genre patterns, stats) -> <games>/PromoLibrary.
+# Merge only: local videos and newer local notes are kept. Put original videos next to the .md to get frame sheets.
+if [ -d "$REPO/PromoLibrary" ]; then
+  mkdir -p "$GAMES/PromoLibrary"; rsync -a --update "$REPO/PromoLibrary/" "$GAMES/PromoLibrary/"
+  echo "PromoLibrary (text) -> $GAMES/PromoLibrary"
+fi
+
 # 5. tools
 if [ "$PW" = 1 ]; then
   python3 -m pip install --user -q playwright Pillow && python3 -m playwright install chromium \

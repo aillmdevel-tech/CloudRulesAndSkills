@@ -3,9 +3,19 @@ import json, os, re, shutil, subprocess, sys
 
 KIT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PLATFORMS_FILE = os.path.join(KIT, 'references', 'platforms.json')
+def _gf_from_claude_md():
+    """GameFactory folder from ~/.claude/CLAUDE.md («GameFactory: `…`»), so a new device needs no edits."""
+    try:
+        m = re.search(r'GameFactory: `([^`]+)`', open(os.path.expanduser('~/.claude/CLAUDE.md'), encoding='utf-8').read())
+        return os.path.join(os.path.expanduser(m.group(1)), 'UIFX', 'sounds') if m else ''
+    except OSError:
+        return ''
+
+
 UIFX_SOUNDS = [
-    os.path.expanduser('~/Downloads/WebAIGames/Rules/GameFactory/UIFX/sounds'),
     os.environ.get('UIFX_SOUNDS', ''),
+    _gf_from_claude_md(),
+    os.path.expanduser('~/Downloads/WebAIGames/Rules/GameFactory/UIFX/sounds'),
 ]
 
 DEFAULT_CONFIG = {

@@ -1,0 +1,30 @@
+# H2T Global и похожие студии
+
+На 21 ноября 2026 года. Для масштаба использованы публичные ступени скачиваний с просмотренных карточек Google Play, где они видны. Эти числа показывают масштаб приложения. Вклад конкретного ролика и окупаемость в публичных данных не раскрыты.
+
+## Как продвигается H2T Global
+
+H2T Global — студия из ссылки пользователя. В архиве SocialPeta у её игр встречаются объявления от **Bounce Studio Limited**. В базе восемь роликов H2T для семи игр с пометками YouTube, AdMob, AppLovin, Mintegral, Unity Ads и Google Play. Ролик Egg Speed №01 размечен архивом как размещение Google Play. Карточка приложения в магазине проверяется отдельно. [Портфель Google Play](https://play.google.com/store/apps/dev?id=6166245662185922810&hl=en) · [Сайт H2T](https://h2tstudio.com/) · [Рекламный архив Egg Speed](https://socialpeta.com/en/google-play/com.Steal.Escape.Egg.Speed)
+
+| Игра | Публичный масштаб в Google Play | Где замечены материалы |
+| --- | --- | --- |
+| Steal Escape: Egg Speed | **1 млн+** | В базе №01, Google Play. В архиве также AppLovin, YouTube, Unity Ads и Vungle. [Карточка](https://play.google.com/store/apps/details?id=com.Steal.Escape.Egg.Speed&hl=en&gl=US) · [Архив](https://socialpeta.com/en/google-play/com.Steal.Escape.Egg.Speed) |
+| Steal Eggs: Monster Escape | **1 млн+** | В базе №04–05, AppLovin и Mintegral. В архиве также YouTube. [Карточка](https://play.google.com/store/apps/details?id=com.Steal.Eggs.Monster.Escape&hl=en&gl=US) · [Архив](https://socialpeta.com/en/google-play/com.Steal.Eggs.Monster.Escape) |
+| Throw A Food: Break An Egg | **500 тыс.+** | №02, YouTube. В записи архивное название **Break An Egg: Steal & Run**, в более свежей карточке тот же package ID называется **Throw A Food: Break An Egg**. [Карточка](https://play.google.com/store/apps/details?id=com.Break.An.Egg.Steal.Run&hl=en_SG) · [Архив](https://socialpeta.com/en/google-play/com.Break.An.Egg.Steal.Run) |
+| Throw Food: Steal Animal | **5 тыс.+** | №03, Unity Ads. В архиве также Mintegral. [Карточка](https://play.google.com/store/apps/details?id=com.Throw.Food.Steal.Animal&hl=en) · [Архив](https://socialpeta.com/en/google-play/com.Throw.Food.Steal.Animal) |
+| Keyboard Escape: Speed Parkour | **5 млн+** в проверенной карточке США | №06, AdMob. В архиве также AppLovin и YouTube. [Карточка](https://play.google.com/store/apps/details?id=com.Speed.Keyboard.Parkour.Escape&hl=en&gl=US) · [Архив](https://socialpeta.com/en/google-play/com.Speed.Keyboard.Parkour.Escape) |
+| Monkey Obby: Master Escape | **1 млн+** | №07, YouTube. В архиве также AdMob и AppLovin. [Карточка](https://play.google.com/store/apps/details?id=com.Monkey.Obby.Master.Escape&hl=en&gl=US) · [Архив](https://socialpeta.com/en/google-play/com.Monkey.Obby.Master.Escape) |
+| Problox: Steal An Egg | **100 тыс.+** | №08, Mintegral. Тот же package ID теперь также отображается как **Minigames Relax: Parkour World**. В архиве есть YouTube, AppLovin, Vungle и Google Play. [Карточка](https://play.google.com/store/apps/details?id=com.Problox.Game&hl=en&gl=US) · [Архив](https://socialpeta.com/en/google-play/com.Problox.Game) |
+
+Ноябрьский разбор Guangdada отслеживает три серии про яйца и сообщает о размещениях H2T в AppLovin, Mintegral, ironSource, Unity и AdMob. Из конкретных приёмов отмечены огромный страж рядом с добычей, стрелка «YOU!», акцент «RUN!!!», выражение удивления и показ скорости или урона. В публичном зеркале Meta есть карточки объявлений Egg Speed с отдельными ID. Включённые MP4 привязаны к записям SocialPeta, каналы указаны по этим записям. [Исследование Guangdada](https://guangdada.net/blog/h2t-steal-egg-roblox-clone-games) · [Meta ID 1067501339637954](https://www.facebook.com/ads/library/?id=1067501339637954) · [Сводка IndieTower](https://indietower.com/apps/android/com.Steal.Escape.Egg.Speed)
+
+## Какие студии ещё смотреть
+
+| Студия или рекламодатель | Почему в подборке |
+| --- | --- |
+| **Blox Global** | Easy Parkour: Escape Run Obby достиг **5 млн+**. №12 показывает рекламу 3D-паркура в AdMob. В рекламных записях также встречается Bounce Studio Limited. Эту студию стоит смотреть рядом с H2T как отдельный публичный портфель Google Play с пересечением по рекламодателю. [Карточка](https://play.google.com/store/apps/details?id=com.Easy.Parkour.Obby&hl=en&gl=US) · [Портфель](https://play.google.com/store/apps/developer?id=Blox+Global) · [Рекламный архив](https://socialpeta.com/en/google-play/com.Easy.Parkour.Obby) |
+| **Portak Game Publishing** | Steal Eggs – Grow Animals достигла **1 млн+** в проверенной карточке США. №09–10 полезны для сравнения горизонтальной версии AdMob и короткой вертикальной версии YouTube в той же теме. В записи YouTube имя рекламодателя — Alexandru Selar. [Карточка](https://play.google.com/store/apps/details?id=steal.an.egg.obbygames&hl=en&gl=US) · [Рекламный архив](https://socialpeta.com/en/google-play/steal.an.egg.obbygames) |
+| **T.Game Studio** | Steal Animal: Egg Escape достигла **1 млн+**. №13 показывает лаву, смену зоны и кнопки магазинов. Заголовок внутри ролика отличается от названия страницы Google Play. В архивной записи AdMob указан рекламодатель Se7en Technology Limited. [Карточка](https://play.google.com/store/apps/details?id=com.lava.run.escape2026&hl=en&gl=US) · [Рекламный архив](https://socialpeta.com/en/google-play/com.lava.run.escape2026) |
+| **Tripsoft и Royale Heroic Games** | №11 и №14 добавлены как близкие примеры рекламы погони и цунами. У Egg Heist виден пакет с **100 тыс.+** в проверенном снимке Google Play и запись под именем Tripsoft в TikTok. У Escape Tsunami to Steal Egg — **10 тыс.+** и видео из YouTube с именем The Nightingale Business Studio. [Egg Heist](https://socialpeta.com/en/google-play/com.casual.steal.the.egg) · [Escape Tsunami](https://socialpeta.com/en/google-play/com.rh.memerot.tsunami.escape.run.games) |
+
+Для первого просмотра возьми №02 и №03, если делаешь игру про бросок или добычу питомца, №04 и №09 — если важна погоня со стражем, №06 и №12 — если нужен speed obby. Затем сравни №15 с веб-превью Space Waves, чтобы увидеть, как меняется подача при переходе от карточки портала к рекламе установки.

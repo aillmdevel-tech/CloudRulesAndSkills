@@ -55,6 +55,12 @@ if [ "$(cd "$GF_SRC" && pwd)" != "$REPO/GameFactory" ]; then
   rsync -a --delete --exclude node_modules --exclude backup/ --exclude demo-dist \
     --exclude .DS_Store --exclude __pycache__ "$GF_SRC/" "$REPO/GameFactory/"
 fi
+# PromoLibrary: only our own text (breakdowns, genre patterns, catalogues, cut stats). Other people's
+# videos, covers and frame sheets stay on this machine (analysis only, not ours to redistribute).
+if [ -n "$GAMES_SRC" ] && [ -d "$GAMES_SRC/PromoLibrary" ]; then
+  rsync -a --delete --prune-empty-dirs --exclude '_index/' --include '*/' --include '*.md' --include 'stats.json' \
+    --exclude '*' "$GAMES_SRC/PromoLibrary/" "$REPO/PromoLibrary/"
+fi
 find "$REPO" -name .DS_Store -delete
 
 # secret scan (abort if anything looks like a credential)

@@ -88,6 +88,12 @@ def lib_root(project, arg):
     if os.path.exists(cfgp):
         r = json.load(open(cfgp, encoding='utf-8')).get('ref_library')
         if r: return os.path.expanduser(r)
+    # games folder from ~/.claude/CLAUDE.md («Папка игр: `…`») + /PromoLibrary, so a new device needs no edits
+    try:
+        m = re.search(r'Папка игр: `([^`]+)`', open(os.path.expanduser('~/.claude/CLAUDE.md'), encoding='utf-8').read())
+        if m and os.path.isdir(os.path.join(os.path.expanduser(m.group(1)), 'PromoLibrary')):
+            return os.path.join(os.path.expanduser(m.group(1)), 'PromoLibrary')
+    except OSError: pass
     return os.path.expanduser('~/Downloads/WebAIGames/PromoLibrary')
 
 
@@ -127,10 +133,12 @@ def scan(lib):
                     t = float(m.group(1).replace(',', '.'))
                     G['frames'].append(dict(path=p, t=t, what=(m.group(2) or '').strip()))
             elif ext in ('.md', '.txt') and (re.search(r'разбивк|breakdown|раскадров', low) or
+                                             os.path.splitext(f)[0] == os.path.basename(root) or
                                              any(os.path.splitext(v)[0] == os.path.splitext(p)[0] for v in
                                                  [os.path.join(root, x) for x in files if x.lower().endswith(VID)])):
                 G['breakdown'].append(p)
-    games = {k: v for k, v in games.items() if v['videos'] or v['covers']}
+    # a game counts with videos, covers, or only its breakdown text (a device that got the library from git without videos)
+    games = {k: v for k, v in games.items() if v['videos'] or v['covers'] or v['breakdown']}
     # descriptions from catalogue tables: a row that links into the game folder or names it
     for n in notes:
         try: text = open(n, encoding='utf-8').read()
@@ -328,6 +336,11 @@ def main():
         cands = []
         for G in games.values():
             vs = [v for v in G['videos'] if v['kind'] == kind]
+            if not vs and kind == 'ad' and G['breakdown'] and not G['videos']:
+                st = os.path.join(G['dir'], '_work', 'stats.json')  # text-only copy: numbers from the analysis
+                j = json.load(open(st, encoding='utf-8')) if os.path.exists(st) else {}
+                vs = [dict(path=None, kind='ad', w=j.get('w', 0), h=j.get('h', 0), dur=j.get('dur', 0), audio=j.get('audio', False),
+                           cuts=j.get('cuts', []))]
             if not vs: continue
             sc, why = score_game(G, prof, kind, None, genres)
             v = max(vs, key=lambda v: (v['w'] >= v['h'], v['dur'] > 0))  # landscape first, it is Alex's main format
@@ -341,14 +354,15 @@ def main():
         chosen.sort(key=lambda x: -x[0])
         md += [f'## {title}', '']
         for n, (sc, why, G, v) in enumerate(chosen, 1):
-            sp = sheet(v['path'], v, os.path.join(out, f'{kind}_{n}_{re.sub(r"[^A-Za-z0-9]+", "-", G["name"])[:30]}.jpg'),
-                       1.0 if v['dur'] <= 30 else 2.0, f'{G["name"]} · {os.path.basename(v["path"])} · {v["dur"]}s')
+            sp = None if v['path'] is None else sheet(
+                v['path'], v, os.path.join(out, f'{kind}_{n}_{re.sub(r"[^A-Za-z0-9]+", "-", G["name"])[:30]}.jpg'),
+                1.0 if v['dur'] <= 30 else 2.0, f'{G["name"]} · {os.path.basename(v["path"])} · {v["dur"]}s')
             picked_games.append(G)
             md += [f'### {n}. {G["name"]} — совпадения: {", ".join(why) or "нет (взято по площадке)"} (score {sc:.1f})',
-                   f'- Файл: `{v["path"]}`',
+                   f'- Файл: `{v["path"]}`' if v['path'] else '- Видео на этом устройстве нет: работай по текстовой разбивке ниже',
                    f'- {v["w"]}×{v["h"]}, {v["dur"]} с, звук: {"да" if v["audio"] else "нет"}, склейки ({len(v["cuts"])}): '
-                   f'{", ".join(f"{c:.1f}" for c in v["cuts"][:20]) or "один план"}',
-                   f'- Лист кадров (каждую {1 if v["dur"] <= 30 else 2} с, CUT = склейка): `{sp}`']
+                   f'{", ".join(f"{c:.1f}" for c in v["cuts"][:20]) or "один план"}']
+            if sp: md.append(f'- Лист кадров (каждую {1 if v["dur"] <= 30 else 2} с, CUT = склейка): `{sp}`')
             if G['desc']: md.append(f'- Из каталога: {G["desc"][:500]}')
             fr = sorted(G['frames'], key=lambda f: f['t'])
             if fr: md.append('- Разбивка кадрами: ' + '; '.join(f'{f["t"]:.2f} с — {f["what"] or os.path.basename(f["path"])}' for f in fr[:12]))
@@ -362,8 +376,11 @@ def main():
         for G in sorted(games.values(), key=lambda g: -score_game(g, prof, None, None, genres)[0]):
             if id(G) not in seen and G['covers']: seen.add(id(G)); cov_games.append(G)
             if len(cov_games) >= 5: break
-    ct = covers_tile(cov_games[:5], os.path.join(out, 'covers_tile.jpg'))
-    md += ['## Обложки', f'- Лист «плитка каталога + крупно»: `{ct}`'] + [f'- {G["name"]}: ' + ', '.join(f'`{c}`' for c in sorted(G['covers'])) for G in cov_games[:5]] + ['']
+    if cov_games:
+        ct = covers_tile(cov_games[:5], os.path.join(out, 'covers_tile.jpg'))
+        md += ['## Обложки', f'- Лист «плитка каталога + крупно»: `{ct}`'] + [f'- {G["name"]}: ' + ', '.join(f'`{c}`' for c in sorted(G['covers'])) for G in cov_games[:5]] + ['']
+    else:
+        md += ['## Обложки', '- Картинок обложек на этом устройстве нет (библиотека без медиа): опирайся на заметки каталогов в разбивках.', '']
     if a.draft:
         dp = os.path.abspath(a.draft); di = probe_video(dp, {})
         ds = sheet(dp, di, os.path.join(out, 'draft.jpg'), 1.0 if di['dur'] <= 30 else 2.0, f'DRAFT · {os.path.basename(dp)} · {di["dur"]}s')
