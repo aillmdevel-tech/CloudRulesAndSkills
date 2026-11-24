@@ -1,0 +1,84 @@
+<!-- BOOT:START (playgama-crazy-publisher templates/sdk/boot.html: pub sdk-install inserts this right after <body>; fill {{…}}) -->
+<style>
+  /* Loading screen: paints before the bundle arrives; hides only on window.__boot.done() (all assets + first frame). */
+  #boot { --b1: {{COLOR_TOP}}; --b2: {{COLOR_BOTTOM}}; --f1: {{FILL_LIGHT}}; --f2: {{FILL_DARK}};
+    position: fixed; inset: 0; z-index: 2147483000; overflow: hidden; color: #fff; user-select: none;
+    background: var(--b1) linear-gradient(180deg, var(--b1), var(--b2)); font-family: {{FONT}}, system-ui, sans-serif;
+    transition: opacity .55s ease; }
+  #boot.out { opacity: 0; pointer-events: none; }
+  #boot .bg { position: absolute; inset: 0; background: {{BG_LAND}} center / cover no-repeat; animation: boot-zoom 14s ease-out both; }
+  @media (orientation: portrait) { #boot .bg { background-image: {{BG_PORT}}; } }
+  @keyframes boot-zoom { from { transform: scale(1.08); } to { transform: scale(1); } }
+  #boot .shade { position: absolute; left: 0; right: 0; bottom: 0; height: 46%; background: linear-gradient(180deg, transparent, rgba(8,12,28,.75) 70%); }
+  #boot .logo { position: absolute; left: 50%; top: 12%; width: clamp(96px, 20vmin, 180px); aspect-ratio: 1; translate: -50% 0; border-radius: 22%;
+    background: {{ICON}} center / cover no-repeat; box-shadow: 0 .5em 1.4em rgba(0,0,0,.45); animation: boot-bob 2.4s ease-in-out infinite; }
+  @keyframes boot-bob { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-8px) rotate(2deg); } }
+  #boot .box { position: absolute; left: 50%; bottom: max(6vh, 22px); width: min(80vw, 620px); translate: -50% 0; text-align: center; }
+  #boot .stage { font-size: clamp(13px, 1.9vmin, 18px); opacity: .85; margin-bottom: .35em; -webkit-text-stroke: .14em #000; paint-order: stroke fill; }
+  #boot .tip { min-height: 2.6em; display: flex; align-items: flex-end; justify-content: center; font-size: clamp(15px, 2.4vmin, 24px); line-height: 1.25;
+    -webkit-text-stroke: .16em #000; paint-order: stroke fill; text-shadow: 0 .12em 0 #000; }
+  #boot .tip span { display: inline-block; }
+  #boot .tip.pop span { animation: boot-pop .42s cubic-bezier(.2,1.6,.4,1) both; }
+  @keyframes boot-pop { from { opacity: 0; transform: translateY(.5em) scale(.85); } to { opacity: 1; transform: none; } }
+  #boot .bar { position: relative; margin-top: .7em; height: clamp(22px, 3.6vmin, 34px); border: 3px solid #000; border-radius: 999px; background: #1d2233;
+    box-shadow: 0 4px 0 rgba(0,0,0,.45), inset 0 3px 0 rgba(0,0,0,.35); overflow: hidden; }
+  #boot .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 999px; background: linear-gradient(180deg, var(--f1), var(--f2));
+    box-shadow: inset 0 -4px 0 rgba(0,0,0,.18); overflow: hidden; }
+  #boot .fill::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(115deg, rgba(255,255,255,.22) 0 14px, transparent 14px 28px);
+    animation: boot-stripes .9s linear infinite; }
+  @keyframes boot-stripes { to { background-position: 28px 0; } }
+  #boot .pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(13px, 2vmin, 19px);
+    -webkit-text-stroke: .18em #000; paint-order: stroke fill; }
+  @media (prefers-reduced-motion: reduce) { #boot .bg, #boot .logo, #boot .fill::after, #boot .tip.pop span { animation: none; } }
+</style>
+<div id="boot" aria-live="polite">
+  <div class="bg"></div><div class="shade"></div><div class="logo"></div>
+  <div class="box">
+    <div class="stage" id="boot-stage"></div>
+    <div class="tip"><span id="boot-tip"></span></div>
+    <div class="bar"><div class="fill" id="boot-fill"></div><div class="pct" id="boot-pct">0%</div></div>
+  </div>
+</div>
+<script>
+  (function () {
+    // STAGE: by progress (< 35 %, < 80 %, ≥ 80 %). TIPS: friendly lines + 3–6 real game tips, rotate every 2.8 s.
+    var STAGE = {
+      en: ['Loading the location…', 'Loading models and textures…', 'Almost there!'],
+      ru: ['Загружаем локацию…', 'Загружаем модели и текстуры…', 'Игра уже почти загрузилась!'],
+      es: ['Cargando el escenario…', 'Cargando modelos y texturas…', '¡Ya casi está!'],
+      pt: ['Carregando o cenário…', 'Carregando modelos e texturas…', 'Quase lá!'],
+      tr: ['Harita yükleniyor…', 'Modeller ve dokular yükleniyor…', 'Neredeyse hazır!']
+    };
+    var TIPS = {{TIPS_JSON}};
+    var pick = function (l) { l = String(l || '').toLowerCase().slice(0, 2); return TIPS[l] ? l : 'en'; };
+    var q = (location.search.match(/[?&]lang=([a-z]{2})/i) || [])[1];
+    var lang = pick(q || navigator.language), tips = TIPS[lang];
+    var el = document.getElementById('boot'), tipEl = document.getElementById('boot-tip'), stEl = document.getElementById('boot-stage'),
+        fill = document.getElementById('boot-fill'), pct = document.getElementById('boot-pct');
+    var i = 0, target = 0.03, shown = 0, closing = false, finished = false;
+    function showTip() { tipEl.textContent = tips[i % tips.length]; i++; var t = tipEl.parentNode; t.classList.remove('pop'); void t.offsetWidth; t.classList.add('pop'); }
+    showTip();
+    var tipTimer = setInterval(showTip, 2800);
+    function frame() {
+      // eases toward the reported progress and creeps a little past it, so a long step never looks frozen
+      var goal = finished ? 1 : Math.min(0.97, target + 0.06);
+      shown += (goal - shown) * (finished ? 0.25 : target > shown ? 0.12 : 0.004);
+      fill.style.width = (shown * 100).toFixed(1) + '%';
+      pct.textContent = Math.floor(shown * 100) + '%';
+      var s = STAGE[lang] || STAGE.en; stEl.textContent = s[shown < 0.35 ? 0 : shown < 0.8 ? 1 : 2];
+      if (finished && shown > 0.995) {
+        if (!closing) { closing = true; fill.style.width = '100%'; pct.textContent = '100%';
+          setTimeout(function () { el.classList.add('out'); clearInterval(tipTimer); setTimeout(function () { el.remove(); }, 650); }, 180); }
+        return;
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+    window.__boot = {
+      set: function (p) { if (p > target) target = Math.min(1, p); },
+      lang: function (l) { var n = pick(l); if (n !== lang) { lang = n; tips = TIPS[n]; i = 0; showTip(); } },
+      done: function () { finished = true; }
+    };
+  })();
+</script>
+<!-- BOOT:END -->

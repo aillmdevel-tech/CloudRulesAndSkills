@@ -1,11 +1,11 @@
 ---
 name: playgama-crazy-publisher
-description: Use when Alex wants to take a finished browser game to CrazyGames and Playgama — "/playgama-crazy-publisher", "опубликуй игру на Crazy и Playgama", "оформи игру для площадок", "подготовь к публикации", "заполни кабинеты", "вот иконка и обложка, делай остальное", "отправь на локальную модерацию". Runs the whole cycle from Alex's icon and cover: audit → localization (EN, RU, ES, PT-BR, TR via the platform SDK, fonts, overflow) → promo in a nested session → portal drafts in parallel → media upload → Alex plays → local moderator in a nested session → short per-platform report → fixes → submit only on Alex's explicit yes.
+description: Use when Alex wants to take a finished browser game to CrazyGames and Playgama — "/playgama-crazy-publisher", "опубликуй игру на Crazy и Playgama", "оформи игру для площадок", "подготовь к публикации", "заполни кабинеты", "вот иконка и обложка, делай остальное", "отправь на локальную модерацию". Runs the whole cycle from Alex's icon and cover: audit → SDK stage (installs and configures Playgama Bridge and CrazyGames SDK, ads and in-app purchases by platform rules and launch status, a real loading screen) → localization (EN, RU, ES, PT-BR, TR via the platform SDK, fonts, overflow) → promo in a nested session → portal drafts in parallel → media upload → Alex plays → local moderator in a nested session → short per-platform report → fixes → submit only on Alex's explicit yes.
 ---
 
 # Playgama + CrazyGames Publisher
 
-Alex даёт **иконку и обложку**, всё остальное делаешь ты. Пиши по-русски, на «ты», кратко.
+Alex даёт **иконку и обложку**, всё остальное делаешь ты: от SDK, рекламы и загрузочного экрана до заполненных кабинетов. Пиши по-русски, на «ты», кратко.
 
 Ведущий чат один: держит состояние, локализацию, кабинеты и правки. Промо и модератор идут в отдельных вложенных сессиях. Это единственное разрешённое исключение из правила «сессии сам не запускай».
 
@@ -14,7 +14,7 @@ Alex даёт **иконку и обложку**, всё остальное де
 ~/.local/bin/resource-run /usr/local/bin/python3 ~/.claude/skills/playgama-crazy-publisher/scripts/publisher.py <команда> --project <папка игры>
 ```
 
-Читай по этапу: `references/crazygames.md`, `references/playgama.md`, `references/localization.md`, `references/lessons.md` (обязательно перед этапом 0), `templates/session-promo.md`, `templates/session-moderator.md`.
+Читай по этапу: `references/sdk.md` (этап 1), `references/crazygames.md`, `references/playgama.md`, `references/localization.md`, `references/lessons.md` (обязательно перед этапом 0), `templates/session-promo.md`, `templates/session-moderator.md`.
 
 ## Жёсткие границы
 
@@ -39,11 +39,19 @@ Alex даёт **иконку и обложку**, всё остальное де
 4. `pub media-check` на иконку и обложку. Мала или с мусором — сразу скажи, но не блокируй остальное.
 5. Покажи Alex: что есть, чего нет, одним списком. Спрашивай только то, что нельзя узнать из проекта. Нет смоука или модератора — поставь через `game-autotest`.
 
-### 1. Локализация (до промо и до финальных билдов)
+### 1. SDK, реклама, покупки, загрузочный экран
+По `references/sdk.md`. Интеграция соответствует правилам площадок **и статусу игры** (`STATE.json` → `sdk`: CG basic/full, реклама, покупки).
+1. `pub sdk-scan`. Статус спроси только если его нет в `PROJECT_STATE`: по умолчанию CG Basic Launch, реклама на Playgama, покупок нет.
+2. Нет слоя → `pub sdk-install` (фон экрана загрузки — арт игры без HUD, иконка Alex, советы по игре на 5 языках), `npm i @playgama/bridge`, `vite.config.ts` и `main.ts` по шаблонам. Слой есть → дотяни до шаблона, не ломая рабочее.
+3. Точки interstitial и rewarded, а при просьбе Alex — товары: дай Alex одним списком «место → тип → награда», код после его «да».
+4. `pub sdk-config`, `pub sdk-check` до ✗0, tsc, сборки web/playgama/crazygames, `pub sdk-run`, смоук. Покажи Alex кадр экрана загрузки и итог проверок.
+Выход: ✗0 в `sdk-check` и `sdk-run`, обе сборки собираются, экран загрузки уходит только после загрузки мира.
+
+### 2. Локализация (до промо и до финальных билдов)
 По `references/localization.md`: языки **en, ru, es, pt-BR, tr**, язык только из SDK площадки, все тексты, шрифты, проверка вылезания.
 `pub i18n-scan` → перевод → `pub i18n-fonts` → сборка → `pub i18n-fit`. Вылезло или нет глифов — чини и повторяй. Выход: 0 проблем, листы по языкам показаны Alex.
 
-### 2. Промо (вложенная сессия) + 3. Черновики (параллельно)
+### 3. Промо (вложенная сессия) + 4. Черновики (параллельно)
 Сразу после локализации:
 1. Загрузи `mcp__ccd_session__start_session` через ToolSearch, запусти **промо-сессию** с `initiation: "user_asked"`, `context: "fresh"`, `use_worktree: false`, промптом из `templates/session-promo.md` с подставленными данными.
 2. Не жди её. В ведущем чате заполняй кабинеты по `references/crazygames.md` и `references/playgama.md`:
@@ -52,17 +60,17 @@ Alex даёт **иконку и обложку**, всё остальное де
    - заполни поля, сохрани, перезагрузи страницу и проверь, что сохранилось;
    - вопросы и галочки Alex выдавай **сразу одним списком** по мере появления.
 
-### 4. Приёмка промо и загрузка
+### 5. Приёмка промо и загрузка
 Когда придёт уведомление о промо-сессии:
 1. Открой файлы сам. Отчёту сессии на слово не верь.
 2. `pub media-check` по всем файлам, посмотри кадры.
 3. Загрузи в поля обеих площадок. Описание, видео и трейлер одинаковые, где поле есть. CrazyGames скриншоты не принимает.
 4. Сверь контрольные суммы или превью после загрузки, сохрани, перезагрузи страницу.
 
-### 5. Alex играет
+### 6. Alex играет
 Дай ссылки на preview, QR, и короткий список ручной проверки. **Стоп.** Модератор запускается только по его фразе вроде «отправь на локальную модерацию».
 
-### 6. Локальная модерация (вложенная сессия)
+### 7. Локальная модерация (вложенная сессия)
 Перед запуском убедись, что билды в кабинетах совпадают с текущим кодом (`pub audit` сравнит даты `src/`, `public/` и zip). Запусти **сессию-модератор** по `templates/session-moderator.md`. Ведущий чат в это время код не меняет.
 
 Итог Alex, строго так:
@@ -75,10 +83,10 @@ Playgama build: можно / нельзя · ✓N ✗N 👀N
 ```
 Сам результат бери из `publish/moderation/<площадка>.md`, а не из пересказа.
 
-### 7. Исправления
-С разрешения Alex чини в ведущем чате. Правку, меняющую вид или геймплей, сначала согласуй. Затем смоук, пересборка, заливка, повтор этапа 6 для затронутых площадок. Цикл до ✗0.
+### 8. Исправления
+С разрешения Alex чини в ведущем чате. Правку, меняющую вид или геймплей, сначала согласуй. Затем смоук, пересборка, заливка, повтор этапа 7 для затронутых площадок. Цикл до ✗0.
 
-### 8. Отправка
+### 9. Отправка
 Только по явному «да, отправляй на <площадку>». Перед кликом покажи: билд, дата, что заполнено, остаток ручных пунктов. После клика проверь статус в кабинете, запиши в `STATE.json`, `PROJECT_STATE.md` и memory-bank.
 
 ## Память

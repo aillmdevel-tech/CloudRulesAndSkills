@@ -1,0 +1,49 @@
+# Этап SDK: интеграция площадок, реклама, покупки, загрузочный экран
+
+Сверено с docs.crazygames.com (HTML5 SDK v3) и wiki.playgama.com (Bridge 2.x) 2026-11-24 и с рабочей интеграцией Snack Toss Zoo. Документация меняется: при сомнении перечитай страницу площадки.
+
+## Статус игры → что можно (`pub sdk-config`, единственный источник — `publish/STATE.json` → `sdk`)
+
+| | Playgama | CrazyGames Basic Launch | CrazyGames Full Launch |
+|---|---|---|---|
+| SDK | обязателен (Bridge) | желателен: loading/gameplay, Data module, mute | обязателен (Full Implementation) |
+| Interstitial | да, в каждой логической паузе | **нет** | midgame через `SDK.ad` |
+| Rewarded | по желанию, кнопка только при `isRewardedSupported` | **нет**, кнопки скрыты | да |
+| Баннер | sticky через Bridge, не закрывает кнопки | **нет** | только на меню ≥ 5 с, не в геймплее, ≤ 2 на экран |
+| Покупки | `bridge.payments`, если Alex попросил | **нет** | только по приглашению CrazyGames (Xsolla), шаблон этого не делает |
+
+Статус по умолчанию: CG `basic`, реклама включена (на CG её выключает статус), IAP выключены. Alex меняет: «CG перешла в Full Launch», «добавь покупки: 100 монет, без рекламы».
+
+## Порядок этапа
+1. `pub sdk-scan`: стек, слой платформы, Bridge, сборки, загрузочный экран, сохранения и SDK мимо слоя, точки рекламы, кандидаты логических пауз.
+2. `pub sdk-config [--cg-launch basic|full] [--ads|--rewarded|--banner|--iap on|off] [--products id:consumable,id:permanent]` пишет `src/platform/config.ts` (FEATURES) и `public/playgama-bridge-config.json` (плейсменты из кода, payments).
+3. Слой нет → `pub sdk-install [--boot-bg ./assets/boot/bg_land.webp --boot-bg-port … --boot-icon … --tips tips.json --font '"Fredoka One"' --color-top … --color-bottom …]`. Ставит `src/platform/*`, `src/dev/webPlatform.ts`, `src/boot/*`, `tools/pack.py`, `#boot` в `index.html`, скрипты `dev/build/pack:<площадка>`. Существующие файлы не трогает: кладёт рядом `*.publisher-new`, сливаешь вручную.
+4. Нет `@playgama/bridge` → `npm i @playgama/bridge` (официальный пакет; сам вызов скилла на этап SDK — разрешение). `vite.config.ts` — по `templates/sdk/vite.snippet.ts`.
+5. `src/main.ts` — порядок из `templates/sdk/main.snippet.ts`. Сохранения игры перевести на `platform.storage`, звук и пауза — на `onPause/onAudio`.
+6. Точки рекламы и покупок (ниже) — списком Alex, код после его «да».
+7. `pub sdk-config` ещё раз (плейсменты из кода), `pub sdk-check` до ✗0, tsc, `npm run build`, `pub sdk-run`, сборки `pack:playgama` и `pack:crazygames`, смоук проекта.
+
+## Точки рекламы
+- **Interstitial** — только логические паузы: конец уровня/раунда, экран смерти после выбора, возврат в лобби. Не во время действия, не на кнопках меню, магазина, настроек (CG). Свои таймеры не нужны: Bridge держит `minimumDelayBetweenInterstitial` 60 с, CG — свой кулдаун (`adCooldown`).
+- **Rewarded** — только по кнопке с понятной наградой и равной кнопкой отказа: ×2 награда, оживление (не больше 1 раза за попытку), сундук, бесплатная прокачка. Награда только при `ads.rewarded() === true`. Кнопка видна только при `ads.rewardedAvailable`.
+- Нельзя: реклама до разумного геймплея, две подряд, rewarded и interstitial между одними уровнями, блокировать игроков с adblock.
+- **Баннер** — `ads.banner(true)` на экранах меню, `false` при входе в геймплей и на время fullscreen-рекламы.
+- Во время рекламы игра на паузе и без звука — это делает адаптер через `onPause`; игра обязана слушать `onPause`.
+
+## Покупки (только по просьбе Alex)
+- Товары: `id:consumable` (монеты, бусты) или `id:permanent` (без рекламы, скины). Цены и названия Alex заводит в кабинете Playgama.
+- Магазин виден только при `purchases.supported`. `purchase()` только из нажатия игрока; выдать при `true`; расходник — сразу `consume()`.
+- При старте `owned()`: восстановить постоянные, выдать и погасить неподтверждённые расходники.
+- «Без рекламы» = не вызывать interstitial и скрыть баннер; rewarded остаётся по желанию игрока.
+- Без выигрышей реальных денег и азартных механик (Playgama 2.5).
+
+## Загрузочный экран (`#boot`, всегда)
+- Рисуется до бандла: фон (арт игры или ключевой кадр без HUD), иконка, полоса с процентом, строка этапа по прогрессу (локация → модели → «почти загрузилась»), сменяющиеся подсказки каждые 2.8 с на 5 языках: дружелюбные строки + 3–6 реальных советов по игре (пиши их сам по механикам, `--tips`).
+- Прогресс реальный: three.js — `boot/threeHook.ts` (DefaultLoadingManager), другие движки — `track(promise)`.
+- Экран уходит только после `assetsIdle()` → прогрев шейдеров → первый кадр → `loadingStop()` → `bootDone()`. Игрок не видит пустую или чёрную локацию.
+- Стиль: шрифт и цвета игры (ART_SPEC/StyleLibrary), анимации UIFX по `game-ui-motion-sound`; `prefers-reduced-motion` уважается. Цель CrazyGames: до геймплея ≤ 20 с.
+
+## Проверки
+- `pub sdk-check` — статические правила (слой, статус, хранилище, SDK мимо слоя, Bridge первым скриптом, config и плейсменты, кнопки rewarded, IAP, порядок в main.ts).
+- `pub sdk-run` на web-сборке (`?fakeads=1`, `?fakeiap=1`): экран загрузки виден сразу и уходит сам, порядок вызовов, пауза на рекламе, награда после досмотра, каталог, ошибки консоли. Флаги `?adfail=1`, `?iapfail=1` — ручная проверка отказов: игра продолжается, награды нет.
+- Живую рекламу и покупки на площадке проверяет Alex (QA Tool, телефон).

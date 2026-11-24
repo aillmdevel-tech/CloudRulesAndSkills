@@ -2,7 +2,7 @@
 """Publisher helper for CrazyGames + Playgama. Run: publisher.py <command> --project DIR. See ../SKILL.md."""
 import argparse, datetime, functools, hashlib, http.server, json, os, re, shutil, subprocess, sys, threading, zipfile
 
-STAGES = ['audit', 'localization', 'promo', 'drafts', 'media_upload', 'alex_playtest', 'local_moderation', 'fixes', 'submit']
+STAGES = ['audit', 'sdk', 'localization', 'promo', 'drafts', 'media_upload', 'alex_playtest', 'local_moderation', 'fixes', 'submit']
 LANGS = ['en', 'ru', 'es', 'pt-BR', 'tr']
 CHARS = {
     'en': 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
@@ -52,13 +52,13 @@ def cmd_status(a):
     s = load(a)
     mark = {'todo': '·', 'active': '▶', 'done': '✓', 'blocked': '!'}
     for k in STAGES:
-        v = s['stages'][k]; print(f"{mark.get(v['status'], '?')} {k}" + (f" — {v['note']}" if v['note'] else ''))
+        v = s['stages'].get(k, {'status': 'todo', 'note': ''}); print(f"{mark.get(v['status'], '?')} {k}" + (f" — {v['note']}" if v['note'] else ''))
 
 
 def cmd_stage(a):
     s = load(a)
     if a.id not in STAGES: sys.exit(f'этапы: {STAGES}')
-    s['stages'][a.id] = {'status': a.value, 'note': a.note or s['stages'][a.id]['note']}
+    s['stages'][a.id] = {'status': a.value, 'note': a.note or s['stages'].get(a.id, {}).get('note', '')}
     save(a, s); cmd_status(a)
 
 
@@ -354,6 +354,17 @@ def main():
     p = add('media-check', cmd_media_check); p.add_argument('files', nargs='+')
     p = add('prep-upload', cmd_prep_upload); p.add_argument('--platform', required=True, choices=['crazygames', 'playgama']); p.add_argument('--zip'); p.add_argument('--out')
     p = add('moderate', cmd_moderate); p.add_argument('--platform', default='all', choices=['all', 'crazygames', 'playgama']); p.add_argument('--no-build', action='store_true'); p.add_argument('--parse-only', action='store_true')
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import sdk as S
+    add('sdk-scan', lambda a: S.cmd_sdk_scan(a, load))
+    p = add('sdk-config', lambda a: S.cmd_sdk_config(a, load, save))
+    p.add_argument('--cg-launch', choices=['basic', 'full']); p.add_argument('--products', help='id[:consumable|permanent],…')
+    for k in ('ads', 'rewarded', 'banner', 'iap'): p.add_argument('--' + k, choices=['on', 'off'])
+    p = add('sdk-install', lambda a: S.cmd_sdk_install(a, load, save)); p.add_argument('--force', action='store_true')
+    p.add_argument('--boot-bg', help='url from index.html, e.g. ./assets/boot/bg_land.webp'); p.add_argument('--boot-bg-port'); p.add_argument('--boot-icon')
+    p.add_argument('--tips', help='json {en:[…],ru:[…],es,pt,tr}'); p.add_argument('--font', default='"Fredoka One"')
+    p.add_argument('--color-top', default='#4fb3ff'); p.add_argument('--color-bottom', default='#8fe35c')
+    add('sdk-check', lambda a: S.cmd_sdk_check(a, load))
+    p = add('sdk-run', lambda a: S.cmd_sdk_run(a, load)); p.add_argument('--url'); p.add_argument('--out'); p.add_argument('--timeout', type=int, default=60)
     a = ap.parse_args(); a.project = os.path.abspath(a.project); a.fn(a)
 
 
