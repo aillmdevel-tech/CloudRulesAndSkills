@@ -69,7 +69,9 @@
   ],
   "first_frame_cover": "optional",
   "speed_max": 1.0,
-  "verified_refs": "2026-11-21: 14 published previews (16:9 1920x1080 + 2:3 720x1080, 30 fps, muted) measured"
+  "verified_refs": "2026-11-21: 14 published previews (16:9 1920x1080 + 2:3 720x1080, 30 fps, muted) measured",
+  "screens": [],
+  "screens_note": "no screenshot field in the CrazyGames form (checked 2026-11-26)"
  },
  "poki": {
   "source": "https://developers.poki.com/guide/game-thumbnail ; https://developers.poki.com/guide/your-game-page",
@@ -183,7 +185,7 @@
  },
  "playgama": {
   "source": "https://playgama.com/blog/business-faqs/what-thumbnail-and-metadata-assets-are-required-for-submitti/",
-  "verified": "2026-11-20 (no own numbers: square + portrait + landscape covers, exact sizes in the developer.playgama.com form)",
+  "verified": "2026-11-26 (developer.playgama.com form: Cover Images 1:1 800, 9:16 1080x1920, 16:9 1920x1080; Other Assets screenshots optional)",
   "covers": [
    {
     "name": "landscape",
@@ -192,8 +194,8 @@
    },
    {
     "name": "portrait",
-    "w": 800,
-    "h": 1200
+    "w": 1080,
+    "h": 1920
    },
    {
     "name": "square",
@@ -218,7 +220,20 @@
   "video_rules": [
    "distributed to Yandex/CrazyGames/others: when in doubt also build their presets"
   ],
-  "speed_max": 1.0
+  "speed_max": 1.0,
+  "screens": [
+   {
+    "name": "landscape",
+    "w": 1920,
+    "h": 1080
+   },
+   {
+    "name": "portrait",
+    "w": 1080,
+    "h": 1920
+   }
+  ],
+  "screens_count": 5
  },
  "ads_landscape": {
   "primary": true,

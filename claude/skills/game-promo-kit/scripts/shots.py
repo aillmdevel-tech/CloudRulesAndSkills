@@ -92,7 +92,7 @@ def main():
     ap.add_argument('--project', required=True)
     ap.add_argument('--platform', required=True)
     ap.add_argument('--lang')
-    ap.add_argument('--count', type=int, default=6)
+    ap.add_argument('--count', type=int, default=None, help='screens per size; default: preset screens_count or 6')
     ap.add_argument('--covers', action='store_true')
     ap.add_argument('--screens', action='store_true')
     ap.add_argument('--sizes', help='screen sizes, e.g. 1920x1080,1080x1920 (default: preset screens or 1920x1080)')
@@ -119,7 +119,10 @@ def main():
             for s in j.get('shots', []):
                 fp = os.path.join(promo_dir(project), s['file']) if not os.path.isabs(s['file']) else s['file']
                 if os.path.exists(fp): stills.append((s['name'], Image.open(fp).convert('RGB')))
+    a.count = a.count or plat.get('screens_count', 6)
     frames = [(f'm{m["id"]:02d}', best_frame(project, m, tmp), m) for m in ms[:a.count]]
+    if a.screens and plat.get('screens') == [] and not a.sizes:
+        report.append(f'screens: {a.platform} takes none ({plat.get("screens_note", "empty preset")}), skipped'); a.screens = False
     if a.screens:
         sizes = ([tuple(int(x) for x in s.split('x')) for s in a.sizes.split(',')] if a.sizes else
                  [(s['w'], s['h']) for s in plat.get('screens', [])] or [(1920, 1080)])
@@ -127,7 +130,7 @@ def main():
         pool = [(n, im, None) for n, im in stills] + frames
         for lang in langs:
             od = os.path.join(base, 'screens', lang); os.makedirs(od, exist_ok=True)
-            for n, im, m in pool[:max(a.count, len(stills))]:
+            for n, im, m in pool[:a.count]:
                 for (w, h) in sizes:
                     out = grade(cover_crop(im, w, h, fx, fy), 0.6)
                     if a.captions and m:
@@ -136,7 +139,7 @@ def main():
                         if cap: out = draw_title(out, cap, cfg, ypos=0.12, rel=0.09, colour=cfg['colors']['accent'])
                     p = os.path.join(od, f'{n}_{w}x{h}.png'); out.save(p, optimize=True)
                     if min(im.width / w, im.height / h) < 0.75: report.append(f'upscaled {n} to {w}x{h}: capture bigger (--size/--dpr)')
-            report.append(f'screens: {len(pool[:max(a.count, len(stills))])} x {len(sizes)} sizes -> {os.path.relpath(od, project)}')
+            report.append(f'screens: {len(pool[:a.count])} x {len(sizes)} sizes -> {os.path.relpath(od, project)}')
     if a.covers:
         src = a.source or cfg.get('cover_source')
         if src:

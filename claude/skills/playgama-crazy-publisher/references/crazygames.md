@@ -6,8 +6,8 @@
 
 ## Шаги формы
 1. **Before you submit** — 6 заявлений (загрузка < 20 с, проверено на телефоне, английский по умолчанию, понятно за минуту, прошёл кто-то другой, оригинальность и права). Галочки ставит Alex. Подсвети пункты, которые мы реально не проверили.
-2. **Upload** — название, движок HTML5, сохранения через Data Module SDK, мобильные и ориентации, mute через SDK, файлы билда.
-3. **QA Tool** — смотри панель: Loading Start/Stop, Gameplay Start/Stop, Mute, Get/Set Item зелёные, warnings 0. Ad и Banner серые в Basic Launch нормально.
+2. **Upload** — название (то же, что в игре: `<title>`, экран загрузки, обложки — CG сверяет), движок HTML5, сохранения через Data Module SDK, мобильные и ориентации, mute через SDK, файлы билда.
+3. **QA Tool** — смотри панель: Loading Start/Stop, Gameplay Start/Stop, Mute, Get/Set Item зелёные, warnings 0. Ad и Banner серые в Basic Launch нормально. Load time завышается, когда Chrome занят (висящие вкладки preview, высокий load average Mac): закрой их и перезапусти QA, прежде чем чинить загрузку. Ссылка для Alex с телефона: `https://www.crazygames.com/preview/<gameId>?gameBuildId=<buildId>` (на странице есть Show QR Code) — всегда на текущий build.
 4. **QA Results** — Yes/No и «I confirm» ставит Alex; дай ответ по каждому пункту с фактом. Результаты могут истечь после новой заливки: тогда снова «Go to QA».
 5. **Details** открывается только после QA Results: категория, до 5 тегов, описание, управление, инструмент, обложки, видео.
 6. **Submit** — две галочки (Terms, PEGI 12) и «Submit for approval»: только Alex или по его явному «да».

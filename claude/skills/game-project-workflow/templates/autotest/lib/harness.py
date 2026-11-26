@@ -18,13 +18,19 @@ def build():
 class Server:
     """vite preview (prod, default) or vite dev on a private port; killed on exit."""
     def __init__(self, dev=False, port=None):
-        self.dev = dev; self.port = port or (5189 if dev else 4189); self.p = None
+        self.dev = dev; self.port = port or self.free_port(); self.p = None   # a fixed port can be held by another project's server
         self.url = f'http://127.0.0.1:{self.port}/'
+
+    @staticmethod
+    def free_port():
+        import socket
+        with socket.socket() as so: so.bind(('127.0.0.1', 0)); return so.getsockname()[1]
 
     def __enter__(self):
         cmd = ['npx', 'vite'] + ([] if self.dev else ['preview']) + ['--host', '127.0.0.1', '--port', str(self.port), '--strictPort']
         self.p = subprocess.Popen(cmd, cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
         for _ in range(120):
+            if self.p.poll() is not None: raise SystemExit(f'server exited (port {self.port} busy?)')
             try:
                 urllib.request.urlopen(self.url, timeout=1); return self
             except Exception:

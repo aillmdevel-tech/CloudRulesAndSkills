@@ -177,6 +177,20 @@ class Api:
         self.event('shot', 0, name)
         return p
 
+    CLEAN_JS = """([on, sel]) => { let s = document.getElementById('promo-clean'); if (!s) { s = document.createElement('style'); s.id = 'promo-clean'; document.head.append(s); }
+      s.textContent = on ? '' : sel + '{visibility:hidden!important}';
+      const g = window.__game, sc = g && (g.scene || (g.R && g.R.scene)); window.__promoHid = window.__promoHid || [];
+      if (!on && sc && sc.traverse) sc.traverse((o) => { if (o.isSprite && o.visible) { o.visible = false; window.__promoHid.push(o); } });
+      if (on) { for (const o of window.__promoHid) o.visible = true; window.__promoHid = []; } }"""
+
+    def shot_pair(self, name, hide='#ui'):
+        """Two stills: <name> with the game HUD (screenshots) and <name>_clean without DOM HUD (`hide` selector)
+        and without visible THREE.Sprite labels of window.__game.scene (cover sources)."""
+        self.shot(name)
+        self.page.evaluate(self.CLEAN_JS, [False, hide]); time.sleep(0.05)
+        self.shot(name + '_clean')
+        self.page.evaluate(self.CLEAN_JS, [True, hide])
+
 
 def start_server(project, no_build, port):
     pkg = os.path.join(project, 'package.json')

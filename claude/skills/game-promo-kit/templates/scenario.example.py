@@ -2,7 +2,7 @@
 api: js(code[, arg]), wait(s), key_down/key_up/press/hold(keys, s), click(x, y), mouse_move, drag,
      event(type, weight, label)  -> juicy moment for moments.py (weight 1..5),
      director(on)                -> calls window.__promo.director if the game defines it,
-     shot(name)                  -> crisp still for shots.py, t() -> seconds since recording start."""
+     shot(name)                  -> crisp still for shots.py; shot_pair(name, hide="#ui") -> + <name>_clean without HUD and 3D labels (covers), t() -> seconds since recording start."""
 
 
 def prepare(api):
