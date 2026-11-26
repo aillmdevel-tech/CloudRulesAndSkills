@@ -34,6 +34,7 @@ bash <клон>/scripts/install.sh --games-dir <папка игр> --with-mcp
 (`resource-run` — заглушка, если своей политики нет), Python Playwright + Chromium, зависимости UIFX.
 `--with-mcp`: MCP blender и afk-rig + аддон в Blender. Playgama MCP — вручную по `mcp/MCP.md`, когда понадобится.
 Если что-то упало — исправь причину и перезапусти (скрипт идемпотентный).
+Ежедневная разведка идей (по желанию Alex): `sed "s#/Users/mac#$HOME#g" ~/.claude/skills/game-idea-scout/scripts/com.gamefactory.scout.plist > ~/Library/LaunchAgents/com.gamefactory.scout.plist && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.gamefactory.scout.plist` (снимки Steam/Roblox/YouTube в 10:00).
 
 ## 4. Проверить
 - `ls ~/.claude/skills` → 24 папки: frontend-design, webapp-testing, grilling, frontend-visual-qa + 20 своих (character-animation, game-idea-scout, game-design-library,

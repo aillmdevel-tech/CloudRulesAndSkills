@@ -1,12 +1,37 @@
 """Steam upcoming games by wishlist popularity: daily snapshots and risers.
   python3 scout_steam.py snapshot OUTDIR [--pages 4]     # top ~200 of store 'popular upcoming' -> OUTDIR/YYYY-MM-DD.json
-  python3 scout_steam.py risers OUTDIR [--days 30] [--top 15] [--max-rank 200]   # biggest rank gains vs oldest snapshot in window
+  python3 scout_steam.py risers OUTDIR [--days 30] [--top 15] [--max-rank 200] [--fun]   # biggest rank gains vs oldest snapshot in window
+  python3 scout_steam.py fun OUTDIR [--top 40]          # latest snapshot filtered to our kind of game (tags + release date)
+--fun keeps games with ≥1 FUN tag and no HEAVY tag, releasing in the next ~18 months or "coming soon"; prints tag names.
 Rank in Steam's 'popularwishlist' order is a proxy for wishlist momentum (exact wishlist counts are not public).
 The first run has nothing to compare with: run daily (or weekly) so risers appear."""
 import datetime as dt, glob, html, json, os, re, sys, time, urllib.request
 
 UA = {'User-Agent': 'Mozilla/5.0', 'Cookie': 'birthtime=0; wants_mature_content=1'}
 URL = 'https://store.steampowered.com/search/results/?filter=popularwishlist&infinite=1&count=50&start={}&cc=us&l=english'
+
+
+FUN = {'Funny', 'Casual', 'Physics', 'Co-op', 'Online Co-Op', 'Simulation', 'Comedy', 'Cute', 'Cartoony', 'Cartoon', 'Party Game',
+       'Sandbox', 'Building', 'Management', 'Cozy', 'Family Friendly', 'Colorful', 'Arcade', 'Destruction', 'Parkour', 'Racing', 'Fishing',
+       'Cooking', 'Farming Sim', 'Life Sim', 'Clicker', 'Idle', 'Incremental', 'Pets', 'Party', 'Local Co-Op', 'Multiplayer', 'Dark Comedy'}
+HEAVY = {'Massively Multiplayer', 'MOBA', 'Tactical', 'Military', 'Hero Shooter', 'Souls-like', 'Grand Strategy', 'Visual Novel',
+         'Story Rich', 'Turn-Based Tactics', 'JRPG', 'CRPG', 'Card Battler', 'Sexual Content', 'Nudity', 'Gore', 'Mature', 'Realistic',
+         'Open World Survival Craft', 'Space Sim', 'Flight', 'Hunting', 'Wargame', 'Esports',
+         'Open World', 'Extraction Shooter', 'MMORPG', 'RTS', 'Action RTS', 'Looter Shooter', 'Action RPG'}
+
+
+def tagnames(out):
+    p = os.path.join(out, 'tags.json')
+    if not os.path.exists(p):
+        json.dump({str(t['tagid']): t['name'] for t in get('https://store.steampowered.com/tagdata/populartags/english')}, open(p, 'w'))
+    return json.load(open(p))
+
+
+def is_fun(x, names):
+    tags = {names.get(str(t), '') for t in x['tags']}
+    rel = x['release'].lower()
+    soon = (not re.search(r'20(1\d|2[0-5])', rel)) and not re.search(r'202[89]|203', rel)
+    return bool(tags & FUN) and not (tags & HEAVY) and soon, sorted(t for t in tags if t)
 
 
 def get(u):
@@ -28,26 +53,40 @@ def snapshot(out, pages=4):
     print(f'{day}: {len(items)} games → {out}/{day}.json')
 
 
-def risers(out, days=30, top=15, max_rank=200):
-    snaps = sorted(glob.glob(os.path.join(out, '*.json')))
+def risers(out, days=30, top=15, max_rank=200, fun=False):
+    snaps = sorted(glob.glob(os.path.join(out, '20*.json')))
     if len(snaps) < 2: print('need ≥2 snapshots (run snapshot daily)'); return
     new = json.load(open(snaps[-1])); cut = (dt.date.fromisoformat(new['date']) - dt.timedelta(days=days)).isoformat()
     old = json.load(open(next((s for s in snaps if os.path.basename(s)[:10] >= cut), snaps[0])))
     was = {x['appid']: x['rank'] for x in old['items']}
+    cover = max(was.values(), default=0)  # old snapshot depth: below it «new» means «unknown», not «jumped in»
     rows = []
     for x in new['items']:
         if x['rank'] > max_rank: continue
         before = was.get(x['appid'])
-        gain = (before - x['rank']) if before else (max_rank + 1 - x['rank'])  # new entry = jumped in from outside the list
+        if not before and x['rank'] > cover: continue
+        gain = (before - x['rank']) if before else (cover + 1 - x['rank'])  # new entry = jumped in from below the old list
         rows.append((gain, x, before))
+    names = tagnames(out)
+    if fun: rows = [r for r in rows if is_fun(r[1], names)[0]]
     rows.sort(key=lambda r: -r[0])
     print(f"risers {old['date']} → {new['date']}")
     for gain, x, before in rows[:top]:
-        print(f"+{gain:3d}  #{x['rank']:3d} (was {before or 'new'})  {x['appid']}  {x['name']}  [{x['release']}]  https://store.steampowered.com/app/{x['appid']}/")
+        print(f"+{gain:3d}  #{x['rank']:3d} (was {before or 'new'})  {x['name']}  [{x['release']}]  {', '.join(is_fun(x, names)[1][:6])}  https://store.steampowered.com/app/{x['appid']}/")
+
+
+def fun(out, top=40):
+    snap = json.load(open(sorted(glob.glob(os.path.join(out, '20*.json')))[-1])); names = tagnames(out); n = 0
+    print(f"fun filter on {snap['date']} ({len(snap['items'])} games)")
+    for x in snap['items']:
+        ok, tags = is_fun(x, names)
+        if ok and n < top:
+            n += 1; print(f"#{x['rank']:3d}  {x['name']}  [{x['release']}]  {', '.join(tags[:7])}  https://store.steampowered.com/app/{x['appid']}/")
 
 
 a = sys.argv[1:]
 opt = lambda k, d: type(d)(a[a.index(k) + 1]) if k in a else d
 if a[:1] == ['snapshot']: snapshot(a[1], opt('--pages', 4))
-elif a[:1] == ['risers']: risers(a[1], opt('--days', 30), opt('--top', 15), opt('--max-rank', 200))
+elif a[:1] == ['risers']: risers(a[1], opt('--days', 30), opt('--top', 15), opt('--max-rank', 200), '--fun' in a)
+elif a[:1] == ['fun']: fun(a[1], opt('--top', 40))
 else: print(__doc__)

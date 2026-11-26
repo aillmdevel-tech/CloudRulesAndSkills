@@ -11,6 +11,7 @@
 | [ui-audio.md](ui-audio.md) | HUD, окна, мобильный ввод, звук |
 | [assets.md](assets.md) | Blender, GLB-экспорт, текстуры, импорт |
 | [platforms.md](platforms.md) | SDK Playgama/CrazyGames, реклама, пауза, модерация |
+| [promo.md](promo.md) | трейлеры, реклама, превью: камера, подписи, финал, правила Alex |
 | [testing.md](testing.md) | смоук, пробы, ложные ✗, тайминги тестов |
 
 ## Формат записи (5 строк, новые сверху)
