@@ -36,7 +36,7 @@ bash <клон>/scripts/install.sh --games-dir <папка игр> --with-mcp
 Если что-то упало — исправь причину и перезапусти (скрипт идемпотентный).
 
 ## 4. Проверить
-- `ls ~/.claude/skills` → 22 папки: frontend-design, webapp-testing, grilling, frontend-visual-qa + 18 своих (character-animation,
+- `ls ~/.claude/skills` → 24 папки: frontend-design, webapp-testing, grilling, frontend-visual-qa + 20 своих (character-animation, game-idea-scout, game-design-library,
   chat-handoff, diagnosing-bugs, game-art-first, game-autotest, game-project-workflow, game-promo-kit, game-reference-analysis,
   game-ui-motion-sound, game-visual-comparison, github-account-router, levelcopier-asset-pipeline, playgama-crazy-publisher, retro,
   save-context, threejs-aaa-graphics-builder, threejs-debug-profiler, writing-for-agents). `playcanvas-skills status` → 0 / 16.

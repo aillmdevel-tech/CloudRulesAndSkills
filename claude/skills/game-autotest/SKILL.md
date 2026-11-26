@@ -1,6 +1,6 @@
 ---
 name: game-autotest
-description: Use when the user asks to check/test a browser game with the factory's automatic checks — "проверь игру модератором", "проверь нашим модератором", "модератор Playgama/CrazyGames/Яндекс", "можно отправлять на площадку?", "прогони смоук", "проверь что игра работает", "настрой автопроверки/смоук/модератор для проекта" — and ALSO on your own: run smoke after every finished change plan/stage before saying «готово» in any game project that has tools/smoke.py. Calls the project's npm scripts, reads the short result, reports to the user; sets up smoke+moderator from GameFactory templates in a project that lacks them.
+description: Use when the user asks to check/test a browser game with the factory's automatic checks — "проверь игру модератором", "проверь нашим модератором", "модератор Playgama/CrazyGames/Яндекс", "можно отправлять на площадку?", "прогони смоук", "проверь что игра работает", "настрой автопроверки/смоук/модератор для проекта", "проверь первую минуту", "холодный взгляд", "протестируй механики" — and ALSO on your own: run smoke after every finished change plan/stage before saying «готово» in any game project that has tools/smoke.py. Calls the project's npm scripts, reads the short result, reports to the user; sets up smoke+moderator from GameFactory templates in a project that lacks them.
 ---
 
 # Автопроверки игры: смоук + модератор (любой проект)
@@ -11,8 +11,13 @@ description: Use when the user asks to check/test a browser game with the factor
 - **Смоук** `npm run smoke` — «игра вообще работает?» (~30–60 с, PASS/FAIL, exit 0/1, скриншоты `tools/out/smoke/`). Визуал не оценивает.
 - **Модератор** `npm run moderate -- --platform <имя>` — «пройдём модерацию площадки?». Правила `tools/moderator/rules/<площадка>.json`, живой отчёт `docs/moderation/REPORT.md`, вердикт «можно / нельзя отправлять», exit 0/1.
 
+- **Тесты механик** `npm run mechanics` — «каждая механика делает то, что обещает?» (настроить → действие как игрок → ждать результат в `window.__game`; `tools/mechanics.py`, библиотека `tools/lib/mechanics.py`, кадры `tools/out/mechanics/`).
+- **Первая минута** `npm run first-minute` — первые 120 с новичка: кадры 1…120 с, лист `tools/out/first_minute/sheet.jpg`, события воронки, время загрузки. Затем **холодный взгляд**: сабагент (Agent, без контекста проекта) получает только путь к `sheet.jpg` и промпт из `GameFactory/DESIGN/FIRST_MINUTE.md`; ведущий сверяет ответы со скелетом и пишет `docs/FIRST_MINUTE.md` (таблица PASS/FAIL по порогам). Провалы → `docs/TASKS.md` с секундой и кадром.
+
 ## Когда звать САМ (без просьбы)
 - Смоук: после каждого плана/этапа правок кода игры, до слова «готово». Не после правок только документов/конфигов. Не в процессе мелких итераций — один раз в конце.
+- Тесты механик: вместе со смоуком, если в проекте есть `tools/mechanics.py`.
+- Первая минута: перед показом проверки B, после пакета правок, меняющего начало игры, и перед модератором.
 - Модератор: только когда Alex просит или явно готовится отправка на площадку («залей на Playgama», «отправляем»). Площадку называет Alex; не назвал — спроси одним вопросом (или возьми из PROJECT_STATE, если там указана целевая).
 
 ## Как вызывать
@@ -31,10 +36,10 @@ description: Use when the user asks to check/test a browser game with the factor
 
 ## Настройка в проекте без автопроверок
 1. Убедись, что у игры есть прод-сборка (`npm run build` → `dist/`, vite) и dev-хэндл `window.__game` (доступен и в проде) с игроком/состоянием; нет — добавь минимальный (читаемое состояние + несколько команд: телепорт/старт/сброс).
-2. Скопируй из шаблона: `lib/` → `tools/lib/`, `moderator/` → `tools/moderator/`, `examples/smoke.spiderarm.py` → `tools/smoke.py` (как заготовку). `pip install playwright` + `playwright install chromium` при отсутствии.
+2. Скопируй из шаблона: `lib/` → `tools/lib/`, `moderator/` → `tools/moderator/`, `examples/smoke.spiderarm.py` → `tools/smoke.py` (как заготовку), `first_minute.py` → `tools/first_minute.py`, `examples/mechanics.example.py` → `tools/mechanics.py`. Сценарий новичка — `tools/first_minute.actions.json` (клики/клавиши по секундам, без dev-команд). `pip install playwright` + `playwright install chromium` при отсутствии.
 3. Перепиши под проект: `STATE`/`prep`/`tp`/`fall`/`click_hud` в `harness.py`, шаги в `smoke.py` (загрузка → ключевой путь цикла игры → смерть/рестарт → звук → консоль чистая), пробы/проверки в `probes.py`/`checks.py`, которые завязаны на `window.__game`. Правила площадок (`rules/*.json`) переносятся как есть; новую площадку — новым JSON по официальным требованиям (номера не выдумывать; источник в поле `source`).
-4. `package.json`: `"smoke": "python3 tools/smoke.py"`, `"moderate": "python3 tools/moderator/run.py"`. `tools/out/` и `docs/moderation/` — в `.gitignore` по желанию (отчёт можно коммитить).
+4. `package.json`: `"smoke": "python3 tools/smoke.py"`, `"moderate": "python3 tools/moderator/run.py"`, `"mechanics": "python3 tools/mechanics.py"`, `"first-minute": "python3 tools/first_minute.py"`. `tools/out/` и `docs/moderation/` — в `.gitignore` по желанию (отчёт можно коммитить).
 5. В `CLAUDE.md` проекта одна строка: `smoke после каждого плана · модератор по просьбе: npm run moderate -- --platform X → docs/moderation/REPORT.md`. Запусти, добейся PASS, покажи Alex результат.
 
 ## Поддержка
-Новая механика/экран в игре → доп. шаг в `smoke.py`, но только если это ключевой путь. В ключевой путь входят **комбинации ввода** с главным действием: прыжок, бег, пауза, второй палец или клик в момент старта действия; проверка — камера, игрок и фаза в норме после комбинации (так ловится «прыжок при броске уводит камеру вверх»). Пробы модератора стартуют с безопасной точки: телепорт на открытое место перед движением. Смоук держать ≤ ~100 строк и ≤ ~1 мин. Изменились требования площадки → обновить `rules/*.json`. Улучшил шаблон в проекте → перенеси и в GameFactory `templates/autotest/` (скрипты универсальных частей).
+Новая механика → тест в `tools/mechanics.py` (всегда), шаг в `smoke.py` — только если это ключевой путь. Ложный ✗ пробы или нетривиальная причина ✗ → урок в `GameFactory/LESSONS/testing.md`. В ключевой путь входят **комбинации ввода** с главным действием: прыжок, бег, пауза, второй палец или клик в момент старта действия; проверка — камера, игрок и фаза в норме после комбинации (так ловится «прыжок при броске уводит камеру вверх»). Пробы модератора стартуют с безопасной точки: телепорт на открытое место перед движением. Смоук держать ≤ ~100 строк и ≤ ~1 мин. Изменились требования площадки → обновить `rules/*.json`. Улучшил шаблон в проекте → перенеси и в GameFactory `templates/autotest/` (скрипты универсальных частей).

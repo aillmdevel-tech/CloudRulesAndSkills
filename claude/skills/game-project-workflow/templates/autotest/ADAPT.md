@@ -7,6 +7,9 @@
 `window.__game` (есть и в проде): `player` (pos, state), прогресс (уровень/XP), `sfx.context()` (AudioContext), способ телепорта и вызова смерти. Без него сначала добавить.
 Playgama Bridge в игре — для проб модератора про рекламу/паузу/сохранение; если площадка другая — править `spy.js` и пробы `ads/pause/persist`.
 
+## Тесты механик и первая минута
+`lib/mechanics.py` (универсально) + `examples/mechanics.example.py` → `tools/mechanics.py` (тесты на `window.__game`). `first_minute.py` → `tools/first_minute.py` + `tools/first_minute.actions.json`; использует `window.__game.funnel`, если подключён `templates/funnel/funnel.ts`.
+
 ## Установка
 cp -r lib moderator → `<проект>/tools/`; `examples/smoke.spiderarm.py` → `tools/smoke.py` (эталон шагов); `pip install playwright && playwright install chromium`; скрипты в package.json (см. SKILL game-autotest).
 

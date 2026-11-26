@@ -8,6 +8,8 @@ description: Retrospective on a finished session or game — "ретро", "ре
 > - Логи прошлых сессий: `~/.claude/projects/<папка-проекта>/*.jsonl` — читай скриптом через `resource-run`, в чат только выжимку.
 > - Только предлагай: список по-русски, кратко, с файлом и конкретной правкой. Правь после «да» Alex, затем синхронизируй CloudRules (`scripts/sync.sh --commit`).
 > - Сессии не запускай; модель и мышление не трогай.
+> - **Режим «воронка»** («разбери воронку», после запуска игры): не окружение агента, а игра. Цифры кабинета площадки + дневник `funnel` → таблица шагов (`GameFactory/DESIGN/FUNNEL.md`) → самый большой обрыв → вопросы из FUNNEL.md → одна правка геймплея (после «да» Alex) → `docs/LAUNCH.md` и карточка `DesignLibrary/games/our-<slug>.md`.
+> - Также проверь: появились ли уроки в `GameFactory/LESSONS/` по багам сессии и механики в `MECHANICS/` по принятым механикам; нет — это находка.
 
 The user has asked for a **retrospective**. You are suggesting improvements to the coding agent's **environment** to improve future runs.
 

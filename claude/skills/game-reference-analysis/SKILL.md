@@ -8,6 +8,8 @@ description: Use when the user gives gameplay video, a video link, screenshots, 
 Goal: turn raw reference material (video, screenshots, voice-dictated notes) into documents a developer
 can build from, without inventing anything that was not actually seen.
 
+> Записи Alex «как он играет» для базы геймдизайна (голос, комментарии, хуки) → `game-design-library`, не этот скилл. Здесь — референс конкретного проекта.
+
 ## Ground rules
 
 - Only claim to have watched what you actually extracted and looked at. If a link cannot be opened or

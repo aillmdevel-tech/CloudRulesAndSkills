@@ -9,6 +9,7 @@ description: Diagnosis loop for hard bugs and performance regressions in any pro
 > - Готовые петли: `tools/smoke.py` и модератор (`game-autotest`), Playwright-скрипт в `tools/` или scratchpad.
 > - Three.js-специфика (пустой canvas, draw calls, память, шейдеры) → вместе с `threejs-debug-profiler`.
 > - После фикса — смоук через `game-autotest`; отвечай по-русски.
+> - **Bug shield:** в начале — `grep -ri '<симптом>' <GameFactory>/LESSONS/` (возможно, баг уже был). В конце (Phase 6) — запись в `LESSONS/<тема>.md` по формату `LESSONS/README.md`: симптом, причина, фикс, правило, проверка. Правило из 2+ игр → предложи перенести в шаблон или автопроверку.
 
 # Diagnosing Bugs
 

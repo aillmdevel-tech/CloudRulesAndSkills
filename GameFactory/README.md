@@ -8,6 +8,10 @@
 |---|---|
 | Глобальные правила (грузятся в каждой сессии) | `~/.claude/CLAUDE.md` |
 | Собственные скиллы | `~/.claude/skills/{game-project-workflow, game-reference-analysis, levelcopier-asset-pipeline, game-visual-comparison, game-ui-motion-sound, chat-handoff, github-account-router, game-autotest}` |
+| Геймдизайн: конституция, фильтр идеи (15 вопросов), скелет 17 колонок, первая минута, воронка, перенос на Roblox | [DESIGN/](DESIGN/README.md) |
+| База разборов игр: карточки, паттерны, хуки, связки, GUI, механики по жанрам, разведка идей | [DesignLibrary/](DesignLibrary/README.md) · как записывать игры — [RECORDING.md](DesignLibrary/RECORDING.md) |
+| Bug shield: уроки по багам всех игр | [LESSONS/](LESSONS/README.md) |
+| Готовые механики с тестами | [MECHANICS/](MECHANICS/README.md) |
 | Визуальный вкус Alex: игры-референсы, жанровые шаблоны графики/анимаций/VFX/UI | [StyleLibrary/](StyleLibrary/README.md) |
 | Анимации и звуки UI | [UIFX/](UIFX/README.md) — 32 эффекта, 43 звука CC0, 5 стилей, демо `npm run demo` |
 | Сторонние скиллы | `~/.claude/skills/` (список и источники — [THIRD_PARTY_SKILLS.md](THIRD_PARTY_SKILLS.md)) |
@@ -23,6 +27,10 @@
 
 - «Делаем Roblox-like игру на PlayCanvas» + ТЗ, видео, скриншоты
 - «Делаем 3D-игру на TypeScript без движка»
+- «Найди идеи для игры» / «прогони идею через фильтр»
+- «Быстрая игра: <идея>»
+- «Разбери записи в inbox» (мои записи игр с голосом → база)
+- «Разбери воронку» (после запуска)
 - «Вот видео игры, разбери механику»
 - «Вот выгрузка LevelCopier, восстанови сцену»
 - «Сделай похоже на скриншот» / «проверь игру в браузере»

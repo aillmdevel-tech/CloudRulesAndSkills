@@ -1,0 +1,756 @@
+{
+"date": "2026-11-26",
+"source": "steam popularwishlist",
+"items": [
+{
+"rank": 1,
+"appid": 1422450,
+"name": "Deadlock",
+"tags": [
+1718,
+3814,
+3859,
+620519,
+5711,
+3878,
+1774
+],
+"release": "To be announced"
+},
+{
+"rank": 2,
+"appid": 4534960,
+"name": "Dear Passengers",
+"tags": [
+3859,
+4136,
+3843,
+1685,
+1719,
+19,
+113
+],
+"release": "2026"
+},
+{
+"rank": 3,
+"appid": 2719590,
+"name": "Light No Fire",
+"tags": [
+1695,
+1662,
+21,
+3834,
+3810,
+122,
+19
+],
+"release": "To be announced"
+},
+{
+"rank": 4,
+"appid": 2769570,
+"name": "Fable",
+"tags": [
+122,
+19,
+21,
+44868,
+1684,
+4182,
+1695
+],
+"release": "Feb 23, 2027"
+},
+{
+"rank": 5,
+"appid": 1774880,
+"name": "Blight: Survival",
+"tags": [
+4172,
+3843,
+3978,
+1697,
+29482,
+3859,
+19
+],
+"release": "To be announced"
+},
+{
+"rank": 6,
+"appid": 4824610,
+"name": "Resident Evil Veronica",
+"tags": [
+19,
+3978,
+7208,
+1659,
+3814,
+4106,
+1667
+],
+"release": "2027"
+},
+{
+"rank": 7,
+"appid": 4199910,
+"name": "Total War: WARHAMMER 40,000",
+"tags": [
+9,
+4364,
+1676,
+1741,
+3942,
+4166,
+4604
+],
+"release": "To be announced"
+},
+{
+"rank": 8,
+"appid": 2109770,
+"name": "Kingmakers",
+"tags": [
+3814,
+4172,
+9,
+3810,
+3859,
+599,
+1645
+],
+"release": "Coming soon"
+},
+{
+"rank": 9,
+"appid": 1846700,
+"name": "Witchbrook",
+"tags": [
+3859,
+3843,
+10235,
+9204,
+3810,
+1702,
+122
+],
+"release": "Jan 28, 2027"
+},
+{
+"rank": 10,
+"appid": 1757350,
+"name": "ILL",
+"tags": [
+1667,
+19,
+1774,
+3839,
+3978,
+4145,
+1662
+],
+"release": "2027"
+},
+{
+"rank": 11,
+"appid": 4095380,
+"name": "Soulframe",
+"tags": [
+19,
+122,
+21,
+4231,
+1684,
+113,
+1697
+],
+"release": "Coming soon"
+},
+{
+"rank": 12,
+"appid": 2050420,
+"name": "ARK 2",
+"tags": [
+1662,
+1695,
+3859,
+5160,
+1702,
+1643,
+7332
+],
+"release": "To be announced"
+},
+{
+"rank": 13,
+"appid": 2590240,
+"name": "METRO 2039",
+"tags": [
+19,
+21,
+3835,
+1663,
+1774,
+3839,
+4342
+],
+"release": "Feb 4, 2027"
+},
+{
+"rank": 14,
+"appid": 2272360,
+"name": "Warhammer 40,000: Dawn of War IV",
+"tags": [
+9,
+1676,
+1685,
+1723,
+3813,
+4191,
+4145
+],
+"release": "Dec 3, 2026"
+},
+{
+"rank": 15,
+"appid": 5006530,
+"name": "The Witcher 3: Wild Hunt — Songs of the Past",
+"tags": [
+1695,
+122,
+1742,
+4166,
+1684,
+21,
+4182
+],
+"release": "Coming soon"
+},
+{
+"rank": 16,
+"appid": 2381520,
+"name": "Unrecord",
+"tags": [
+4175,
+1663,
+1708,
+1774,
+3839,
+19,
+4182
+],
+"release": "To be announced"
+},
+{
+"rank": 17,
+"appid": 2963950,
+"name": "Persona 4 Revival ",
+"tags": [
+4434,
+122,
+21,
+1742,
+4325,
+4085,
+1756
+],
+"release": "Feb 17, 2027"
+},
+{
+"rank": 18,
+"appid": 3727390,
+"name": "The Expanse: Osiris Reborn",
+"tags": [
+19,
+122,
+3942,
+4182,
+1742,
+1755,
+21
+],
+"release": "Q2 2027"
+},
+{
+"rank": 19,
+"appid": 3558670,
+"name": "Tomb Raider: Legacy of Atlantis",
+"tags": [
+21,
+19,
+7208,
+4182,
+1697,
+1664,
+5708
+],
+"release": "Feb 12, 2027"
+},
+{
+"rank": 20,
+"appid": 3292470,
+"name": "Tides of Annihilation",
+"tags": [
+4231,
+4604,
+19,
+1646,
+4182,
+1734,
+3993
+],
+"release": "Coming soon"
+},
+{
+"rank": 21,
+"appid": 3710600,
+"name": "Warhammer 40,000: Dark Heresy",
+"tags": [
+122,
+4747,
+6426,
+4325,
+1742,
+4474,
+4604
+],
+"release": "Jan 28, 2027"
+},
+{
+"rank": 22,
+"appid": 2873440,
+"name": "Chrono Odyssey",
+"tags": [
+1754,
+1695,
+19,
+122,
+21,
+29482,
+128
+],
+"release": "To be announced"
+},
+{
+"rank": 23,
+"appid": 1340720,
+"name": "State of Decay 3",
+"tags": [
+19,
+21,
+4106,
+1659,
+1646,
+1643,
+620519
+],
+"release": "To be announced"
+},
+{
+"rank": 24,
+"appid": 2814860,
+"name": "Vindictus: Defying Fate",
+"tags": [
+19,
+122,
+3843,
+4747,
+4231,
+1697,
+21
+],
+"release": "2027"
+},
+{
+"rank": 25,
+"appid": 2582960,
+"name": "NAKWON: LAST PARADISE",
+"tags": [
+1659,
+1199779,
+3859,
+122,
+19,
+3835,
+3843
+],
+"release": "To be announced"
+},
+{
+"rank": 26,
+"appid": 2231020,
+"name": "Chronicles: Medieval",
+"tags": [
+493,
+4172,
+9,
+19,
+1695,
+3810,
+122
+],
+"release": "2027"
+},
+{
+"rank": 27,
+"appid": 5072600,
+"name": "Family Time",
+"tags": [
+4726,
+599,
+597,
+21,
+220585,
+3810,
+97376
+],
+"release": "Q1 2027"
+},
+{
+"rank": 28,
+"appid": 2340970,
+"name": "Railborn",
+"tags": [
+1100689,
+7332,
+3843,
+1662,
+1616,
+1685,
+1643
+],
+"release": "2027"
+},
+{
+"rank": 29,
+"appid": 1940080,
+"name": "Rooted",
+"tags": [
+1702,
+1695,
+3859,
+7332,
+1637,
+1100689,
+1662
+],
+"release": "2027"
+},
+{
+"rank": 30,
+"appid": 3016620,
+"name": "Alkahest",
+"tags": [
+122,
+19,
+21,
+1695,
+3839,
+1684,
+4182
+],
+"release": "To be announced"
+},
+{
+"rank": 31,
+"appid": 2649560,
+"name": "Persona 6",
+"tags": [
+122,
+21,
+4434,
+4325,
+10695,
+1720,
+1742
+],
+"release": "To be announced"
+},
+{
+"rank": 32,
+"appid": 3978820,
+"name": "Rules of Engagement: The Grey State",
+"tags": [
+113,
+1663,
+3859,
+1199779,
+3843,
+6730,
+1667
+],
+"release": "To be announced"
+},
+{
+"rank": 33,
+"appid": 2295170,
+"name": "Emberville",
+"tags": [
+493,
+4231,
+3964,
+4106,
+122,
+492,
+3834
+],
+"release": "Jan 7, 2027"
+},
+{
+"rank": 34,
+"appid": 4150720,
+"name": "Drunken Goddess Reflux",
+"tags": [
+16250,
+4085,
+597,
+4342,
+9541,
+1721,
+4975
+],
+"release": "Dec 8, 2026"
+},
+{
+"rank": 35,
+"appid": 1687540,
+"name": "Showa American Story",
+"tags": [
+21,
+19,
+122,
+4231,
+4106,
+7743,
+7208
+],
+"release": "Oct 27, 2027"
+},
+{
+"rank": 36,
+"appid": 2179480,
+"name": "Ardem",
+"tags": [
+493,
+3810,
+3834,
+6730,
+1775,
+1644,
+1659
+],
+"release": "2027"
+},
+{
+"rank": 37,
+"appid": 1280190,
+"name": "Falling Frontier",
+"tags": [
+1755,
+9,
+4364,
+3942,
+1670,
+3834,
+3810
+],
+"release": "Coming soon"
+},
+{
+"rank": 38,
+"appid": 4743930,
+"name": "Guild Wars 3™",
+"tags": [
+19,
+21,
+1754,
+4191,
+1697,
+128,
+1684
+],
+"release": "To be announced"
+},
+{
+"rank": 39,
+"appid": 3161310,
+"name": "Hela: of Mice & Magic",
+"tags": [
+3841,
+3834,
+3968,
+30358,
+552282,
+1664,
+1654
+],
+"release": "Dec 1, 2026"
+},
+{
+"rank": 40,
+"appid": 2861080,
+"name": "Haunted Paws",
+"tags": [
+7368,
+3859,
+3843,
+1667,
+1685,
+597,
+1664
+],
+"release": "May 2027"
+},
+{
+"rank": 41,
+"appid": 1313230,
+"name": "Beautiful Light",
+"tags": [
+493,
+1199779,
+1667,
+1663,
+3859,
+1775,
+1774
+],
+"release": "Q3 2027"
+},
+{
+"rank": 42,
+"appid": 1752080,
+"name": "HUNGER",
+"tags": [
+493,
+3993,
+1775,
+1663,
+353880,
+1659,
+3859
+],
+"release": "Dec 3, 2026"
+},
+{
+"rank": 43,
+"appid": 2161710,
+"name": "NO LAW",
+"tags": [
+122,
+4115,
+1695,
+19,
+1663,
+4182,
+9204
+],
+"release": "2027"
+},
+{
+"rank": 44,
+"appid": 2724650,
+"name": "The Bustling World",
+"tags": [
+4231,
+1695,
+3834,
+4172,
+4598,
+1643,
+7332
+],
+"release": "To be announced"
+},
+{
+"rank": 45,
+"appid": 2956040,
+"name": "PVKK: Planetenverteidigungskanonenkommandant",
+"tags": [
+1678,
+6426,
+4182,
+1664,
+599,
+1698,
+3839
+],
+"release": "2027"
+},
+{
+"rank": 46,
+"appid": 4354570,
+"name": "FINAL FANTASY VII REVELATION",
+"tags": [
+122,
+19,
+4231,
+21,
+4434,
+4106,
+10695
+],
+"release": "Apr 8, 2027"
+},
+{
+"rank": 47,
+"appid": 3255110,
+"name": "Grave Seasons",
+"tags": [
+122,
+1667,
+87918,
+3964,
+4947,
+44868,
+5716
+],
+"release": "Mar 9, 2027"
+},
+{
+"rank": 48,
+"appid": 3230960,
+"name": "EXODUS",
+"tags": [
+1742,
+4231,
+4145,
+4182,
+21,
+6426,
+19
+],
+"release": "Apr 7, 2027"
+},
+{
+"rank": 49,
+"appid": 3864580,
+"name": "P.O.N.",
+"tags": [
+1667,
+1685,
+19,
+3859,
+3839,
+3843,
+4667
+],
+"release": "Coming soon"
+},
+{
+"rank": 50,
+"appid": 2692660,
+"name": "Car Mechanic Simulator 2027",
+"tags": [
+599,
+1100687,
+3859,
+1685,
+3810,
+699,
+701
+],
+"release": "Q1 2027"
+}
+]
+}

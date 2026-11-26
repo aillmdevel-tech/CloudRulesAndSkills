@@ -19,7 +19,7 @@
 ## 2. Алгоритм разработки игры
 Единственное описание — `GameFactory/WORKFLOW.md` (машинная версия — скилл `game-project-workflow`). Один чат на проект.
 
-0 Стиль (StyleLibrary) → 1 Материалы в `input/` → 2 Разбор без кода (`docs/spec/`, [видно]/[из ТЗ]/[пробел]) → 3 Вопросы только по пробелам (код после всех ответов) → 4 Steam-стиль + бюджет → 5 Готовое (CC0-ассеты, GitHub, `docs/REFERENCES.md`) → 6 Мастер-план всей игры (`docs/plans/…-master.md`) → 7 MVP-сцена: проверки A (кадр стиля, Blender), B (геймфил), C (готовая сцена) → 8 Расширение до конца (перед отправкой: модератор + `game-promo-kit`).
+−1 Идея (`game-idea-scout`, 15 вопросов → `docs/IDEA.md`) → 0 Стиль (StyleLibrary) → 1 Материалы в `input/` → 2 Разбор без кода (`docs/spec/`, [видно]/[из ТЗ]/[пробел] + скелет 17 колонок `docs/GAME_SKELETON.md`) → 3 Вопросы только по пробелам (код после всех ответов) → 4 Steam-стиль + бюджет → 5 Готовое (CC0-ассеты, GitHub, `docs/REFERENCES.md`) → 6 Мастер-план всей игры (`docs/plans/…-master.md`) → 7 MVP-сцена: проверки A (кадр стиля, Blender), B (геймфил + первая минута, холодный взгляд), C (готовая сцена) → 8 Расширение до конца (перед отправкой: модератор + `game-promo-kit`) → 9 Воронка после запуска. Режим «быстрая игра» 2–5 дней.
 
 Цикл каждого пакета: код → tsc + сборка → смоук → «референс | игра» → правки → коммит → PROJECT_STATE + memory-bank. Модель и уровень мышления выбирает Alex.
 
@@ -34,6 +34,8 @@
 | `game-visual-comparison` | снимки игры vs референс, diff, правки |
 | `game-ui-motion-sound` | UI-анимации и звуки из UIFX |
 | `game-autotest` | смоук и модератор площадок |
+| `game-idea-scout` | снимки популярных предстоящих игр Steam (рост по рангу), тренды Roblox и CrazyGames, топ-5: трейлер → фантазия и цикл → 15 вопросов → отчёт `DesignLibrary/scout/` |
+| `game-design-library` | записи Alex с голосом → транскрипт, кадры, карточка игры; паттерны, хуки, связки, GUI, механики по жанрам в `DesignLibrary` |
 | `game-promo-kit` | жанр игры → 3–5 рефов из PromoLibrary (11 жанров Roblox, разбивки по секундам, паттерны) и бриф; захват геймплея, авто-поиск сочных моментов, монтаж по правилам площадок, скриншоты, обложки, локализация. На новой машине работает по тексту библиотеки, видео не обязательны |
 | `playgama-crazy-publisher` | аудит → SDK (Playgama Bridge / CrazyGames SDK v3, реклама и IAP по правилам площадки и статусу запуска, загрузочный экран с прогрессом) → локализация → промо и модератор во вложенных сессиях → черновики кабинетов → отправка только по «да» |
 | `diagnosing-bugs`, `retro`, `writing-for-agents` | трудные баги; ретро сессии; правка скиллов и CLAUDE.md |
@@ -61,7 +63,7 @@
 - CLI: node/npm, git, gh, python3, ffmpeg/ffprobe, yt-dlp, uv/uvx, Blender 5.2; Python Playwright + Chromium, Pillow.
 
 ## 6. GameFactory
-`WORKFLOW.md` (алгоритм), `THREEJS_STACK.md` (three 0.187, postprocessing, N8AO, three.quarks, GSAP, Rapier), `StyleLibrary/` (вкус Alex + жанры), `UIFX/` (32 эффекта, 43 звука CC0, 5 стилей), `templates/` (CLAUDE проекта, docs, автотесты), `TOKEN_SAVING.md`, `THIRD_PARTY_SKILLS.md`.
+`WORKFLOW.md` (алгоритм), `THREEJS_STACK.md` (three 0.187, postprocessing, N8AO, three.quarks, GSAP, Rapier), `DESIGN/` (конституция, фильтр идеи, скелет, первая минута, воронка, ROBLOX.md), `DesignLibrary/` (разборы игр), `LESSONS/` (bug shield), `MECHANICS/` (механики с тестами), `StyleLibrary/` (вкус Alex + жанры), `UIFX/` (32 эффекта, 43 звука CC0, 5 стилей), `templates/` (CLAUDE проекта, docs, автотесты), `TOKEN_SAVING.md`, `THIRD_PARTY_SKILLS.md`.
 
 ## 7. Перенос
 - Забрать изменения с машины: `scripts/sync.sh --commit "что"` → `git push` (аккаунт aillmdevel-tech привязан к клону). sync проверяет секреты и прерывается.
