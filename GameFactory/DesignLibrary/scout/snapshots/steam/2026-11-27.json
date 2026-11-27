@@ -439,21 +439,6 @@
 },
 {
 "rank": 30,
-"appid": 3016620,
-"name": "Alkahest",
-"tags": [
-122,
-19,
-21,
-1695,
-3839,
-1684,
-4182
-],
-"release": "To be announced"
-},
-{
-"rank": 31,
 "appid": 2649560,
 "name": "Persona 6",
 "tags": [
@@ -464,6 +449,21 @@
 10695,
 1720,
 1742
+],
+"release": "To be announced"
+},
+{
+"rank": 31,
+"appid": 3016620,
+"name": "Alkahest",
+"tags": [
+122,
+19,
+21,
+1695,
+3839,
+1684,
+4182
 ],
 "release": "To be announced"
 },
@@ -664,21 +664,6 @@
 },
 {
 "rank": 45,
-"appid": 2956040,
-"name": "PVKK: Planetenverteidigungskanonenkommandant",
-"tags": [
-1678,
-6426,
-4182,
-1664,
-599,
-1698,
-3839
-],
-"release": "2027"
-},
-{
-"rank": 46,
 "appid": 4354570,
 "name": "FINAL FANTASY VII REVELATION",
 "tags": [
@@ -691,6 +676,21 @@
 10695
 ],
 "release": "Apr 8, 2027"
+},
+{
+"rank": 46,
+"appid": 2956040,
+"name": "PVKK: Planetenverteidigungskanonenkommandant",
+"tags": [
+1678,
+6426,
+4182,
+1664,
+599,
+1698,
+3839
+],
+"release": "2027"
 },
 {
 "rank": 47,
@@ -889,21 +889,6 @@
 },
 {
 "rank": 60,
-"appid": 3337850,
-"name": "KYORA",
-"tags": [
-1100689,
-3964,
-3810,
-21,
-1662,
-3859,
-1643
-],
-"release": "Coming soon"
-},
-{
-"rank": 61,
 "appid": 2153760,
 "name": "Stronghold 4",
 "tags": [
@@ -916,6 +901,21 @@
 3810
 ],
 "release": "Apr 20, 2027"
+},
+{
+"rank": 61,
+"appid": 3337850,
+"name": "KYORA",
+"tags": [
+1100689,
+3964,
+3810,
+21,
+1662,
+3859,
+1643
+],
+"release": "Coming soon"
 },
 {
 "rank": 62,
@@ -1639,21 +1639,6 @@
 },
 {
 "rank": 110,
-"appid": 1572000,
-"name": "Derelicts",
-"tags": [
-1662,
-3843,
-3978,
-7332,
-4182,
-3859,
-3810
-],
-"release": "To be announced"
-},
-{
-"rank": 111,
 "appid": 3751230,
 "name": "Danganronpa 2x2",
 "tags": [
@@ -1666,6 +1651,21 @@
 21
 ],
 "release": "Jan 13, 2027"
+},
+{
+"rank": 111,
+"appid": 1572000,
+"name": "Derelicts",
+"tags": [
+1662,
+3843,
+3978,
+7332,
+4182,
+3859,
+3810
+],
+"release": "To be announced"
 },
 {
 "rank": 112,
@@ -1774,21 +1774,6 @@
 },
 {
 "rank": 119,
-"appid": 4348760,
-"name": "Totally Secure Airport",
-"tags": [
-6426,
-599,
-3843,
-5923,
-19,
-4136,
-4166
-],
-"release": "Coming soon"
-},
-{
-"rank": 120,
 "appid": 388860,
 "name": "Judas",
 "tags": [
@@ -1799,6 +1784,21 @@
 7208,
 1774,
 3839
+],
+"release": "Coming soon"
+},
+{
+"rank": 120,
+"appid": 4348760,
+"name": "Totally Secure Airport",
+"tags": [
+6426,
+599,
+3843,
+5923,
+19,
+4136,
+4166
 ],
 "release": "Coming soon"
 },
@@ -1834,21 +1834,6 @@
 },
 {
 "rank": 123,
-"appid": 1400830,
-"name": "Billie Bust Up",
-"tags": [
-5395,
-21,
-1621,
-4195,
-4726,
-1752,
-4305
-],
-"release": "To be announced"
-},
-{
-"rank": 124,
 "appid": 2708860,
 "name": "Canyons",
 "tags": [
@@ -1863,22 +1848,22 @@
 "release": "November 2027"
 },
 {
-"rank": 125,
-"appid": 1209970,
-"name": "Blind Descent",
+"rank": 124,
+"appid": 1400830,
+"name": "Billie Bust Up",
 "tags": [
-16598,
-9204,
-4106,
-3859,
-1662,
-1667,
-3834
+5395,
+21,
+1621,
+4195,
+4726,
+1752,
+4305
 ],
-"release": "Dec 2, 2026"
+"release": "To be announced"
 },
 {
-"rank": 126,
+"rank": 125,
 "appid": 5246700,
 "name": "Defilade",
 "tags": [
@@ -1891,6 +1876,21 @@
 7332
 ],
 "release": "Dec 15, 2026"
+},
+{
+"rank": 126,
+"appid": 1209970,
+"name": "Blind Descent",
+"tags": [
+16598,
+9204,
+4106,
+3859,
+1662,
+1667,
+3834
+],
+"release": "Dec 2, 2026"
 },
 {
 "rank": 127,
@@ -2359,21 +2359,6 @@
 },
 {
 "rank": 158,
-"appid": 1559720,
-"name": "We Harvest Shadows",
-"tags": [
-1667,
-3839,
-87918,
-1695,
-1742,
-3834,
-22602
-],
-"release": "To be announced"
-},
-{
-"rank": 159,
 "appid": 3224600,
 "name": "Am I Nima",
 "tags": [
@@ -2388,22 +2373,22 @@
 "release": "Nov 27, 2026"
 },
 {
-"rank": 160,
-"appid": 2177510,
-"name": "EthrA",
+"rank": 159,
+"appid": 1559720,
+"name": "We Harvest Shadows",
 "tags": [
-19,
-21,
-122,
-4106,
-4231,
-3810,
-3834
+1667,
+3839,
+87918,
+1695,
+1742,
+3834,
+22602
 ],
 "release": "To be announced"
 },
 {
-"rank": 161,
+"rank": 160,
 "appid": 3333850,
 "name": "Arkheron",
 "tags": [
@@ -2416,6 +2401,21 @@
 3878
 ],
 "release": "Nov 27, 2026"
+},
+{
+"rank": 161,
+"appid": 2177510,
+"name": "EthrA",
+"tags": [
+19,
+21,
+122,
+4106,
+4231,
+3810,
+3834
+],
+"release": "To be announced"
 },
 {
 "rank": 162,
@@ -2644,21 +2644,6 @@
 },
 {
 "rank": 177,
-"appid": 4879420,
-"name": "BELTFED",
-"tags": [
-599,
-9,
-7332,
-255534,
-8945,
-3810,
-1702
-],
-"release": "2027"
-},
-{
-"rank": 178,
 "appid": 3216600,
 "name": "KINGDOM HEARTS IV",
 "tags": [
@@ -2669,6 +2654,21 @@
 4231,
 4191,
 4106
+],
+"release": "2027"
+},
+{
+"rank": 178,
+"appid": 4879420,
+"name": "BELTFED",
+"tags": [
+599,
+9,
+7332,
+255534,
+8945,
+3810,
+1702
 ],
 "release": "2027"
 },

@@ -30,6 +30,8 @@ Everything from roblox search, plus:
 ## Scoring (both modes)
 For every candidate kept: fantasy in one phrase, main action, core loop, what the trailer/thumbnail sells in the first 3 s, 15 questions (0/1/2, short evidence), **веб-годность** (one-input action, ≤ 5 s load possible, works single-player, rewarded-ads points), **Roblox-годность** (multiplayer value, social envy, monetisation of impatience), **MVP-дни** for our pipeline, risk (saturation, IP, tech). Similar games from `DesignLibrary` (consult mode of `game-design-library`).
 
+The 15 questions do not catch saturation: after scoring, count games with the same loop in the top 50 of the charts and on CrazyGames/Playgama. ≥ 3 → keep only the strong piece of the formula (e.g. «further = luckier») inside a fresh fantasy, or reject. Prefer **combinations**: a fresh Steam fantasy (not yet on Roblox/web) + a proven Roblox loop + a trend seasoning (ragdoll, cleaning).
+
 ## Report `$S/YYYY-MM-DD-<mode>.md`
 1. **Лучше всего под веб** — top 3 with links (every source), why, our twist (own name/art/characters — inspiration, not a copy), MVP days.
 2. **Лучше всего под Roblox** — top 3, same format.
