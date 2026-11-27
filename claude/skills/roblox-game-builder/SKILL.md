@@ -1,6 +1,6 @@
 ---
 name: roblox-game-builder
-description: Use when a game is planned, built, launched or run on Roblox, or a web game is ported there — "игра для Roblox", "делаем в Roblox", "перенеси на Roblox", "сверь идею/план с Roblox-правилами", "как продвигать в Roblox", "реклама Roblox", "тамбнейл", "почему мало игроков / упал CCU", "Home Recs, D1/D7, bounce", "монетизация Robux", "live ops / апдейты". Practitioner playbook distilled from Roblox devs with $25–131K/mo games (channel Tap + similar channels): idea and market gates, the 8 design blocks, 5 virality factors, first 90 s, production with AI, test place and timed alt-account tests, launch with Sponsored Ads, the funnel PTR → bounce → D1/D7/D28, consumable monetisation, weekly live-ops cycle, diagnosis table, mistakes. Also audits Alex's current idea/plan/references against these rules.
+description: Use when a game is planned, built, launched or run on Roblox, or a web game is ported there — "игра для Roblox", "делаем в Roblox", "перенеси на Roblox", "сверь идею/план с Roblox-правилами", "как продвигать в Roblox", "реклама Roblox", "тамбнейл", "почему мало игроков / упал CCU", "Home Recs, D1/D7, bounce", "монетизация Robux", "live ops / апдейты", "как должна выглядеть Roblox-игра / UI / VFX / экономика", "веб-игра по Roblox-референсу". Practitioner playbook distilled from Roblox devs with $25–131K/mo games (channel Tap + similar channels): idea and market gates, the 8 design blocks, 5 virality factors, first 90 s, production with AI, test place and timed alt-account tests, launch with Sponsored Ads, the funnel PTR → bounce → D1/D7/D28, consumable monetisation, weekly live-ops cycle, diagnosis table, mistakes; plus the look, UI, VFX, economy and F2P pacing of 45 top Roblox games with key frames (RobloxLibrary). Also audits Alex's current idea/plan/references against these rules.
 ---
 
 # Roblox game builder
@@ -16,6 +16,10 @@ This skill is the Roblox layer over the factory pipeline, not a replacement: `ga
 - `cases.md`: the author's own games with real numbers, team and hiring, AI workflow.
 - `similar-channels.md`: rasdev, MoseyTube77, Zyonic, waveshine, DitchyDevelopments: where they agree with Tap, what they add, where they disagree (⚠).
 - `sources.md`: video list with links.
+
+**Look and feel library** (`<GameFactory>/RobloxLibrary/`): `STYLE.md` (two game forms, F2P first-session pacing, what hooks, visual poles, HUD, VFX minimum, economy, offer moments Roblox → rewarded web, anti-examples), `REFS.md` (which key frames to open for a task + palettes of 41 games), `notes/<channel>.md` (per-game breakdowns). Open `STYLE.md` at stages 2–3 and 8, and `REFS.md` frames before designing HUD, shop, rebirth, index or VFX.
+
+**Web games from a Roblox reference** use this library for mechanics, pacing, economy, VFX and the fantasy format only: characters, avatars and UI are our own, with no Roblox/Minecraft look (Google bans the game and the publisher account: `LESSONS/platforms.md`); the style comes from `StyleLibrary`.
 
 Open the reference of the stage you are in; quote the rule with its timecode when you rely on it.
 
@@ -43,7 +47,9 @@ Gate: fantasy sentence + demand number with source + phase + our 20 % change wri
 - **5 virality factors:** clickable fantasy; onboarding ≤ 90 s with a short cutscene and one mechanic at a time; 10× more fun with friends + **social flex visible at spawn** (rare pets/blocks, base); simple mechanic with depth and mobile UX (big buttons, buy 1/N/max); **clipable moments** (ragdoll into the void, big reveals).
 - **Cause and effect** on every action: press → sound + VFX + camera shake → visible result.
 - **Depth over complexity:** PvP or social systems keep strategy unsolved; cut accelerators that reach the endgame in hours.
-- **Return hooks:** something new tomorrow (ingredient, pet, base tier), weekly event, sunk cost (base, collection).
+- **Return hooks:** something new tomorrow (ingredient, pet, base tier), weekly event, sunk cost (base, collection); free retention set: offline income with a popup on join, free chest for like + group, codes, daily wheel, friend boost.
+- **Pick the form:** endless «+1» simulator (index, rebirths, D7/D28) or a 20–60 min game with an end (one global meter, joke finale, replay modes); the title as «verb + absurd object (+ silly tool)»; social chaos (deceive, push, write threats for others) beats plain competition. Odds shown before each try, progress visible on the body or the world, a tool ladder from pathetic to insane (`STYLE.md` §1, §3).
+- **Look:** HUD layout, window style, outlined fonts, event words, VFX minimum: `STYLE.md` §4–6, frames in `REFS.md`.
 Gate: the 17-column skeleton has every block filled, columns 14 «Люди» and 16 «Монетизация» written for Roblox, first minute laid out by seconds.
 
 ### 3. First session (the stat Roblox reads first)
@@ -52,6 +58,7 @@ Gate: the 17-column skeleton has every block filled, columns 14 «Люди» and
 - Teach the loop «get the thing → get money from it → progress», then let go; later mechanics by contextual triggers (1K cash → trails).
 - Tease progression in the first roll (silhouettes of rare items).
 - Targets: 95 % still playing at 30 s, 87 % at 1 min, 65 % at 5 min; tutorial completion ≈ 77 % is good.
+- Genre pacing on a fresh account (median of 15 simulators, `STYLE.md` §2): first action ≤ 6 s, first purchase ~24 s, first upgrade and tutorial done ~1 min, first rarity ~1 min (rig the first drop), rebirth or world 2 ~2 min, first wall at 2–2.5 min and cleared by 1–3 min of grind; hard walls only after minute 5. One quest line at top centre + chevrons on the ground; HUD buttons appear one at a time.
 Gate: every onboarding step is a custom funnel event; timed run on a fresh alt account meets the targets.
 
 ### 4. Build
