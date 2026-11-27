@@ -53,7 +53,7 @@ ADDON="$(ls -t "$HOME/Library/Application Support/Blender"/*/scripts/addons/blen
 
 if [ "$(cd "$GF_SRC" && pwd)" != "$REPO/GameFactory" ]; then
   rsync -a --delete --exclude node_modules --exclude backup/ --exclude demo-dist \
-    --exclude .DS_Store --exclude __pycache__ --exclude 'DesignLibrary/inbox/*/' "$GF_SRC/" "$REPO/GameFactory/"
+    --exclude .DS_Store --exclude __pycache__ --exclude 'DesignLibrary/inbox/*/' --exclude 'RobloxLibrary/transcripts/' "$GF_SRC/" "$REPO/GameFactory/"
 fi
 # PromoLibrary: only our own text (breakdowns, genre patterns, catalogues, cut stats). Other people's
 # videos, covers and frame sheets stay on this machine (analysis only, not ours to redistribute).

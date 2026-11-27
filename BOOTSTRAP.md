@@ -37,7 +37,7 @@ bash <клон>/scripts/install.sh --games-dir <папка игр> --with-mcp
 Ежедневная разведка идей (по желанию Alex): `sed "s#/Users/mac#$HOME#g" ~/.claude/skills/game-idea-scout/scripts/com.gamefactory.scout.plist > ~/Library/LaunchAgents/com.gamefactory.scout.plist && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.gamefactory.scout.plist` (снимки Steam/Roblox/YouTube в 10:00).
 
 ## 4. Проверить
-- `ls ~/.claude/skills` → 24 папки: frontend-design, webapp-testing, grilling, frontend-visual-qa + 20 своих (character-animation, game-idea-scout, game-design-library,
+- `ls ~/.claude/skills` → 25 папок: frontend-design, webapp-testing, grilling, frontend-visual-qa + 21 свой (character-animation, game-idea-scout, roblox-game-builder, game-design-library,
   chat-handoff, diagnosing-bugs, game-art-first, game-autotest, game-project-workflow, game-promo-kit, game-reference-analysis,
   game-ui-motion-sound, game-visual-comparison, github-account-router, levelcopier-asset-pipeline, playgama-crazy-publisher, retro,
   save-context, threejs-aaa-graphics-builder, threejs-debug-profiler, writing-for-agents). `playcanvas-skills status` → 0 / 16.
