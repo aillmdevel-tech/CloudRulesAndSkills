@@ -484,21 +484,6 @@
 },
 {
 "rank": 33,
-"appid": 2295170,
-"name": "Emberville",
-"tags": [
-493,
-4231,
-3964,
-4106,
-122,
-492,
-3834
-],
-"release": "Jan 7, 2027"
-},
-{
-"rank": 34,
 "appid": 4150720,
 "name": "Drunken Goddess Reflux",
 "tags": [
@@ -511,6 +496,21 @@
 4975
 ],
 "release": "Dec 8, 2026"
+},
+{
+"rank": 34,
+"appid": 2295170,
+"name": "Emberville",
+"tags": [
+493,
+4231,
+3964,
+4106,
+122,
+492,
+3834
+],
+"release": "Jan 7, 2027"
 },
 {
 "rank": 35,
@@ -1645,8 +1645,8 @@
 3799,
 5613,
 4085,
-9551,
 5716,
+9551,
 8369,
 21
 ],
@@ -1714,21 +1714,6 @@
 },
 {
 "rank": 115,
-"appid": 4665290,
-"name": "Alien: Isolation 2",
-"tags": [
-3978,
-1687,
-4166,
-1667,
-1662,
-3839,
-9204
-],
-"release": "Coming soon"
-},
-{
-"rank": 116,
 "appid": 3230430,
 "name": "Atomic Heart: The CUBE",
 "tags": [
@@ -1741,6 +1726,21 @@
 1774
 ],
 "release": "To be announced"
+},
+{
+"rank": 116,
+"appid": 4665290,
+"name": "Alien: Isolation 2",
+"tags": [
+3978,
+1687,
+4166,
+1667,
+1662,
+3839,
+9204
+],
+"release": "Coming soon"
 },
 {
 "rank": 117,
@@ -2344,21 +2344,6 @@
 },
 {
 "rank": 157,
-"appid": 2017940,
-"name": "Pony Island 2: Panda Circus",
-"tags": [
-1664,
-1698,
-1721,
-3839,
-1710,
-4191,
-3871
-],
-"release": "Apr 27, 2027"
-},
-{
-"rank": 158,
 "appid": 3224600,
 "name": "Am I Nima",
 "tags": [
@@ -2371,6 +2356,21 @@
 7208
 ],
 "release": "Nov 27, 2026"
+},
+{
+"rank": 158,
+"appid": 2017940,
+"name": "Pony Island 2: Panda Circus",
+"tags": [
+1664,
+1698,
+1721,
+3839,
+1710,
+4191,
+3871
+],
+"release": "Apr 27, 2027"
 },
 {
 "rank": 159,
