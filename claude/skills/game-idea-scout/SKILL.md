@@ -1,6 +1,6 @@
 ---
 name: game-idea-scout
-description: Use when Alex wants ideas for the next game or trend research — "найди идеи для игры", "roblox search", "full search", "что сейчас залетает", "разведка идей", "какие игры растут в Steam/Roblox/CrazyGames/Google Play", "что делать под веб / под Roblox", "проверь конкуренцию", "проверь идею", "прогони идею через фильтр", "что смешать". Finds the best ideas to build fast for the web and Roblox: reads the daily auto-collected stats (Roblox charts, Steam wishlists, YouTube), finds growing fantasies and saturated clusters, builds combinations (fresh fantasy + proven loop + trend seasoning), checks competition on Roblox, Steam, CrazyGames and Playgama with a script, scores each with the constitution's 15 questions, and writes a ranked report with links, why it will be popular, the main goal, competitors and the rejected list. Also checks a single idea Alex brings.
+description: Use when Alex wants ideas for the next game or trend research — "найди идеи для игры", "roblox search", "full search", "что сейчас залетает", "разведка идей", "какие игры растут в Steam/Roblox/CrazyGames/Google Play", "что делать под веб / под Roblox", "проверь конкуренцию", "проверь идею", "прогони идею через фильтр", "что смешать". Finds the best ideas to build fast for the web and Roblox: reads the daily auto-collected stats (Roblox charts, Steam wishlists, fresh Steam releases by current players, YouTube), finds growing fantasies and saturated clusters, builds combinations (fresh fantasy + proven loop + trend seasoning), checks competition on Roblox, Steam, CrazyGames and Playgama with a script, scores each with the constitution's 15 questions, and writes a ranked report with links, why it will be popular, the main goal, competitors and the rejected list. Also checks a single idea Alex brings.
 ---
 
 # Game idea scout
@@ -11,10 +11,10 @@ Paths: `<GameFactory>` from `~/.claude/CLAUDE.md`; `S=<GameFactory>/DesignLibrar
 
 ## Collected automatically every day
 launchd `com.gamefactory.scout`, 10:00, `scripts/daily.sh` (log `$S/snapshots/daily.log`):
-- snapshots `$S/snapshots/{steam,roblox,youtube}/YYYY-MM-DD.json`;
-- digest `$S/daily/YYYY-MM-DD.md` (no AI): young Roblox games with growth over 7 days, Roblox saturation clusters, Steam fun risers, fun games in the wishlist top.
+- snapshots `$S/snapshots/{steam,steam-new,roblox,youtube}/YYYY-MM-DD.json` (`steam` = upcoming by wishlists, `steam-new` = released ≤ 90 days from top sellers + popular new, with current players);
+- digest `$S/daily/YYYY-MM-DD.md` (no AI): young Roblox games with growth over 7 days, Roblox saturation clusters, Steam fun risers, fun released games by current players, fun games in the wishlist top.
 
-Not installed on this Mac (`launchctl print gui/$(id -u)/com.gamefactory.scout` fails) → install: see `BOOTSTRAP.md` of CloudRulesAndSkills (line with `com.gamefactory.scout.plist`). Today's snapshot missing → take it first: `scout_steam.py snapshot $S/snapshots/steam --pages 4`, `scout_roblox.py snapshot $S/snapshots/roblox`.
+Not installed on this Mac (`launchctl print gui/$(id -u)/com.gamefactory.scout` fails) → install: see `BOOTSTRAP.md` of CloudRulesAndSkills (line with `com.gamefactory.scout.plist`). Today's snapshot missing → take it first: `scout_steam.py snapshot $S/snapshots/steam --pages 4`, `scout_steam.py released $S/snapshots/steam-new`, `scout_roblox.py snapshot $S/snapshots/roblox`.
 
 ## Step 0. Ask Alex (once, only what is unknown, one short message)
 1. Target: web (which portals: CrazyGames, Playgama, Яндекс, Poki), Roblox, or both?
@@ -30,6 +30,7 @@ If Alex says «сам реши» or does not answer: web = CrazyGames + Playgama
   - Read the last 1–3 digests in `$S/daily/`.
   - Fresh numbers: `scout_roblox.py report $S/snapshots/roblox --max-age 90 --top 40 --days 7` and `scout_roblox.py clusters $S/snapshots/roblox`.
   - Descriptions of the top 10–15 candidates: `games.roblox.com/v1/games?universeIds=…`.
+  - **Fresh Steam hits:** `scout_steam.py hot $S/snapshots/steam-new --top 25`. Wishlists lose a game the day it launches, so this list is the only place post-launch hits show up. A co-op job-sim or incremental with ≥ 3k online and ≤ 30 days old is a top Roblox candidate. Check Roblox for a port the same day: Moon Sweepers (Steam, 23.10.2026) got the Roblox port Sweep The Moon on its launch day, 9k online a month later.
 - **«roblox search»** stops here, plus a YouTube check of the top 5: `scout_youtube.py $S/snapshots/youtube --queries "<name> roblox" --per 5`.
 - **«full search»** adds:
   - **Steam:**
@@ -59,7 +60,7 @@ For each combination write:
 - **Наш твист:** own name, characters, art (inspiration, not a copy).
 
 ## Step 3. Competition (script, for every kept idea)
-`scout_compete.py "<kw1>|<kw2>|<kw3>" --out <scratchpad>/compete-<slug>.json`. Keywords are 2–3 English phrases players would search: fantasy + verb, e.g. `"raccoon steal|steal from house"`. Verdict per platform: **пусто / лидер / забито**.
+`scout_compete.py "<kw1>|<kw2>|<kw3>" --out <scratchpad>/compete-<slug>.json`. Keywords are 3+ English phrases players would search: fantasy + verb, the verb with another actor, and the Roblox title template of the genre, e.g. `"raccoon steal|steal from house|steal & escape"`. A direct analog under another name counts as competition: Gnomes! [Steal & Escape] (21M visits) was missed when only `raccoon` and `steal from house` were searched. Verdict per platform: **пусто / лидер / забито**.
 - **Strong game:**
   - Roblox: ≥ 5k playing.
   - Steam: ≥ 1000 reviews in the last 2 years; older hits are only proof of evergreen demand.

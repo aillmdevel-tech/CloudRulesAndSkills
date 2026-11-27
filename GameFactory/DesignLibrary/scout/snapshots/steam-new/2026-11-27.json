@@ -1,0 +1,1057 @@
+{
+"date": "2026-11-27",
+"source": "steam topsellers+popularnew, released ≤ 90 d, current players",
+"items": [
+{
+"appid": 4262460,
+"name": "ROB RUN",
+"tags": [
+493,
+3859,
+1199779,
+6378,
+3810,
+1662,
+1695
+],
+"release": "Nov 4, 2026",
+"released": "2026-11-04",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 320348
+},
+{
+"appid": 4115450,
+"name": "Phantom Blade Zero",
+"tags": [
+4231,
+25959,
+6915,
+19,
+1646,
+4182,
+29482
+],
+"release": "Oct 28, 2026",
+"released": "2026-10-28",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 128040
+},
+{
+"appid": 3393110,
+"name": "AION 2",
+"tags": [
+113,
+1754,
+7926,
+12095,
+4747,
+128,
+1695
+],
+"release": "Oct 5, 2026",
+"released": "2026-10-05",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 119508
+},
+{
+"appid": 4348910,
+"name": "Probably Stolen - Cyberpunk Shopkeeper Sim",
+"tags": [
+91114,
+599,
+4202,
+4115,
+12472,
+6276,
+1702
+],
+"release": "Oct 28, 2026",
+"released": "2026-10-28",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 64421
+},
+{
+"appid": 4530370,
+"name": "Football Manager 27",
+"tags": [
+1254546,
+12472,
+599,
+701,
+5055,
+9,
+1708
+],
+"release": "Nov 10, 2026",
+"released": "2026-11-10",
+"lists": [
+"popularnew"
+],
+"players": 53705
+},
+{
+"appid": 4080220,
+"name": "EA SPORTS FC™ 27",
+"tags": [
+701,
+1254546,
+3859,
+4182,
+1695,
+3841,
+3843
+],
+"release": "Sep 24, 2026",
+"released": "2026-09-24",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 49168
+},
+{
+"appid": 1867240,
+"name": "WARDOGS",
+"tags": [
+493,
+1663,
+4168,
+3859,
+19,
+1708,
+1775
+],
+"release": "Sep 10, 2026",
+"released": "2026-09-10",
+"lists": [
+"topsellers"
+],
+"players": 47590
+},
+{
+"appid": 892970,
+"name": "Valheim",
+"tags": [
+1100689,
+1662,
+3843,
+1695,
+3859,
+1643,
+1702
+],
+"release": "Sep 9, 2026",
+"released": "2026-09-09",
+"lists": [
+"popularnew"
+],
+"players": 31091
+},
+{
+"appid": 3218350,
+"name": "Melvor Idle 2: A RuneScape Adventure",
+"tags": [
+493,
+615955,
+122,
+21,
+597,
+3871,
+4182
+],
+"release": "Nov 17, 2026",
+"released": "2026-11-17",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 26189
+},
+{
+"appid": 4126040,
+"name": "Aniimo",
+"tags": [
+1695,
+916648,
+7926,
+3859,
+21,
+3834,
+122
+],
+"release": "Sep 15, 2026",
+"released": "2026-09-15",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 25955
+},
+{
+"appid": 1203620,
+"name": "Enshrouded",
+"tags": [
+1695,
+1662,
+7332,
+3859,
+3843,
+1702,
+122
+],
+"release": "Oct 15, 2026",
+"released": "2026-10-15",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 25205
+},
+{
+"appid": 4356430,
+"name": "NBA 2K27",
+"tags": [
+701,
+599,
+4191,
+1746,
+16250,
+1775,
+4747
+],
+"release": "Sep 3, 2026",
+"released": "2026-09-03",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 19256
+},
+{
+"appid": 5527800,
+"name": "No Asteroids",
+"tags": [
+560542,
+5981,
+1685,
+5363,
+1755,
+3843,
+35079
+],
+"release": "Nov 24, 2026",
+"released": "2026-11-24",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 13517
+},
+{
+"appid": 5335510,
+"name": "Moon Sweepers",
+"tags": [
+255534,
+1685,
+560542,
+492,
+7926,
+35079,
+599
+],
+"release": "Oct 23, 2026",
+"released": "2026-10-23",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 12211
+},
+{
+"appid": 4019220,
+"name": "Dressmaker",
+"tags": [
+1702,
+84,
+97376,
+35079,
+599,
+1654,
+4182
+],
+"release": "Sep 21, 2026",
+"released": "2026-09-21",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 9013
+},
+{
+"appid": 4732690,
+"name": "Arknights: Endfield",
+"tags": [
+4085,
+7332,
+255534,
+19,
+21,
+122,
+113
+],
+"release": "Oct 14, 2026",
+"released": "2026-10-14",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 7809
+},
+{
+"appid": 1799840,
+"name": "Queen's Domain",
+"tags": [
+3839,
+1720,
+4604,
+4231,
+3834,
+4191,
+122
+],
+"release": "Oct 30, 2026",
+"released": "2026-10-30",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 6824
+},
+{
+"appid": 5037200,
+"name": "just volleyball",
+"tags": [
+701,
+19,
+847164,
+3859,
+1773,
+597,
+1775
+],
+"release": "Nov 16, 2026",
+"released": "2026-11-16",
+"lists": [
+"popularnew"
+],
+"players": 6119
+},
+{
+"appid": 4656000,
+"name": "BOMBANANA!",
+"tags": [
+3859,
+3843,
+5711,
+1664,
+7178,
+1719,
+597
+],
+"release": "Sep 2, 2026",
+"released": "2026-09-02",
+"lists": [
+"popularnew"
+],
+"players": 5053
+},
+{
+"appid": 2288340,
+"name": "ACE COMBAT 8: WINGS OF THEVE",
+"tags": [
+15045,
+19,
+1774,
+4168,
+1756,
+11104,
+1742
+],
+"release": "Oct 1, 2026",
+"released": "2026-10-01",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 5021
+},
+{
+"appid": 3259780,
+"name": "FINAL FANTASY RESONANCE",
+"tags": [
+122,
+3964,
+4325,
+4434,
+4975,
+4182,
+1742
+],
+"release": "Oct 22, 2026",
+"released": "2026-10-22",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 4838
+},
+{
+"appid": 3219030,
+"name": "Planet Zoo 2",
+"tags": [
+599,
+9,
+3810,
+597,
+46348,
+4328,
+9626
+],
+"release": "Oct 13, 2026",
+"released": "2026-10-13",
+"lists": [
+"topsellers"
+],
+"players": 4798
+},
+{
+"appid": 4576490,
+"name": "Casualties: Unknown",
+"tags": [
+1662,
+1721,
+4026,
+3871,
+3964,
+4345,
+1759
+],
+"release": "Nov 9, 2026",
+"released": "2026-11-09",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 4518
+},
+{
+"appid": 5472080,
+"name": "SHRED A BILLION",
+"tags": [
+597,
+560542,
+615955,
+1685,
+3839,
+492,
+3843
+],
+"release": "Nov 24, 2026",
+"released": "2026-11-24",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 4077
+},
+{
+"appid": 5185890,
+"name": "Zombies Aren't Real",
+"tags": [
+9,
+1645,
+1100686,
+1659,
+4791,
+3871,
+4182
+],
+"release": "Nov 13, 2026",
+"released": "2026-11-13",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 3942
+},
+{
+"appid": 4253570,
+"name": "Reshine",
+"tags": [
+23491,
+1654,
+597,
+4166,
+97376,
+4004,
+492
+],
+"release": "Nov 26, 2026",
+"released": "2026-11-26",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 3113
+},
+{
+"appid": 1374490,
+"name": "RuneScape: Dragonwilds",
+"tags": [
+1695,
+1662,
+3859,
+1100689,
+1685,
+3843,
+1702
+],
+"release": "Sep 15, 2026",
+"released": "2026-09-15",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 3006
+},
+{
+"appid": 499170,
+"name": "Order of the Sinking Star",
+"tags": [
+1664,
+21,
+1730,
+3834,
+4191,
+4791,
+1684
+],
+"release": "Oct 8, 2026",
+"released": "2026-10-08",
+"lists": [
+"popularnew"
+],
+"players": 2997
+},
+{
+"appid": 1622130,
+"name": "Our Life: Now & Forever",
+"tags": [
+493,
+3799,
+44868,
+4747,
+4947,
+6426,
+11014
+],
+"release": "Nov 27, 2026",
+"released": "2026-11-27",
+"lists": [
+"topsellers"
+],
+"players": 2774
+},
+{
+"appid": 3751260,
+"name": "The Blood of Dawnwalker",
+"tags": [
+122,
+1695,
+4604,
+12686,
+4231,
+21,
+4182
+],
+"release": "Sep 2, 2026",
+"released": "2026-09-02",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 2622
+},
+{
+"appid": 4312190,
+"name": "CRACK",
+"tags": [
+21,
+1685,
+560542,
+1719,
+5030,
+599,
+5716
+],
+"release": "Oct 26, 2026",
+"released": "2026-10-26",
+"lists": [
+"popularnew"
+],
+"players": 2079
+},
+{
+"appid": 2887580,
+"name": "Active Matter",
+"tags": [
+1199779,
+1663,
+1667,
+1775,
+6730,
+4166,
+3843
+],
+"release": "Sep 15, 2026",
+"released": "2026-09-15",
+"lists": [
+"popularnew"
+],
+"players": 2022
+},
+{
+"appid": 3669870,
+"name": "CONTROL Resonant",
+"tags": [
+1646,
+4231,
+1742,
+10808,
+3854,
+4145,
+1697
+],
+"release": "Sep 24, 2026",
+"released": "2026-09-24",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 1886
+},
+{
+"appid": 5266240,
+"name": "Potato Please",
+"tags": [
+599,
+560542,
+597,
+3839,
+1654,
+35079,
+3968
+],
+"release": "Nov 3, 2026",
+"released": "2026-11-03",
+"lists": [
+"popularnew"
+],
+"players": 1539
+},
+{
+"appid": 4078430,
+"name": "STAR WARS: Galactic Racer™",
+"tags": [
+699,
+3859,
+1716,
+21,
+4182,
+4145,
+3878
+],
+"release": "Oct 6, 2026",
+"released": "2026-10-06",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 1351
+},
+{
+"appid": 3010850,
+"name": "Gears of War: E-Day",
+"tags": [
+7208,
+19,
+4345,
+3814,
+1774,
+3859,
+4508
+],
+"release": "Oct 6, 2026",
+"released": "2026-10-06",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 1336
+},
+{
+"appid": 4990940,
+"name": "PC Store Together",
+"tags": [
+599,
+597,
+10235,
+3810,
+9204,
+4191,
+3839
+],
+"release": "Nov 24, 2026",
+"released": "2026-11-24",
+"lists": [
+"topsellers"
+],
+"players": 1115
+},
+{
+"appid": 2929250,
+"name": "over the hill",
+"tags": [
+1644,
+1685,
+21,
+7622,
+3859,
+1695,
+1654
+],
+"release": "Oct 14, 2026",
+"released": "2026-10-14",
+"lists": [
+"popularnew"
+],
+"players": 768
+},
+{
+"appid": 1551980,
+"name": "Clive Barker's Hellraiser: Revival",
+"tags": [
+4345,
+12095,
+6650,
+1667,
+19,
+4166,
+3839
+],
+"release": "Oct 8, 2026",
+"released": "2026-10-08",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 706
+},
+{
+"appid": 5378110,
+"name": "One More Lawn",
+"tags": [
+597,
+599,
+7926,
+1654,
+1220528,
+35079,
+1644
+],
+"release": "Nov 12, 2026",
+"released": "2026-11-12",
+"lists": [
+"popularnew"
+],
+"players": 703
+},
+{
+"appid": 4231820,
+"name": "Castlevania: Belmont's Curse",
+"tags": [
+1628,
+19,
+7208,
+5379,
+1625,
+4231,
+4106
+],
+"release": "Oct 14, 2026",
+"released": "2026-10-14",
+"lists": [
+"popularnew"
+],
+"players": 685
+},
+{
+"appid": 3314580,
+"name": "Trash Day",
+"tags": [
+3859,
+1685,
+4136,
+3843,
+21,
+3968,
+19
+],
+"release": "Oct 13, 2026",
+"released": "2026-10-13",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 462
+},
+{
+"appid": 4704000,
+"name": "Shark Mart",
+"tags": [
+599,
+3843,
+3859,
+4136,
+9204,
+12472,
+1685
+],
+"release": "Nov 26, 2026",
+"released": "2026-11-26",
+"lists": [
+"topsellers"
+],
+"players": 460
+},
+{
+"appid": 3115160,
+"name": "Warhammer 40,000: Boltgun 2",
+"tags": [
+19,
+1663,
+1023537,
+4004,
+3839,
+1774,
+4667
+],
+"release": "Oct 14, 2026",
+"released": "2026-10-14",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 219
+},
+{
+"appid": 1636440,
+"name": "SILENT HILL: Townfall",
+"tags": [
+1667,
+21,
+3839,
+1721,
+19,
+3978,
+3834
+],
+"release": "Sep 23, 2026",
+"released": "2026-09-23",
+"lists": [
+"topsellers"
+],
+"players": 208
+},
+{
+"appid": 4251460,
+"name": "Godzilla: Destroy All Monsters Melee Remastered",
+"tags": [
+3859,
+5708,
+5363,
+14720,
+1743,
+5160,
+19
+],
+"release": "Nov 3, 2026",
+"released": "2026-11-03",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 194
+},
+{
+"appid": 4199960,
+"name": "The Jackbox Party Pack 12",
+"tags": [
+597,
+9,
+3859,
+7178,
+10437,
+4195,
+5350
+],
+"release": "Oct 14, 2026",
+"released": "2026-10-14",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 36
+},
+{
+"appid": 4435490,
+"name": "Call of Duty®: Modern Warfare® 4",
+"tags": [
+1774,
+19,
+1663,
+3859,
+4182,
+3839,
+4145
+],
+"release": "Oct 22, 2026",
+"released": "2026-10-22",
+"lists": [
+"topsellers",
+"popularnew"
+],
+"players": 0
+},
+{
+"appid": 5333250,
+"name": "Tom Clancy’s The Division 2 – Spearfall Supply Drop",
+"tags": [
+353880,
+1695,
+3859,
+3814,
+4182,
+3843,
+19
+],
+"release": "Nov 26, 2026",
+"released": "2026-11-26",
+"lists": [
+"topsellers"
+],
+"players": 0
+},
+{
+"appid": 5510420,
+"name": "Dead by Daylight: Terrifier",
+"tags": [
+4345,
+4667,
+19,
+1667,
+12095
+],
+"release": "Nov 24, 2026",
+"released": "2026-11-24",
+"lists": [
+"topsellers"
+],
+"players": 0
+},
+{
+"appid": 5001840,
+"name": "Crimson Desert Enhanced: Charting the Unknown",
+"tags": [
+1695,
+19,
+4182,
+21,
+3834,
+3993,
+1684
+],
+"release": "Oct 29, 2026",
+"released": "2026-10-29",
+"lists": [
+"topsellers"
+],
+"players": 0
+},
+{
+"appid": 5333240,
+"name": "Tom Clancy’s The Division 2 – Spearfall Bundle",
+"tags": [
+19,
+21,
+122
+],
+"release": "Nov 26, 2026",
+"released": "2026-11-26",
+"lists": [
+"topsellers"
+],
+"players": 0
+},
+{
+"appid": 4997660,
+"name": "Warhammer 40,000: Space Marine 2 - Deathwatch Champion Pack",
+"tags": [
+19,
+1685,
+3859,
+3814,
+6730,
+21,
+1697
+],
+"release": "Nov 26, 2026",
+"released": "2026-11-26",
+"lists": [
+"topsellers"
+],
+"players": 0
+},
+{
+"appid": 3055670,
+"name": "Risk of Rain 2: Hallowed Concepts",
+"tags": [
+3814,
+42804,
+3859,
+1685,
+3959,
+19,
+1716
+],
+"release": "Oct 8, 2026",
+"released": "2026-10-08",
+"lists": [
+"topsellers"
+],
+"players": 0
+}
+]
+}

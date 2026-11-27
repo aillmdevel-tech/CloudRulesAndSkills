@@ -1,2 +1,2 @@
 # Разведка идей
-`snapshots/` — ежедневные снимки популярных предстоящих игр Steam; `YYYY-MM-DD.md` — отчёты `game-idea-scout`.
+`snapshots/` — ежедневные снимки: `steam` (предстоящие по вишлистам), `steam-new` (вышедшие ≤ 90 д с онлайном), `roblox`, `youtube`; `YYYY-MM-DD.md` — отчёты `game-idea-scout`.
